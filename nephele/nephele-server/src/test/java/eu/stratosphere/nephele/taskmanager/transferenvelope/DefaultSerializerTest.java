@@ -30,10 +30,11 @@ import java.util.Deque;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.io.AbstractID;
-import eu.stratosphere.nephele.io.channels.Buffer;
 import eu.stratosphere.nephele.io.channels.BufferFactory;
 import eu.stratosphere.nephele.io.channels.ChannelID;
+import eu.stratosphere.nephele.io.channels.MemoryBuffer;
 import eu.stratosphere.nephele.jobgraph.JobID;
+import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelope;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.DefaultSerializer;
 import eu.stratosphere.nephele.util.BufferPoolConnector;
@@ -134,21 +135,23 @@ public class DefaultSerializerTest {
 			+ ServerTestUtils.getRandomFilename());
 		final FileOutputStream outputStream = new FileOutputStream(outputFile);
 		final FileChannel fileChannel = outputStream.getChannel();
-		final Deque<ByteBuffer> recycleQueue = new ArrayDeque<ByteBuffer>();
+		final Deque<MemorySegment> recycleQueue = new ArrayDeque<MemorySegment>();
 		final DefaultSerializer serializer = new DefaultSerializer();
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+		final MemorySegment byteBuffer = new MemorySegment(new byte[BUFFER_SIZE], 0, BUFFER_SIZE); //BUFFER_SIZE
+		// final MemorySegment initBuffer = new MemorySegment(new byte[1], 0, 1);
+		// final byte[] initBuffer = { BUFFER_CONTENT };
 		final ByteBuffer initBuffer = ByteBuffer.allocate(1);
-
+		
 		// The byte buffer is initialized from this buffer
 		initBuffer.put(BUFFER_CONTENT);
 		initBuffer.flip();
-
+		
 		// Put byte buffer to recycled queue
 		recycleQueue.add(byteBuffer);
 
 		for (int i = 0; i < BUFFER_SIZE; i++) {
 
-			final Buffer buffer = BufferFactory.createFromMemory(i, recycleQueue.poll(), new BufferPoolConnector(
+			final MemoryBuffer buffer = BufferFactory.createFromMemory(i, recycleQueue.poll(), new BufferPoolConnector(
 				recycleQueue));
 
 			// Initialize buffer
@@ -173,7 +176,7 @@ public class DefaultSerializerTest {
 		}
 
 		fileChannel.close();
-
+		
 		return outputFile;
 	}
 
@@ -223,8 +226,7 @@ public class DefaultSerializerTest {
 		assertEquals(expectedBufferSize, bufferSize);
 
 		byte[] buffer = new byte[bufferSize];
-		fileInputStream.read(buffer);
-
+		int r = fileInputStream.read(buffer);
 		for (int i = 0; i < buffer.length; i++) {
 			assertEquals(BUFFER_CONTENT, buffer[i]);
 		}
