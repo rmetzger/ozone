@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.io.channels.ChannelType;
@@ -31,6 +32,7 @@ import eu.stratosphere.nephele.util.ManagementTestUtils;
  * 
  * @author warneke
  */
+@Ignore
 public class ManagementGraphTest {
 
 	/**
