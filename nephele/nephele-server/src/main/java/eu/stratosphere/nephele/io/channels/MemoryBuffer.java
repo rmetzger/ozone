@@ -21,11 +21,13 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
+
 public final class MemoryBuffer extends Buffer {
 
 	private final MemoryBufferRecycler bufferRecycler;
 
-	private final ByteBuffer byteBuffer;
+	private final MemorySegment internalMemorySegment;
 
 	private final AtomicBoolean writeMode = new AtomicBoolean(true);
 
@@ -37,18 +39,18 @@ public final class MemoryBuffer extends Buffer {
 		}
 
 		this.bufferRecycler = new MemoryBufferRecycler(byteBuffer, bufferPoolConnector);
-
-		this.byteBuffer = byteBuffer;
-		this.byteBuffer.position(0);
-		this.byteBuffer.limit(bufferSize);
+		
+		this.internalMemorySegment = byteBuffer;
+//		this.internalMemorySegment.position(0);
+//		this.internalMemorySegment.limit(bufferSize);
 	}
 
 	private MemoryBuffer(final int bufferSize, final ByteBuffer byteBuffer, final MemoryBufferRecycler bufferRecycler) {
 
 		this.bufferRecycler = bufferRecycler;
-		this.byteBuffer = byteBuffer;
-		this.byteBuffer.position(0);
-		this.byteBuffer.limit(bufferSize);
+		this.internalMemorySegment = byteBuffer;
+//		this.internalMemorySegment.position(0);
+//		this.internalMemorySegment.limit(bufferSize);
 	}
 
 	/**
@@ -61,25 +63,25 @@ public final class MemoryBuffer extends Buffer {
 			throw new IOException("Buffer is still in write mode!");
 		}
 
-		if (!this.byteBuffer.hasRemaining()) {
+		if (!this.internalMemorySegment.hasRemaining()) {
 			return -1;
 		}
 		if (!dst.hasRemaining()) {
 			return 0;
 		}
 
-		final int oldPosition = this.byteBuffer.position();
+		final int oldPosition = this.internalMemorySegment.position();
 
-		if (dst.remaining() < this.byteBuffer.remaining()) {
-			final int excess = this.byteBuffer.remaining() - dst.remaining();
-			this.byteBuffer.limit(this.byteBuffer.limit() - excess);
-			dst.put(this.byteBuffer);
-			this.byteBuffer.limit(this.byteBuffer.limit() + excess);
+		if (dst.remaining() < this.internalMemorySegment.remaining()) {
+			final int excess = this.internalMemorySegment.remaining() - dst.remaining();
+			this.internalMemorySegment.limit(this.internalMemorySegment.limit() - excess);
+			dst.put(this.internalMemorySegment);
+			this.internalMemorySegment.limit(this.internalMemorySegment.limit() + excess);
 		} else {
-			dst.put(this.byteBuffer);
+			dst.put(this.internalMemorySegment);
 		}
 
-		return (this.byteBuffer.position() - oldPosition);
+		return (this.internalMemorySegment.position() - oldPosition);
 	}
 
 	/**
@@ -92,11 +94,11 @@ public final class MemoryBuffer extends Buffer {
 			throw new IOException("Buffer is still in write mode!");
 		}
 
-		if (!this.byteBuffer.hasRemaining()) {
+		if (!this.internalMemorySegment.hasRemaining()) {
 			return -1;
 		}
 
-		return writableByteChannel.write(this.byteBuffer);
+		return writableByteChannel.write(this.internalMemorySegment);
 	}
 
 	/**
@@ -105,7 +107,7 @@ public final class MemoryBuffer extends Buffer {
 	@Override
 	public void close() throws IOException {
 
-		this.byteBuffer.position(this.byteBuffer.limit());
+		this.internalMemorySegment.position(this.internalMemorySegment.limit());
 	}
 
 	/**
@@ -114,7 +116,7 @@ public final class MemoryBuffer extends Buffer {
 	@Override
 	public boolean isOpen() {
 
-		return this.byteBuffer.hasRemaining();
+		return this.internalMemorySegment.hasRemaining();
 	}
 
 	/**
@@ -126,8 +128,8 @@ public final class MemoryBuffer extends Buffer {
 	public void reset(final int bufferSize) {
 
 		this.writeMode.set(true);
-		this.byteBuffer.position(0);
-		this.byteBuffer.limit(bufferSize);
+		this.internalMemorySegment.position(0);
+		this.internalMemorySegment.limit(bufferSize);
 	}
 
 	/**
@@ -141,18 +143,18 @@ public final class MemoryBuffer extends Buffer {
 		}
 
 		final int sourceRemaining = src.remaining();
-		final int thisRemaining = this.byteBuffer.remaining();
+		final int thisRemaining = this.internalMemorySegment.remaining();
 		final int excess = sourceRemaining - thisRemaining;
 
 		if (excess <= 0) {
 			// there is enough space here for all the source data
-			this.byteBuffer.put(src);
+			this.internalMemorySegment.put(src);
 			return sourceRemaining;
 		} else {
 			// not enough space here, we need to limit the source
 			final int oldLimit = src.limit();
 			src.limit(src.position() + thisRemaining);
-			this.byteBuffer.put(src);
+			this.internalMemorySegment.put(src);
 			src.limit(oldLimit);
 			return thisRemaining;
 		}
@@ -168,11 +170,11 @@ public final class MemoryBuffer extends Buffer {
 			throw new IOException("Cannot write to buffer, buffer already switched to read mode");
 		}
 
-		if (!this.byteBuffer.hasRemaining()) {
+		if (!this.internalMemorySegment.hasRemaining()) {
 			return 0;
 		}
 
-		return readableByteChannel.read(this.byteBuffer);
+		return readableByteChannel.read(this.internalMemorySegment);
 	}
 
 	/**
@@ -180,7 +182,7 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	@Override
 	public int remaining() {
-		return this.byteBuffer.remaining();
+		return this.internalMemorySegment.remaining();
 	}
 
 	/**
@@ -188,11 +190,11 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	@Override
 	public int size() {
-		return this.byteBuffer.limit();
+		return this.internalMemorySegment.limit();
 	}
 
 	public ByteBuffer getByteBuffer() {
-		return this.byteBuffer;
+		return this.internalMemorySegment;
 	}
 
 	/**
@@ -214,7 +216,7 @@ public final class MemoryBuffer extends Buffer {
 			throw new IllegalStateException("MemoryBuffer is already in read mode!");
 		}
 
-		this.byteBuffer.flip();
+		this.internalMemorySegment.flip();
 	}
 
 	/**
@@ -236,8 +238,8 @@ public final class MemoryBuffer extends Buffer {
 			throw new IllegalStateException("Cannot duplicate buffer that is still in write mode");
 		}
 
-		final MemoryBuffer duplicatedMemoryBuffer = new MemoryBuffer(this.byteBuffer.limit(),
-			this.byteBuffer.duplicate(), this.bufferRecycler);
+		final MemoryBuffer duplicatedMemoryBuffer = new MemoryBuffer(this.internalMemorySegment.limit(),
+			this.internalMemorySegment.duplicate(), this.bufferRecycler);
 
 		this.bufferRecycler.increaseReferenceCounter();
 		duplicatedMemoryBuffer.writeMode.set(this.writeMode.get());
@@ -258,14 +260,14 @@ public final class MemoryBuffer extends Buffer {
 				+ size() + " vs. " + destinationBuffer.size());
 		}
 
-		final int oldPos = this.byteBuffer.position();
-		this.byteBuffer.position(0);
+		final int oldPos = this.internalMemorySegment.position();
+		this.internalMemorySegment.position(0);
 
 		while (remaining() > 0) {
-			destinationBuffer.write(this.byteBuffer);
+			destinationBuffer.write(this.internalMemorySegment);
 		}
 
-		this.byteBuffer.position(oldPos);
+		this.internalMemorySegment.position(oldPos);
 
 		destinationBuffer.finishWritePhase();
 	}
