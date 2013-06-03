@@ -59,7 +59,7 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	 *         end of the stream.
 	 * @throws IOException Thrown if an error occurs while writing to the {@link WritableByteChannel} object.
 	 */
-	public abstract int readIntoBuffer(Buffer destination) throws IOException;
+//	public abstract int readIntoBuffer(Buffer destination) throws IOException;
 
 	public abstract boolean isOpen();
 	
@@ -70,8 +70,10 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	
 	public abstract int write(ReadableByteChannel source) throws IOException;
 	
-	public abstract int write(Buffer source) throws IOException;
+	// public abstract int write(Buffer source) throws IOException;
 
+	
+	
 
 
 	/**
@@ -166,16 +168,5 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 
 	public abstract void write(int index, byte[] srcBuffer);
 	
-	
-//	//
-//	//	 ByteBuffer legacy support
-//	//
-//	
-//	
-//	@Override
-//	public abstract int read(ByteBuffer dst) throws IOException;
-//	
-//	@Override
-//	public abstract int write(ByteBuffer src) throws IOException;
 
 }
