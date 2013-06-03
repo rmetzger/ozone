@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -34,6 +33,7 @@ import eu.stratosphere.nephele.io.channels.Buffer;
 import eu.stratosphere.nephele.io.channels.BufferFactory;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.jobgraph.JobID;
+import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelope;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.DefaultSerializer;
 import eu.stratosphere.nephele.util.BufferPoolConnector;
@@ -134,14 +134,12 @@ public class DefaultSerializerTest {
 			+ ServerTestUtils.getRandomFilename());
 		final FileOutputStream outputStream = new FileOutputStream(outputFile);
 		final FileChannel fileChannel = outputStream.getChannel();
-		final Deque<ByteBuffer> recycleQueue = new ArrayDeque<ByteBuffer>();
+		final Deque<MemorySegment> recycleQueue = new ArrayDeque<MemorySegment>();
 		final DefaultSerializer serializer = new DefaultSerializer();
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-		final ByteBuffer initBuffer = ByteBuffer.allocate(1);
-
+		final MemorySegment byteBuffer = new MemorySegment(new byte[BUFFER_SIZE], 0, BUFFER_SIZE); //BUFFER_SIZE
+		// final MemorySegment initBuffer = new MemorySegment(new byte[1], 0, 1);
+		final byte[] initBuffer = { BUFFER_CONTENT };
 		// The byte buffer is initialized from this buffer
-		initBuffer.put(BUFFER_CONTENT);
-		initBuffer.flip();
 
 		// Put byte buffer to recycled queue
 		recycleQueue.add(byteBuffer);
@@ -153,8 +151,7 @@ public class DefaultSerializerTest {
 
 			// Initialize buffer
 			for (int j = 0; j < i; j++) {
-				buffer.write(initBuffer);
-				initBuffer.position(0);
+				buffer.write(0, initBuffer);
 			}
 
 			// Finish write phase
@@ -173,7 +170,7 @@ public class DefaultSerializerTest {
 		}
 
 		fileChannel.close();
-
+		
 		return outputFile;
 	}
 

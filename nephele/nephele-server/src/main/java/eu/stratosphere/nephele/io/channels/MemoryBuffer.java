@@ -30,34 +30,44 @@ public final class MemoryBuffer extends Buffer {
 	private final MemorySegment internalMemorySegment;
 
 	private final AtomicBoolean writeMode = new AtomicBoolean(true);
+	
+	/*
+	 * 
+	 *  PRIVATE NOTES BY ROBERT
+	 *  
+	 *  PLAN:
+	 *  - make everything outside the MemoryBuffer compatible to it
+	 *  - fix MemoryBuffer inside, even if it requres expensive operations such as copying from 
+	 *  	ByteBuffers and byte-arrays.
+	 *  - if the test cases are stable after this step, gradually replace the ByteBuffers with byte-arrays
+	 *  	Wherever possible.
+	 * 
+	 * 
+	 */
 
-	MemoryBuffer(final int bufferSize, final ByteBuffer byteBuffer, final MemoryBufferPoolConnector bufferPoolConnector) {
+	MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferPoolConnector bufferPoolConnector) {
 
-		if (bufferSize > byteBuffer.capacity()) {
-			throw new IllegalArgumentException("Requested buffer size is " + bufferSize
-				+ ", but provided byte buffer only has a capacity of " + byteBuffer.capacity());
+		if (bufferSize > memory.size()) {
+			throw new IllegalArgumentException("Requested segment size is " + bufferSize
+				+ ", but provided MemorySegment only has a capacity of " + memory.size());
 		}
 
-		this.bufferRecycler = new MemoryBufferRecycler(byteBuffer, bufferPoolConnector);
+		this.bufferRecycler = new MemoryBufferRecycler(memory, bufferPoolConnector);
 		
-		this.internalMemorySegment = byteBuffer;
-//		this.internalMemorySegment.position(0);
-//		this.internalMemorySegment.limit(bufferSize);
+		this.internalMemorySegment = memory;
 	}
 
-	private MemoryBuffer(final int bufferSize, final ByteBuffer byteBuffer, final MemoryBufferRecycler bufferRecycler) {
+	private MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferRecycler bufferRecycler) {
 
 		this.bufferRecycler = bufferRecycler;
-		this.internalMemorySegment = byteBuffer;
-//		this.internalMemorySegment.position(0);
-//		this.internalMemorySegment.limit(bufferSize);
+		this.internalMemorySegment = memory;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int read(final ByteBuffer dst) throws IOException {
+	public int read(final Buffer dst) throws IOException {
 
 		if (this.writeMode.get()) {
 			throw new IOException("Buffer is still in write mode!");
@@ -193,7 +203,7 @@ public final class MemoryBuffer extends Buffer {
 		return this.internalMemorySegment.limit();
 	}
 
-	public ByteBuffer getByteBuffer() {
+	public MemorySegment getMemorySegment() {
 		return this.internalMemorySegment;
 	}
 
@@ -216,7 +226,7 @@ public final class MemoryBuffer extends Buffer {
 			throw new IllegalStateException("MemoryBuffer is already in read mode!");
 		}
 
-		this.internalMemorySegment.flip();
+		//this.internalMemorySegment.flip();
 	}
 
 	/**
@@ -280,4 +290,18 @@ public final class MemoryBuffer extends Buffer {
 
 		return this.writeMode.get();
 	}
+
+	@Override
+	public int readIntoBuffer(Buffer destination) throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int write(Buffer source) throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
 }
