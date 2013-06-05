@@ -277,7 +277,7 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	@Override
 	public void copyToBuffer(final Buffer destinationBuffer) throws IOException {
-		debug("CopyToBuffer");
+		
 		if (this.writeMode.get()) {
 			throw new IllegalStateException("Cannot copy buffer that is still in write mode");
 		}
@@ -286,11 +286,12 @@ public final class MemoryBuffer extends Buffer {
 				+ size() + " vs. " + destinationBuffer.size());
 		}
 		final MemoryBuffer target = (MemoryBuffer) destinationBuffer;
+		debug("CopyToBuffer (Dest idx="+target.index+" limit="+target.limit+")");
 //		final int oldPos = this.position();
 //		this.position(0);
 
 		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
-				target.getMemorySegment().getBackingArray(),target.position(), this.position());
+				target.getMemorySegment().getBackingArray(),target.position(), target.limit());
 		
 //		while (remaining() > 0) {
 //			destinationBuffer.write(this.internalMemorySegment);
@@ -411,10 +412,24 @@ public final class MemoryBuffer extends Buffer {
 	@Override
 	public int read(ByteBuffer dst) throws IOException {
 		debug("Read to byteBuiffer");
+		
+		if (this.writeMode.get()) {
+			throw new IOException("Buffer is still in write mode!");
+		}
+
+//		if (!this.hasRemaining()) {
+//			return -1;
+//		}
+//		
+//		if (!dst.hasRemaining()) {
+//			return 0;
+//		}
+			
 		final int oldIndex = index;
 		for(; index < limit; index++) {
+	//	while(true) {
 			if(!dst.hasRemaining()) {
-				index--; // repair index
+				index = (index == 0) ? 0 : index-1; // repair index
 				break;
 			}
 			dst.put(this.internalMemorySegment.get(index));
@@ -422,6 +437,34 @@ public final class MemoryBuffer extends Buffer {
 		System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
 		return index-oldIndex;
 	}
+	
+//	public int read(final Buffer dst) throws IOException {
+//
+//		if (this.writeMode.get()) {
+//			throw new IOException("Buffer is still in write mode!");
+//		}
+//
+//		if (!this.internalMemorySegment.hasRemaining()) {
+//			return -1;
+//		}
+//		if (!dst.hasRemaining()) {
+//			return 0;
+//		}
+//
+//		final int oldPosition = this.internalMemorySegment.position();
+//
+//		if (dst.remaining() < this.internalMemorySegment.remaining()) {
+//			final int excess = this.internalMemorySegment.remaining() - dst.remaining();
+//			this.internalMemorySegment.limit(this.internalMemorySegment.limit() - excess);
+//			dst.put(this.internalMemorySegment);
+//			this.internalMemorySegment.limit(this.internalMemorySegment.limit() + excess);
+//		} else {
+//			dst.put(this.internalMemorySegment);
+//		}
+//
+//		return (this.internalMemorySegment.position() - oldPosition);
+//	}
+	
 
 	@Override
 	public void writeBufferToByteChannel(WritableByteChannel writableByteChannel) {
