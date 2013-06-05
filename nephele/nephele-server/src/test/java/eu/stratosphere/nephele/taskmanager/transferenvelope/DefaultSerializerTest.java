@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -32,6 +33,7 @@ import eu.stratosphere.nephele.io.AbstractID;
 import eu.stratosphere.nephele.io.channels.Buffer;
 import eu.stratosphere.nephele.io.channels.BufferFactory;
 import eu.stratosphere.nephele.io.channels.ChannelID;
+import eu.stratosphere.nephele.io.channels.MemoryBuffer;
 import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelope;
@@ -138,20 +140,25 @@ public class DefaultSerializerTest {
 		final DefaultSerializer serializer = new DefaultSerializer();
 		final MemorySegment byteBuffer = new MemorySegment(new byte[BUFFER_SIZE], 0, BUFFER_SIZE); //BUFFER_SIZE
 		// final MemorySegment initBuffer = new MemorySegment(new byte[1], 0, 1);
-		final byte[] initBuffer = { BUFFER_CONTENT };
+		// final byte[] initBuffer = { BUFFER_CONTENT };
+		final ByteBuffer initBuffer = ByteBuffer.allocate(1);
+		
 		// The byte buffer is initialized from this buffer
-
+		initBuffer.put(BUFFER_CONTENT);
+		initBuffer.flip();
+		
 		// Put byte buffer to recycled queue
 		recycleQueue.add(byteBuffer);
 
 		for (int i = 0; i < BUFFER_SIZE; i++) {
 
-			final Buffer buffer = BufferFactory.createFromMemory(i, recycleQueue.poll(), new BufferPoolConnector(
+			final MemoryBuffer buffer = BufferFactory.createFromMemory(i, recycleQueue.poll(), new BufferPoolConnector(
 				recycleQueue));
 
 			// Initialize buffer
 			for (int j = 0; j < i; j++) {
-				buffer.write(0, initBuffer);
+				buffer.write(initBuffer);
+				initBuffer.position(0);
 			}
 
 			// Finish write phase
@@ -220,8 +227,8 @@ public class DefaultSerializerTest {
 		assertEquals(expectedBufferSize, bufferSize);
 
 		byte[] buffer = new byte[bufferSize];
-		fileInputStream.read(buffer);
-
+		int r = fileInputStream.read(buffer);
+System.err.println("r="+r+" buf.len="+buffer.length+" bs="+bufferSize);
 		for (int i = 0; i < buffer.length; i++) {
 			assertEquals(BUFFER_CONTENT, buffer[i]);
 		}

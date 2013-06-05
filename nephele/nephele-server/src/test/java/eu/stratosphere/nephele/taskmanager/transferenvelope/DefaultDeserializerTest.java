@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -207,12 +208,14 @@ public class DefaultDeserializerTest {
 
 			final Buffer buffer = BufferFactory.createFromMemory(ms.size(), ms, new BufferPoolConnector(bufferPool));
 
-			final byte[] srcBuffer = new byte[testBufferSize];
+			final ByteBuffer srcBuffer = ByteBuffer.allocate(testBufferSize);
 			for (int i = 0; i < testBufferSize; ++i) {
-				srcBuffer[i] = (byte) i;
+				srcBuffer.put((byte) i);
 			}
+			srcBuffer.flip();
 
-			buffer.write(0, srcBuffer);
+			buffer.write(srcBuffer);
+			
 			buffer.finishWritePhase();
 			te.setBuffer(buffer);
 		}

@@ -20,7 +20,7 @@ import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 
 public final class BufferFactory {
 
-	public static Buffer createFromMemory(final int bufferSize, final MemorySegment byteBuffer,
+	public static MemoryBuffer createFromMemory(final int bufferSize, final MemorySegment byteBuffer,
 			final MemoryBufferPoolConnector bufferPoolConnector) {
 
 		return new MemoryBuffer(bufferSize, byteBuffer, bufferPoolConnector);

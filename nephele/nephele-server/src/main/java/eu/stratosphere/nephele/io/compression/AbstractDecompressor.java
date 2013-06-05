@@ -111,14 +111,14 @@ public abstract class AbstractDecompressor implements Decompressor {
 		}
 
 		if (this.uncompressedBuffer.isInWriteMode()) {
-		//	this.uncompressedMemorySegment.position(result);
+			this.uncompressedBuffer.position(result);
 			this.uncompressedBuffer.finishWritePhase();
 		} else {
-		//	this.uncompressedDataBuffer.position(0);
-		//	this.uncompressedDataBuffer.limit(result);
+			this.uncompressedBuffer.position(0);
+			this.uncompressedBuffer.limit(result);
 		}
 		// System.out.println("UNCOMPRESSED SIZE: " + this.uncompressedBuffer.size());
-
+	
 		Buffer uncompressedBuffer = this.uncompressedBuffer;
 
 		// Release the compression buffer again
@@ -143,7 +143,9 @@ public abstract class AbstractDecompressor implements Decompressor {
 					bufferProvider.releaseTemporaryBuffer(memBuffer);
 				}
 			});
-
+			// Fake transition to read mode
+			memBuffer.position(memBuffer.limit());
+			memBuffer.limit(memBuffer.size());
 			uncompressedBuffer.finishWritePhase();
 		}
 

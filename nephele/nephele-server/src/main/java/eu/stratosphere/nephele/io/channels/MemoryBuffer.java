@@ -57,7 +57,7 @@ public final class MemoryBuffer extends Buffer {
 	 * 
 	 */
 	private void debug(String in) {
-		System.err.println("[index="+index+" limit="+limit+"] "+in);
+	//	System.err.println("[index="+index+" limit="+limit+"] "+in);
 	}
 
 	MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferPoolConnector bufferPoolConnector) {
@@ -154,6 +154,9 @@ public final class MemoryBuffer extends Buffer {
 	 *        the size of buffer in bytes after the reset
 	 */
 	public void reset(final int bufferSize) {
+		if(bufferSize > this.internalMemorySegment.size()) {
+			throw new RuntimeException("Given buffer size exceeds buffer size");
+		}
 		debug("reset to "+bufferSize);
 		this.writeMode.set(true);
 		this.position(0);
@@ -173,6 +176,12 @@ public final class MemoryBuffer extends Buffer {
 	}
 	
 	public final void limit(final int l) {
+		if(limit > index) {
+			throw new RuntimeException("Limit is behind the current position.");
+		}
+		if(limit >= internalMemorySegment.size()) {
+			throw new RuntimeException("Limit is larger than MemoryBuffer size");
+		}
 		debug("Set limit to "+l);
 		limit = l;
 	}
@@ -189,6 +198,13 @@ public final class MemoryBuffer extends Buffer {
 		return limit - index;
 	}
 
+	/**
+	 * Put MemoryBuffer into write mode
+	 */
+	public final void flip() {
+		 limit = index;
+		 index = 0;
+	}
 
 
 	/**
@@ -227,7 +243,7 @@ public final class MemoryBuffer extends Buffer {
 			throw new IllegalStateException("MemoryBuffer is already in read mode!");
 		}
 
-		//this.internalMemorySegment.flip();
+		this.flip();
 	}
 
 	/**
@@ -305,14 +321,21 @@ public final class MemoryBuffer extends Buffer {
 
 
 
+	/**
+	 * Writes the given bytes to a random position.
+	 * The internal index of MemoryBuffer is unaffected by this operation!
+	 * 
+	 * THIS METHOD HAS BEEN USED IN DefaultDeserializerTest.createByteChannel() to get rid
+	 * of the ByteBuffers used there. But sadly, it seems that I've done some stuff wrong!
+	 */
 	@Override
-	public void write(int index, byte[] srcBuffer) {
-		if(index + srcBuffer.length > this.limit) {
+	public void write(int idx, byte[] srcBuffer) {
+		if(idx + srcBuffer.length > this.limit) {
 			throw new RuntimeException("The given byteArray does not fit into this MemoryBuffer");
 		}
-		debug("Writinge byte array to "+index);
-		this.internalMemorySegment.put(index, srcBuffer);
-		index += srcBuffer.length;
+		debug("Writinge byte array to "+idx);
+		this.internalMemorySegment.put(idx, srcBuffer);
+		// this.index += srcBuffer.length;
 	}
 
 
@@ -330,6 +353,12 @@ public final class MemoryBuffer extends Buffer {
 		debug("Writing ByteBuffer");
 		if (!this.writeMode.get()) {
 			throw new IOException("Cannot write to buffer, buffer already switched to read mode");
+		}
+		
+		if(src.remaining() > remaining()) {
+			// this exception is probably not necessary
+			throw new RuntimeException("Can not read "+src.remaining()+" bytes into a " +
+					"MemoryBuffer with "+remaining()+" bytes remaining");
 		}
 
 		final int initialIndex = index;
