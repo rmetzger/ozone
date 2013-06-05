@@ -57,11 +57,10 @@ public final class MemoryBuffer extends Buffer {
 	 * 
 	 */
 	private void debug(String in) {
-	//	System.err.println("[index="+index+" limit="+limit+"] "+in);
+		System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
 	}
 
 	MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferPoolConnector bufferPoolConnector) {
-		debug("Init bufferSize="+bufferSize);
 		if (bufferSize > memory.size()) {
 			throw new IllegalArgumentException("Requested segment size is " + bufferSize
 				+ ", but provided MemorySegment only has a capacity of " + memory.size());
@@ -69,14 +68,15 @@ public final class MemoryBuffer extends Buffer {
 
 		this.bufferRecycler = new MemoryBufferRecycler(memory, bufferPoolConnector);
 		this.internalMemorySegment = memory;
-		this.index = 0;
-		this.limit = bufferSize;
+		this.position(0);
+		this.limit(bufferSize);
+		debug("Init bufferSize="+bufferSize);
 	}
 
 	private MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferRecycler bufferRecycler) {
 		debug("private ctor limit = "+bufferSize);
-		this.index = 0;
-		this.limit = bufferSize;
+		this.position(0);
+		this.limit(bufferSize);
 		this.bufferRecycler = bufferRecycler;
 		this.internalMemorySegment = memory;
 	}
@@ -199,11 +199,11 @@ public final class MemoryBuffer extends Buffer {
 	}
 
 	/**
-	 * Put MemoryBuffer into write mode
+	 * Put MemoryBuffer into read mode
 	 */
 	public final void flip() {
-		 limit = index;
-		 index = 0;
+		limit = position();
+		position(0);
 	}
 
 
@@ -290,7 +290,7 @@ public final class MemoryBuffer extends Buffer {
 //		this.position(0);
 
 		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
-				target.getMemorySegment().getBackingArray(),target.index, this.position());
+				target.getMemorySegment().getBackingArray(),target.position(), this.position());
 		
 //		while (remaining() > 0) {
 //			destinationBuffer.write(this.internalMemorySegment);
@@ -355,23 +355,23 @@ public final class MemoryBuffer extends Buffer {
 			throw new IOException("Cannot write to buffer, buffer already switched to read mode");
 		}
 		
-		if(src.remaining() > remaining()) {
-			// this exception is probably not necessary
-			throw new RuntimeException("Can not read "+src.remaining()+" bytes into a " +
-					"MemoryBuffer with "+remaining()+" bytes remaining");
-		}
+//		if(src.remaining() > remaining()) {
+//			// this exception is probably not necessary
+//			throw new RuntimeException("Can not read "+src.remaining()+" bytes into a " +
+//					"MemoryBuffer with "+remaining()+" bytes remaining");
+//		}
 
-		final int initialIndex = index;
+		final int initialPos = position();
 		while(src.hasRemaining()) {
-			if(index > limit) {
+			if(position() >= limit()) {
 				debug("Preliminary end");
-				return index-initialIndex;
+				return index-initialPos;
 			}
-			this.internalMemorySegment.put(index, src.get());
-			index++;
+			this.internalMemorySegment.put(position(), src.get());
+			position(position()+1); // little optimizer exercise for index++
 		}
-		debug("write(byteBuffer) has written "+(index-initialIndex)+" bytes");
-		return index-initialIndex;
+		debug("write(byteBuffer) has written "+(position()-initialPos)+" bytes");
+		return position()-initialPos;
 //		if (excess <= 0) {
 //			// there is enough space here for all the source data
 //			this.internalMemorySegment.put(src);
@@ -402,9 +402,9 @@ public final class MemoryBuffer extends Buffer {
 
 		final int written = readableByteChannel.read(this.internalMemorySegment.wrap(index, limit-index));
 		if(written == -1) {
-			 this.index = this.limit;
+			position(limit);
 		}
-		this.index += written;
+		position(position()+written);
 		return written;
 	}
 	
@@ -419,6 +419,7 @@ public final class MemoryBuffer extends Buffer {
 			}
 			dst.put(this.internalMemorySegment.get(index));
 		}
+		System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
 		return index-oldIndex;
 	}
 
@@ -426,8 +427,9 @@ public final class MemoryBuffer extends Buffer {
 	public void writeBufferToByteChannel(WritableByteChannel writableByteChannel) {
 		try {
 			debug("offset="+index+" length="+ (limit-index));
-			index += writableByteChannel.write(this.internalMemorySegment.wrap(index, limit-index));
-			debug("written = "+index);
+			final int written = writableByteChannel.write(this.internalMemorySegment.wrap(index, limit-index));
+			debug("written = "+written);
+			position(position() + written);
 		} catch (IOException e) {
 			throw new RuntimeException("Error while writing buffer to channel", e);
 		}

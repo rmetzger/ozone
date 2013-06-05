@@ -30,7 +30,6 @@ import java.util.Deque;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.io.AbstractID;
-import eu.stratosphere.nephele.io.channels.Buffer;
 import eu.stratosphere.nephele.io.channels.BufferFactory;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.io.channels.MemoryBuffer;
@@ -228,7 +227,6 @@ public class DefaultSerializerTest {
 
 		byte[] buffer = new byte[bufferSize];
 		int r = fileInputStream.read(buffer);
-System.err.println("r="+r+" buf.len="+buffer.length+" bs="+bufferSize);
 		for (int i = 0; i < buffer.length; i++) {
 			assertEquals(BUFFER_CONTENT, buffer[i]);
 		}
