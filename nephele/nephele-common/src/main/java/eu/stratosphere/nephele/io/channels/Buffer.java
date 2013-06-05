@@ -161,10 +161,10 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 
 	/**
 	 * Writes the contents of the Buffer to the given WriteableByteChannel
-	 * (the method was previously called read() )
+	 * 
 	 * @param writableByteChannel
 	 */
-	public abstract void writeBufferToByteChannel(WritableByteChannel writableByteChannel);
+	public abstract int read(WritableByteChannel writableByteChannel) throws IOException;
 
 	public abstract void write(int index, byte[] srcBuffer);
 	

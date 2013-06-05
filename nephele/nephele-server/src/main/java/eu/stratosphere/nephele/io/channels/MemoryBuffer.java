@@ -81,53 +81,54 @@ public final class MemoryBuffer extends Buffer {
 		this.internalMemorySegment = memory;
 	}
 
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	@Override
-//	public int read(final Buffer dst) throws IOException {
-//
-//		if (this.writeMode.get()) {
-//			throw new IOException("Buffer is still in write mode!");
-//		}
-//
-//		if (!this.internalMemorySegment.hasRemaining()) {
+	@Override
+	public int read(ByteBuffer dst) throws IOException {
+		debug("Read to byteBuiffer");
+		
+		if (this.writeMode.get()) {
+			throw new IOException("Buffer is still in write mode!");
+		}
+
+//		if (!this.hasRemaining()) {
 //			return -1;
 //		}
+//		
 //		if (!dst.hasRemaining()) {
 //			return 0;
 //		}
-//
-//		final int oldPosition = this.internalMemorySegment.position();
-//
-//		if (dst.remaining() < this.internalMemorySegment.remaining()) {
-//			final int excess = this.internalMemorySegment.remaining() - dst.remaining();
-//			this.internalMemorySegment.limit(this.internalMemorySegment.limit() - excess);
-//			dst.put(this.internalMemorySegment);
-//			this.internalMemorySegment.limit(this.internalMemorySegment.limit() + excess);
-//		} else {
-//			dst.put(this.internalMemorySegment);
-//		}
-//
-//		return (this.internalMemorySegment.position() - oldPosition);
-//	}
+			
+		final int oldIndex = index;
+		for(; index < limit; index++) {
+	//	while(true) {
+			if(!dst.hasRemaining()) {
+				index = (index == 0) ? 0 : index-1; // repair index
+				break;
+			}
+			dst.put(this.internalMemorySegment.get(index));
+		}
+		System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
+		return index-oldIndex;
+	}
+	
 
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	@Override
-//	public int read(final WritableByteChannel writableByteChannel) throws IOException {
-//
-//		if (this.writeMode.get()) {
-//			throw new IOException("Buffer is still in write mode!");
-//		}
-//
-//		if (!this.internalMemorySegment.hasRemaining()) {
-//			return -1;
-//		}
-//
-//		return writableByteChannel.write(this.internalMemorySegment);
-//	}
+	@Override
+	public int read(WritableByteChannel writableByteChannel) throws IOException {
+		debug("read(writeable) offset="+index+" length="+ (limit-index));
+		
+		if (this.writeMode.get()) {
+			throw new IOException("Buffer is still in write mode!");
+		}
+		if (!this.hasRemaining()) {
+			return -1;
+		}
+		
+		final ByteBuffer wrapped = this.internalMemorySegment.wrap(index, limit-index);
+		final int written = writableByteChannel.write(wrapped);
+		debug("written = "+written);
+	//	position(position() + written);
+		position(wrapped.position());
+		return written;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -365,7 +366,8 @@ public final class MemoryBuffer extends Buffer {
 		final int initialPos = position();
 		while(src.hasRemaining()) {
 			if(position() >= limit()) {
-				debug("Preliminary end");
+				// COMPARE TO ORIGINAL METHOD. Might be that there are some very crazy assumptions here
+				debug("++++Preliminary end++++");
 				return index-initialPos;
 			}
 			this.internalMemorySegment.put(position(), src.get());
@@ -400,83 +402,19 @@ public final class MemoryBuffer extends Buffer {
 		if (!this.hasRemaining()) {
 			return 0;
 		}
-
-		final int written = readableByteChannel.read(this.internalMemorySegment.wrap(index, limit-index));
-		if(written == -1) {
-			position(limit);
-		}
-		position(position()+written);
+		ByteBuffer wrapper = this.internalMemorySegment.wrap(index, limit-index);
+		final int written = readableByteChannel.read(wrapper);
+		this.position(wrapper.position());
+		this.limit(wrapper.limit());
+//		if(written == -1) {
+//			position(limit);
+//		}
+//		position(position()+written);
 		return written;
 	}
 	
-	@Override
-	public int read(ByteBuffer dst) throws IOException {
-		debug("Read to byteBuiffer");
-		
-		if (this.writeMode.get()) {
-			throw new IOException("Buffer is still in write mode!");
-		}
 
-//		if (!this.hasRemaining()) {
-//			return -1;
-//		}
-//		
-//		if (!dst.hasRemaining()) {
-//			return 0;
-//		}
-			
-		final int oldIndex = index;
-		for(; index < limit; index++) {
-	//	while(true) {
-			if(!dst.hasRemaining()) {
-				index = (index == 0) ? 0 : index-1; // repair index
-				break;
-			}
-			dst.put(this.internalMemorySegment.get(index));
-		}
-		System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
-		return index-oldIndex;
-	}
-	
-//	public int read(final Buffer dst) throws IOException {
-//
-//		if (this.writeMode.get()) {
-//			throw new IOException("Buffer is still in write mode!");
-//		}
-//
-//		if (!this.internalMemorySegment.hasRemaining()) {
-//			return -1;
-//		}
-//		if (!dst.hasRemaining()) {
-//			return 0;
-//		}
-//
-//		final int oldPosition = this.internalMemorySegment.position();
-//
-//		if (dst.remaining() < this.internalMemorySegment.remaining()) {
-//			final int excess = this.internalMemorySegment.remaining() - dst.remaining();
-//			this.internalMemorySegment.limit(this.internalMemorySegment.limit() - excess);
-//			dst.put(this.internalMemorySegment);
-//			this.internalMemorySegment.limit(this.internalMemorySegment.limit() + excess);
-//		} else {
-//			dst.put(this.internalMemorySegment);
-//		}
-//
-//		return (this.internalMemorySegment.position() - oldPosition);
-//	}
-	
 
-	@Override
-	public void writeBufferToByteChannel(WritableByteChannel writableByteChannel) {
-		try {
-			debug("offset="+index+" length="+ (limit-index));
-			final int written = writableByteChannel.write(this.internalMemorySegment.wrap(index, limit-index));
-			debug("written = "+written);
-			position(position() + written);
-		} catch (IOException e) {
-			throw new RuntimeException("Error while writing buffer to channel", e);
-		}
-	}
 	
 	
 }
