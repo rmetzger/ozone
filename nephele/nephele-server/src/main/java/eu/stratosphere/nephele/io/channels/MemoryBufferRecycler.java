@@ -51,7 +51,7 @@ public final class MemoryBufferRecycler {
 	/**
 	 * The number of memory buffer objects which may still access the physical buffer.
 	 */
-	private final AtomicInteger referenceCounter = new AtomicInteger(1);
+	public final AtomicInteger referenceCounter = new AtomicInteger(1);
 
 	/**
 	 * Constructs a new memory buffer recycler.
@@ -85,6 +85,7 @@ public final class MemoryBufferRecycler {
 
 		final int val = this.referenceCounter.decrementAndGet();
 		if (val == 0) {
+			System.err.println("THE OLD CODE WAS CALLING CLEAR() HERE!!!");
 			this.bufferPoolConnector.recycle(this.originalSegment);
 
 		} else if (val < 0) {

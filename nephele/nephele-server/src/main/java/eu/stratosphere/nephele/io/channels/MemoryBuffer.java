@@ -89,13 +89,13 @@ public final class MemoryBuffer extends Buffer {
 			throw new IOException("Buffer is still in write mode!");
 		}
 
-//		if (!this.hasRemaining()) {
-//			return -1;
-//		}
-//		
-//		if (!dst.hasRemaining()) {
-//			return 0;
-//		}
+		if (!this.hasRemaining()) {
+			return -1;
+		}
+		
+		if (!dst.hasRemaining()) {
+			return 0;
+		}
 			
 		final int oldIndex = index;
 		for(; index < limit; index++) {
@@ -232,6 +232,12 @@ public final class MemoryBuffer extends Buffer {
 	@Override
 	protected void recycle() {
 		this.bufferRecycler.decreaseReferenceCounter();
+		if(bufferRecycler.referenceCounter.get() == 0) {
+			Continue here
+			this.limit(getTotalSize());
+			this.position(0);
+			this.writeMode.set(true);
+		}
 	}
 
 	/**

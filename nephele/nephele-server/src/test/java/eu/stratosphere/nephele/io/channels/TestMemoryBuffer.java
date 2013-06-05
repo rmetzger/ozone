@@ -32,7 +32,7 @@ public class TestMemoryBuffer {
 	@Test
 	public void readToByteBuffer() throws IOException {
 		
-		ByteBuffer target = ByteBuffer.allocate(512*4);
+		
 		
 		MemoryBuffer buf = new MemoryBuffer(512*4, new MemorySegment(new byte[512*4], 0, 512*4), bufferPoolConnector);
 		
@@ -47,6 +47,7 @@ public class TestMemoryBuffer {
 		
 		buf.finishWritePhase();
 		
+		ByteBuffer target = ByteBuffer.allocate(512*4);
 		// call to be tested!
 		buf.read(target);
 		
@@ -57,7 +58,7 @@ public class TestMemoryBuffer {
 			ref.putInt(0,i / 4);
 			assertEquals("Byte at position "+i+" is different", ref.get(i%4), target.get(i));
 		}
-		
+		buf.close(); // make eclipse happy
 	}
 
 }
