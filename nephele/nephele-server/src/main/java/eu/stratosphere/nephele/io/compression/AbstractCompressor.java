@@ -92,13 +92,16 @@ public abstract class AbstractCompressor implements Compressor {
 
 		setUncompressedDataBuffer((MemoryBuffer) uncompressedData);
 		setCompressedDataBuffer(this.bufferProvider.lockCompressionBuffer());
-		this.uncompressedDataBufferLength = this.uncompressedMemorySegment.size();
+		this.uncompressedDataBufferLength = this.uncompressedBuffer.position();
+		this.uncompressedBuffer.clear();
 
 		final int numberOfCompressedBytes = compressBytesDirect(0);
 
 		// System.out.println("Compression library " + this.uncompressedDataBuffer.position() + " to " +
 		// numberOfCompressedBytes + " bytes");
 
+		this.compressedBuffer.position(numberOfCompressedBytes + SIZE_LENGTH);
+		
 		final Buffer compressedBuffer = this.compressedBuffer;
 		this.bufferProvider.releaseCompressionBuffer(this.uncompressedBuffer);
 		setUncompressedDataBuffer(null);

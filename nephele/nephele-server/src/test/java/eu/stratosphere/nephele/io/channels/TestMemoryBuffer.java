@@ -18,6 +18,9 @@ public class TestMemoryBuffer {
 
 	private MemoryBufferPoolConnector bufferPoolConnector;
 	private Queue<MemorySegment> bufferPool;
+	
+	private final static int INT_COUNT = 512;
+	private final static int INT_SIZE = Integer.SIZE / Byte.SIZE;
 
 	@Before
 	public void setUp() throws Exception {
@@ -32,13 +35,46 @@ public class TestMemoryBuffer {
 	@Test
 	public void readToByteBuffer() throws IOException {
 		
+		MemoryBuffer buf = fillMemoryBuffer();
+		ByteBuffer target = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		// call to be tested!
+		buf.read(target);
 		
+		validateByteBuffer(target);
 		
-		MemoryBuffer buf = new MemoryBuffer(512*4, new MemorySegment(new byte[512*4], 0, 512*4), bufferPoolConnector);
+		buf.close(); // make eclipse happy
+	}
+	
+	/**
+	 * CopyToBuffer uses system.arraycopy()
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void copyToBufferTest() throws IOException {
+
+		MemoryBuffer buf = fillMemoryBuffer();
 		
-		ByteBuffer src = ByteBuffer.allocate(4);
+		MemoryBuffer destination = new MemoryBuffer(INT_COUNT*INT_SIZE*2, 
+					new MemorySegment(new byte[INT_COUNT*INT_SIZE*2],0,INT_COUNT*INT_SIZE*2), 
+					bufferPoolConnector);
+		assertEquals(INT_COUNT*INT_SIZE*2, destination.limit());
+		buf.copyToBuffer(destination);
+		assertEquals(INT_COUNT*INT_SIZE, destination.limit());
+		ByteBuffer test = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		destination.read(test);
+		
+		validateByteBuffer(test);
+		
+		buf.close(); // make eclipse happy
+	}
+
+	private MemoryBuffer fillMemoryBuffer() throws IOException {
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		
+		ByteBuffer src = ByteBuffer.allocate(INT_SIZE);
 		// write some data into buf:
-		for(int i = 0; i < 512; ++i) {
+		for(int i = 0; i < INT_COUNT; ++i) {
 			src.putInt(0,i);
 			src.rewind();
 			int written = buf.write(src);
@@ -46,19 +82,21 @@ public class TestMemoryBuffer {
 		}
 		
 		buf.finishWritePhase();
-		
-		ByteBuffer target = ByteBuffer.allocate(512*4);
-		// call to be tested!
-		buf.read(target);
-		
-		
-		ByteBuffer ref = ByteBuffer.allocate(4);
-		
-		for(int i = 0; i < 4*512; ++i) {
-			ref.putInt(0,i / 4);
-			assertEquals("Byte at position "+i+" is different", ref.get(i%4), target.get(i));
-		}
-		buf.close(); // make eclipse happy
+		return buf;
 	}
-
+	
+	/**
+	 * Validates if the ByteBuffer contains the what fillMemoryBuffer has written!
+	 * 
+	 * @param target
+	 */
+	private void validateByteBuffer(ByteBuffer target) {
+		ByteBuffer ref = ByteBuffer.allocate(INT_SIZE);
+		
+		for(int i = 0; i < INT_SIZE*INT_COUNT; ++i) {
+			ref.putInt(0,i / INT_SIZE);
+			assertEquals("Byte at position "+i+" is different", ref.get(i%INT_SIZE), target.get(i));
+		}
+	}
+	
 }

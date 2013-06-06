@@ -104,7 +104,12 @@ public abstract class AbstractDecompressor implements Decompressor {
 
 		setCompressedDataBuffer((MemoryBuffer) compressedData);
 		setUncompressedDataBuffer(this.bufferProvider.lockCompressionBuffer());
-
+		
+		if (this.uncompressedBuffer.position() > 0) {
+			throw new IllegalStateException("Uncompressed data buffer is expected to be empty");
+		}
+		this.uncompressedBuffer.clear();
+		
 		final int result = decompressBytesDirect(SIZE_LENGTH);
 		if (result < 0) {
 			throw new IOException("Compression libary returned error-code: " + result);
@@ -132,7 +137,7 @@ public abstract class AbstractDecompressor implements Decompressor {
 			final MemoryBuffer memBuffer = (MemoryBuffer) uncompressedBuffer;
 			final MemorySegment ms = memBuffer.getMemorySegment();
 
-			uncompressedBuffer = BufferFactory.createFromMemory(ms.size(), ms, new MemoryBufferPoolConnector() {
+			uncompressedBuffer = BufferFactory.createFromMemory(memBuffer.remaining(), ms, new MemoryBufferPoolConnector() {
 
 				/**
 				 * {@inheritDoc}

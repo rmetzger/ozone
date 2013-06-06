@@ -233,10 +233,8 @@ public final class MemoryBuffer extends Buffer {
 	protected void recycle() {
 		this.bufferRecycler.decreaseReferenceCounter();
 		if(bufferRecycler.referenceCounter.get() == 0) {
-			Continue here
-			this.limit(getTotalSize());
-			this.position(0);
-			this.writeMode.set(true);
+			//Continue here
+			clear();
 		}
 	}
 
@@ -245,7 +243,7 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	@Override
 	public void finishWritePhase() {
-
+		debug("Finish write phase");
 		if (!this.writeMode.compareAndSet(true, false)) {
 			throw new IllegalStateException("MemoryBuffer is already in read mode!");
 		}
@@ -298,15 +296,14 @@ public final class MemoryBuffer extends Buffer {
 //		this.position(0);
 
 		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
-				target.getMemorySegment().getBackingArray(),target.position(), target.limit());
-		
-//		while (remaining() > 0) {
+				target.getMemorySegment().getBackingArray(),target.position(), target.limit()- target.position() );
+		target.position(target.limit()-target.position()); // even if we do not change the source (this), we change the destination!!
+		destinationBuffer.finishWritePhase();
+		//		while (remaining() > 0) {
 //			destinationBuffer.write(this.internalMemorySegment);
 //		}
 
 	//	this.position(oldPos);
-
-		destinationBuffer.finishWritePhase();
 	}
 
 	/**
@@ -417,6 +414,12 @@ public final class MemoryBuffer extends Buffer {
 //		}
 //		position(position()+written);
 		return written;
+	}
+
+	public void clear() {
+		this.limit = getTotalSize();
+		this.position(0);
+		this.writeMode.set(true);
 	}
 	
 
