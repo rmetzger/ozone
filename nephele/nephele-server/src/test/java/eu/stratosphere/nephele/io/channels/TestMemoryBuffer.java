@@ -34,6 +34,30 @@ public class TestMemoryBuffer {
 	}
 
 	@Test
+	public void readToSmallByteBuffer() throws IOException {
+		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
+		fillBuffer(ref);
+		
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		fillBuffer(buf);
+		
+		ByteBuffer target = ByteBuffer.allocate(INT_SIZE);
+		ByteBuffer largeTarget = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		int i = 0;
+		while(buf.hasRemaining()) {
+			buf.read(target);
+			target.rewind();
+			largeTarget.put(target);
+			target.rewind();
+			System.err.println("Round "+i);
+			if( i++ >= INT_COUNT) {
+				fail("There were too many elements in the buffer");
+			}
+		}
+		validateByteBuffer(largeTarget);
+	}
+		
+	@Test
 	public void readToByteBuffer() throws IOException {
 		
 		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
