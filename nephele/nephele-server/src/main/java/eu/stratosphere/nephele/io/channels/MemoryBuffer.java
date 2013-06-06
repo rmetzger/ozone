@@ -294,10 +294,11 @@ public final class MemoryBuffer extends Buffer {
 		debug("CopyToBuffer (Dest idx="+target.index+" limit="+target.limit+")");
 //		final int oldPos = this.position();
 //		this.position(0);
-
+		
+		//(Object src, int srcPos, Object dest, int destPos, int length
 		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
-				target.getMemorySegment().getBackingArray(),target.position(), target.limit()- target.position() );
-		target.position(target.limit()-target.position()); // even if we do not change the source (this), we change the destination!!
+				target.getMemorySegment().getBackingArray(),target.position(), limit()- position() );
+		target.position(limit()-position()); // even if we do not change the source (this), we change the destination!!
 		destinationBuffer.finishWritePhase();
 		//		while (remaining() > 0) {
 //			destinationBuffer.write(this.internalMemorySegment);

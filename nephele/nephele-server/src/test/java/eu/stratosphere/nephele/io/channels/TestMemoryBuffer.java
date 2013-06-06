@@ -55,16 +55,30 @@ public class TestMemoryBuffer {
 
 		MemoryBuffer buf = fillMemoryBuffer();
 		
+		
+		// the target buffer is larger to check if the limit is set appropriately
 		MemoryBuffer destination = new MemoryBuffer(INT_COUNT*INT_SIZE*2, 
 					new MemorySegment(new byte[INT_COUNT*INT_SIZE*2],0,INT_COUNT*INT_SIZE*2), 
 					bufferPoolConnector);
 		assertEquals(INT_COUNT*INT_SIZE*2, destination.limit());
+		// copy buf contents to double sized MemBuffer
 		buf.copyToBuffer(destination);
 		assertEquals(INT_COUNT*INT_SIZE, destination.limit());
-		ByteBuffer test = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
-		destination.read(test);
 		
+		// copy contents of destination to byteBuffer
+		ByteBuffer test = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		int written = destination.read(test);
+		assertEquals(INT_COUNT*INT_SIZE, written);
+		// validate byteBuffer contents
 		validateByteBuffer(test);
+		
+		destination.position(written);
+		destination.limit(destination.getTotalSize());
+		// allocate another byte buffer to write the rest of destination into a byteBuffer
+		ByteBuffer testRemiander = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		written = destination.read(testRemiander);
+		assertEquals(INT_COUNT*INT_SIZE, written);
+		expectAllNullByteBuffer(testRemiander);
 		
 		buf.close(); // make eclipse happy
 	}
@@ -99,4 +113,11 @@ public class TestMemoryBuffer {
 		}
 	}
 	
+	private void expectAllNullByteBuffer(ByteBuffer target) {
+		ByteBuffer ref = ByteBuffer.allocate(INT_SIZE);
+		ref.putInt(0,0);
+		for(int i = 0; i < INT_COUNT; ++i) {
+			assertEquals("Byte at position "+i+" is different", ref.getInt(0), target.getInt(i));
+		}
+	}
 }
