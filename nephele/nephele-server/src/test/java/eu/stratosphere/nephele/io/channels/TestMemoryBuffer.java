@@ -14,6 +14,7 @@ import org.junit.Test;
 import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 import eu.stratosphere.nephele.util.BufferPoolConnector;
 
+
 public class TestMemoryBuffer {
 
 	private MemoryBufferPoolConnector bufferPoolConnector;
@@ -35,12 +36,36 @@ public class TestMemoryBuffer {
 	@Test
 	public void readToByteBuffer() throws IOException {
 		
-		MemoryBuffer buf = fillMemoryBuffer();
+		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
+		fillBuffer(ref);
+		
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		fillBuffer(buf);
+		
 		ByteBuffer target = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		
+		// test for similar starting position
+		assertEquals(ref.getByteBuffer().limit(), buf.limit());
+		assertEquals(ref.getByteBuffer().position(), buf.position());
+		
 		// call to be tested!
 		buf.read(target);
+		final int actLim = buf.limit();
+		final int actPos = buf.position();
 		
 		validateByteBuffer(target);
+		final int actLim1 = buf.limit();
+		final int actPos1 = buf.position();
+		
+		target.clear();
+		
+		ref.read(target);
+		assertEquals(ref.getByteBuffer().limit(), actLim);
+		assertEquals(ref.getByteBuffer().position(), actPos);
+		
+		validateByteBuffer(target);
+		assertEquals(ref.getByteBuffer().limit(), actLim1);
+		assertEquals(ref.getByteBuffer().position(), actPos1);
 		
 		buf.close(); // make eclipse happy
 	}
@@ -53,7 +78,8 @@ public class TestMemoryBuffer {
 	@Test
 	public void copyToBufferTest() throws IOException {
 
-		MemoryBuffer buf = fillMemoryBuffer();
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		fillBuffer(buf);
 		
 		
 		// the target buffer is larger to check if the limit is set appropriately
@@ -83,9 +109,7 @@ public class TestMemoryBuffer {
 		buf.close(); // make eclipse happy
 	}
 
-	private MemoryBuffer fillMemoryBuffer() throws IOException {
-		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
-		
+	private void fillBuffer(Buffer buf) throws IOException {
 		ByteBuffer src = ByteBuffer.allocate(INT_SIZE);
 		// write some data into buf:
 		for(int i = 0; i < INT_COUNT; ++i) {
@@ -94,10 +118,9 @@ public class TestMemoryBuffer {
 			int written = buf.write(src);
 			System.err.println("Put int i="+i+" Written "+written);
 		}
-		
 		buf.finishWritePhase();
-		return buf;
 	}
+	
 	
 	/**
 	 * Validates if the ByteBuffer contains the what fillMemoryBuffer has written!
