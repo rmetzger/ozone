@@ -44,6 +44,7 @@ public class TestMemoryBuffer {
 		ByteBuffer target = ByteBuffer.allocate(INT_SIZE);
 		ByteBuffer largeTarget = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
 		int i = 0;
+		System.err.println("Starting to read");
 		while(buf.hasRemaining()) {
 			buf.read(target);
 			target.rewind();
@@ -54,6 +55,9 @@ public class TestMemoryBuffer {
 				fail("There were too many elements in the buffer");
 			}
 		}
+		assertEquals(-1, buf.read(target));
+		
+		target.rewind();
 		validateByteBuffer(largeTarget);
 	}
 		
@@ -140,7 +144,7 @@ public class TestMemoryBuffer {
 			src.putInt(0,i);
 			src.rewind();
 			int written = buf.write(src);
-			System.err.println("Put int i="+i+" Written "+written);
+		//	System.err.println("Put int i="+i+" Written "+written);
 		}
 		buf.finishWritePhase();
 	}

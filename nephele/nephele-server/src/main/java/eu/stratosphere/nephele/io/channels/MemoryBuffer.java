@@ -99,9 +99,7 @@ public final class MemoryBuffer extends Buffer {
 			
 		final int oldIndex = index;
 		for(; index < limit; index++) {
-	//	while(true) {
 			if(!dst.hasRemaining()) {
-				index = (index == 0) ? 0 : index-1; // repair index
 				break;
 			}
 			dst.put(this.internalMemorySegment.get(index));

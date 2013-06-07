@@ -701,7 +701,7 @@ public class JobManagerITCase {
 	 */
 	@Test
 	public void testUnionWithNonEmptyInput() {
-		testUnion(10); // 1000000
+		testUnion(1000000);
 	}
 
 	/**
