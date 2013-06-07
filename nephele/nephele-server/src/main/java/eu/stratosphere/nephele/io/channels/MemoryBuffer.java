@@ -57,7 +57,7 @@ public final class MemoryBuffer extends Buffer {
 	 * 
 	 */
 	private void debug(String in) {
-	//	System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
+		System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
 	}
 
 	MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferPoolConnector bufferPoolConnector) {
