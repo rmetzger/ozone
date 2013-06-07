@@ -278,10 +278,4 @@ public final class ReferenceMemoryBuffer extends Buffer {
 
 		return this.writeMode.get();
 	}
-
-	@Override
-	public void write(int index, byte[] srcBuffer) {
-		// TODO Auto-generated method stub
-		
-	}
 }
