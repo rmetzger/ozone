@@ -57,7 +57,7 @@ public final class MemoryBuffer extends Buffer {
 	 * 
 	 */
 	private void debug(String in) {
-		System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
+	//	System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
 	}
 
 	MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferPoolConnector bufferPoolConnector) {
@@ -104,7 +104,7 @@ public final class MemoryBuffer extends Buffer {
 			}
 			dst.put(this.internalMemorySegment.get(index));
 		}
-		System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
+		// System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
 		return index-oldIndex;
 	}
 	

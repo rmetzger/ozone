@@ -50,7 +50,6 @@ public class TestMemoryBuffer {
 			target.rewind();
 			largeTarget.put(target);
 			target.rewind();
-			System.err.println("Round "+i);
 			if( i++ >= INT_COUNT) {
 				fail("There were too many elements in the buffer");
 			}
