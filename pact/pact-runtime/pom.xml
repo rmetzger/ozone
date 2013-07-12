@@ -32,12 +32,20 @@
 		<dependency>
 			<groupId>eu.stratosphere</groupId>
 			<artifactId>pact-array-datamodel</artifactId>
-			<version>0.2</version>
+			<version>${project.version}</version>
 		</dependency>
 
+		<!-- Ye Olde Hadoop
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
+		</dependency>
+		 -->
+		
+		<!-- Coudera Hadoop (no need for hadoop-core anymore) -->
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
 		</dependency>
 
 	</dependencies>
