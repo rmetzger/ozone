@@ -42,20 +42,6 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	private int limit = 0;
 	
-	
-	/*
-	 * 
-	 *  PRIVATE NOTES BY ROBERT
-	 *  
-	 *  PLAN:
-	 *  - make everything outside the MemoryBuffer compatible to it
-	 *  - fix MemoryBuffer inside, even if it requres expensive operations such as copying from 
-	 *  	ByteBuffers and byte-arrays.
-	 *  - if the test cases are stable after this step, gradually replace the ByteBuffers with byte-arrays
-	 *  	Wherever possible.
-	 * 
-	 * 
-	 */
 	private void debug(String in) {
 		System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
 	}
@@ -104,7 +90,6 @@ public final class MemoryBuffer extends Buffer {
 			}
 			dst.put(this.internalMemorySegment.get(index));
 		}
-		// System.err.println("have read "+(index-oldIndex)+" dst.hasRem()="+dst.hasRemaining());
 		return index-oldIndex;
 	}
 	
@@ -123,7 +108,6 @@ public final class MemoryBuffer extends Buffer {
 		final ByteBuffer wrapped = this.internalMemorySegment.wrap(index, limit-index);
 		final int written = writableByteChannel.write(wrapped);
 		debug("written = "+written);
-	//	position(position() + written);
 		position(wrapped.position());
 		return written;
 	}
@@ -152,7 +136,7 @@ public final class MemoryBuffer extends Buffer {
 	 * @param bufferSize
 	 *        the size of buffer in bytes after the reset
 	 */
-	public void reset(final int bufferSize) {
+	public final void reset(final int bufferSize) {
 		if(bufferSize > this.internalMemorySegment.size()) {
 			throw new RuntimeException("Given buffer size exceeds buffer size");
 		}
@@ -205,6 +189,11 @@ public final class MemoryBuffer extends Buffer {
 		position(0);
 	}
 
+	public void clear() {
+		this.limit = getTotalSize();
+		this.position(0);
+		this.writeMode.set(true);
+	}
 
 	/**
 	 * 	limit() = size() <= getTotalSize()
@@ -216,7 +205,7 @@ public final class MemoryBuffer extends Buffer {
 	}
 	
 	@Override
-	public int size() {
+	public final int size() {
 		return this.limit();
 	}
 
@@ -231,7 +220,6 @@ public final class MemoryBuffer extends Buffer {
 	protected void recycle() {
 		this.bufferRecycler.decreaseReferenceCounter();
 		if(bufferRecycler.referenceCounter.get() == 0) {
-			//Continue here
 			clear();
 		}
 	}
@@ -267,8 +255,7 @@ public final class MemoryBuffer extends Buffer {
 			throw new IllegalStateException("Cannot duplicate buffer that is still in write mode");
 		}
 
-		final MemoryBuffer duplicatedMemoryBuffer = new MemoryBuffer(this.limit(),
-			this.internalMemorySegment, this.bufferRecycler);
+		final MemoryBuffer duplicatedMemoryBuffer = new MemoryBuffer(this.limit(), this.internalMemorySegment, this.bufferRecycler);
 
 		this.bufferRecycler.increaseReferenceCounter();
 		duplicatedMemoryBuffer.writeMode.set(this.writeMode.get());
@@ -290,19 +277,11 @@ public final class MemoryBuffer extends Buffer {
 		}
 		final MemoryBuffer target = (MemoryBuffer) destinationBuffer;
 		debug("CopyToBuffer (Dest idx="+target.index+" limit="+target.limit+")");
-//		final int oldPos = this.position();
-//		this.position(0);
 		
-		//(Object src, int srcPos, Object dest, int destPos, int length
 		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
 				target.getMemorySegment().getBackingArray(),target.position(), limit()- position() );
 		target.position(limit()-position()); // even if we do not change the source (this), we change the destination!!
 		destinationBuffer.finishWritePhase();
-		//		while (remaining() > 0) {
-//			destinationBuffer.write(this.internalMemorySegment);
-//		}
-
-	//	this.position(oldPos);
 	}
 
 	/**
@@ -312,38 +291,7 @@ public final class MemoryBuffer extends Buffer {
 	public boolean isInWriteMode() {
 		return this.writeMode.get();
 	}
-//
-//	@Override
-//	public int readIntoBuffer(Buffer destination) throws IOException {
-//		return 0;
-//	}
 
-//	@Override
-//	public int write(Buffer source) throws IOException {
-//		this.internalMemorySegment.
-//	}
-
-
-
-	/**
-	 * Writes the given bytes to a random position.
-	 * The internal index of MemoryBuffer is unaffected by this operation!
-	 * 
-	 * THIS METHOD HAS BEEN USED IN DefaultDeserializerTest.createByteChannel() to get rid
-	 * of the ByteBuffers used there. But sadly, it seems that I've done some stuff wrong!
-	 */
-	@Override
-	public void write(int idx, byte[] srcBuffer) {
-		if(idx + srcBuffer.length > this.limit) {
-			throw new RuntimeException("The given byteArray does not fit into this MemoryBuffer");
-		}
-		debug("Writinge byte array to "+idx);
-		this.internalMemorySegment.put(idx, srcBuffer);
-		// this.index += srcBuffer.length;
-	}
-
-
-	
 	 
 	/**
 	 * ATTENTION: THESE METHODS ARE FOR LEGACY SUPPORT ONLY
@@ -358,18 +306,10 @@ public final class MemoryBuffer extends Buffer {
 		if (!this.writeMode.get()) {
 			throw new IOException("Cannot write to buffer, buffer already switched to read mode");
 		}
-		
-//		if(src.remaining() > remaining()) {
-//			// this exception is probably not necessary
-//			throw new RuntimeException("Can not read "+src.remaining()+" bytes into a " +
-//					"MemoryBuffer with "+remaining()+" bytes remaining");
-//		}
 
 		final int initialPos = position();
 		while(src.hasRemaining()) {
 			if(position() >= limit()) {
-				// COMPARE TO ORIGINAL METHOD. Might be that there are some very crazy assumptions here
-				debug("++++Preliminary end++++");
 				return index-initialPos;
 			}
 			this.internalMemorySegment.put(position(), src.get());
@@ -377,18 +317,6 @@ public final class MemoryBuffer extends Buffer {
 		}
 		debug("write(byteBuffer) has written "+(position()-initialPos)+" bytes");
 		return position()-initialPos;
-//		if (excess <= 0) {
-//			// there is enough space here for all the source data
-//			this.internalMemorySegment.put(src);
-//			return sourceRemaining;
-//		} else {
-//			// not enough space here, we need to limit the source
-//			final int oldLimit = src.limit();
-//			src.limit(src.position() + thisRemaining);
-//			this.internalMemorySegment.put(src);
-//			src.limit(oldLimit);
-//			return thisRemaining;
-//		}
 	}
 
 	/**
@@ -408,21 +336,6 @@ public final class MemoryBuffer extends Buffer {
 		final int written = readableByteChannel.read(wrapper);
 		this.position(wrapper.position());
 		this.limit(wrapper.limit());
-//		if(written == -1) {
-//			position(limit);
-//		}
-//		position(position()+written);
 		return written;
 	}
-
-	public void clear() {
-		this.limit = getTotalSize();
-		this.position(0);
-		this.writeMode.set(true);
-	}
-	
-
-
-	
-	
 }
