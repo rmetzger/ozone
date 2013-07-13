@@ -67,7 +67,6 @@ import eu.stratosphere.pact.runtime.task.util.LocalStrategy;
 import eu.stratosphere.pact.runtime.task.util.TaskConfig;
 import eu.stratosphere.pact.test.util.TestBase2;
 
-@Ignore
 @RunWith(Parameterized.class)
 public class ConnectedComponentsNepheleITCase extends TestBase2 {
 	
