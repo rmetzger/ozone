@@ -22,6 +22,7 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -66,6 +67,7 @@ import eu.stratosphere.pact.runtime.task.util.LocalStrategy;
 import eu.stratosphere.pact.runtime.task.util.TaskConfig;
 import eu.stratosphere.pact.test.util.TestBase2;
 
+@Ignore
 @RunWith(Parameterized.class)
 public class ConnectedComponentsNepheleITCase extends TestBase2 {
 	
