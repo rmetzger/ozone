@@ -43,7 +43,7 @@ public final class MemoryBuffer extends Buffer {
 	private int limit = 0;
 	
 	private void debug(String in) {
-		System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
+		// System.err.println(this+"[index="+index+" limit="+limit+"] "+in);
 	}
 
 	MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferPoolConnector bufferPoolConnector) {
@@ -159,12 +159,15 @@ public final class MemoryBuffer extends Buffer {
 	}
 	
 	public final void limit(final int l) {
-		if(limit > index) {
-			throw new RuntimeException("Limit is behind the current position.");
-		}
-		if(limit >= internalMemorySegment.size()) {
+		if(limit > internalMemorySegment.size()) {
 			throw new RuntimeException("Limit is larger than MemoryBuffer size");
 		}
+//		if(limit > index) {
+//			throw new RuntimeException("Limit is behind the current position.");
+//		}
+		
+		if (index > limit) index = limit;
+		
 		debug("Set limit to "+l);
 		limit = l;
 	}
