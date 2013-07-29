@@ -41,8 +41,8 @@ public class SpillingQueueElementTest {
 	public void testSpillingQueueElement() {
 
 		// Create basic data structures for the test
-		final MemorySegment byteBuf1 = new MemorySegment(new byte[BUFFER_SIZE], 0, BUFFER_SIZE);
-		final MemorySegment byteBuf2 = new MemorySegment(new byte[BUFFER_SIZE], 0, BUFFER_SIZE);
+		final MemorySegment byteBuf1 = new MemorySegment(new byte[BUFFER_SIZE]);
+		final MemorySegment byteBuf2 = new MemorySegment(new byte[BUFFER_SIZE]);
 
 		final Queue<MemorySegment> queue = new ArrayDeque<MemorySegment>();
 

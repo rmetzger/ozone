@@ -38,7 +38,7 @@ public class TestMemoryBuffer {
 		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
 		fillBuffer(ref);
 		
-		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE]), bufferPoolConnector);
 		fillBuffer(buf);
 		
 		ByteBuffer target = ByteBuffer.allocate(INT_SIZE);
@@ -66,7 +66,7 @@ public class TestMemoryBuffer {
 		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
 		fillBuffer(ref);
 		
-		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE]), bufferPoolConnector);
 		fillBuffer(buf);
 		
 		ByteBuffer target = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
@@ -105,13 +105,13 @@ public class TestMemoryBuffer {
 	@Test
 	public void copyToBufferTest() throws IOException {
 
-		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE], 0, INT_COUNT*INT_SIZE), bufferPoolConnector);
+		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE]), bufferPoolConnector);
 		fillBuffer(buf);
 		
 		
 		// the target buffer is larger to check if the limit is set appropriately
 		MemoryBuffer destination = new MemoryBuffer(INT_COUNT*INT_SIZE*2, 
-					new MemorySegment(new byte[INT_COUNT*INT_SIZE*2],0,INT_COUNT*INT_SIZE*2), 
+					new MemorySegment(new byte[INT_COUNT*INT_SIZE*2]), 
 					bufferPoolConnector);
 		assertEquals(INT_COUNT*INT_SIZE*2, destination.limit());
 		// copy buf contents to double sized MemBuffer

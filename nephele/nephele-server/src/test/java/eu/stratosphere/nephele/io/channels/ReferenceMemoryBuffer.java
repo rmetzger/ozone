@@ -86,7 +86,7 @@ public final class ReferenceMemoryBuffer extends Buffer {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int read(final WritableByteChannel writableByteChannel) throws IOException {
+	public int writeTo(final WritableByteChannel writableByteChannel) throws IOException {
 
 		if (this.writeMode.get()) {
 			throw new IOException("Buffer is still in write mode!");

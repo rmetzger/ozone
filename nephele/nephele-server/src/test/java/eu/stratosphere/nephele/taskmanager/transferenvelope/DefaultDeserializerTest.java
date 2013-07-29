@@ -90,7 +90,7 @@ public class DefaultDeserializerTest {
 
 			this.bufferPool = new ArrayDeque<MemorySegment>(numberOfBuffers);
 			for (int i = 0; i < numberOfBuffers; ++i) {
-				this.bufferPool.add(new MemorySegment(new byte[TEST_BUFFER_CAPACITY], 0, TEST_BUFFER_CAPACITY));
+				this.bufferPool.add(new MemorySegment(new byte[TEST_BUFFER_CAPACITY]));
 			}
 		}
 
@@ -203,7 +203,7 @@ public class DefaultDeserializerTest {
 			}
 
 			final Queue<MemorySegment> bufferPool = new ArrayDeque<MemorySegment>();
-			final MemorySegment ms = new MemorySegment(new byte[TEST_BUFFER_CAPACITY], 0, TEST_BUFFER_CAPACITY);
+			final MemorySegment ms = new MemorySegment(new byte[TEST_BUFFER_CAPACITY]);
 
 			final Buffer buffer = BufferFactory.createFromMemory(ms.size(), ms, new BufferPoolConnector(bufferPool));
 

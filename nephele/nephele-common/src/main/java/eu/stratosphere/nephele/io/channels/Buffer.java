@@ -173,7 +173,7 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	 *         end of the stream.
 	 * @throws IOException Thrown if an error occurs while writing to the {@link WritableByteChannel} object.
 	 */
-	public abstract int read(WritableByteChannel writableByteChannel) throws IOException;
+	public abstract int writeTo(WritableByteChannel writableByteChannel) throws IOException;
 
 
 }

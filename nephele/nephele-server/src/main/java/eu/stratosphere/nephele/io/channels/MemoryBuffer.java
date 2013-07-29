@@ -87,7 +87,7 @@ public final class MemoryBuffer extends Buffer {
 	
 
 	@Override
-	public int read(WritableByteChannel writableByteChannel) throws IOException {
+	public int writeTo(WritableByteChannel writableByteChannel) throws IOException {
 		if (this.writeMode.get()) {
 			throw new IOException("Buffer is in write mode!");
 		}
