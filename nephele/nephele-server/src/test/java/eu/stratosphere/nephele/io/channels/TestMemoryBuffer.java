@@ -142,10 +142,8 @@ public class TestMemoryBuffer {
 		for(int i = 0; i < INT_COUNT; ++i) {
 			src.putInt(0,i);
 			src.rewind();
-			int written = buf.write(src);
-		//	System.err.println("Put int i="+i+" Written "+written);
+			buf.write(src);
 		}
-		buf.finishWritePhase();
 	}
 	
 	

@@ -91,7 +91,6 @@ public abstract class AbstractDecompressor implements Decompressor {
 	 */
 	@Override
 	public Buffer decompress(Buffer compressedData) throws IOException {
-
 		boolean tmpBufferUsed = false;
 		if (!compressedData.isBackedByMemory()) {
 			tmpBufferUsed = true;
@@ -150,7 +149,6 @@ public abstract class AbstractDecompressor implements Decompressor {
 			// Fake transition to read mode
 			memBuffer.position(memBuffer.limit());
 			memBuffer.limit(memBuffer.size());
-			uncompressedBuffer.finishWritePhase();
 		}
 
 		return uncompressedBuffer;

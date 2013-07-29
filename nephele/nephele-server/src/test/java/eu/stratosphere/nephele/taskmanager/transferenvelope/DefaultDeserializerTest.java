@@ -215,7 +215,6 @@ public class DefaultDeserializerTest {
 
 			buffer.write(srcBuffer);
 			
-			buffer.finishWritePhase();
 			te.setBuffer(buffer);
 		}
 

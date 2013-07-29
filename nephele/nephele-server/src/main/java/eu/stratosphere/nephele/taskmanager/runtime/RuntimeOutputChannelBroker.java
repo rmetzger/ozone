@@ -186,8 +186,6 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 				+ " has already a buffer attached");
 		}
 
-		// Finish the write phase of the buffer
-		buffer.finishWritePhase();
 		this.outgoingTransferEnvelope.setBuffer(buffer);
 
 		this.forwardingChain.pushEnvelope(this.outgoingTransferEnvelope);

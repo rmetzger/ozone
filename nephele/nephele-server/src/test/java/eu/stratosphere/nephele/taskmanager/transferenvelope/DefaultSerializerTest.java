@@ -156,9 +156,6 @@ public class DefaultSerializerTest {
 				initBuffer.position(0);
 			}
 
-			// Finish write phase
-			buffer.finishWritePhase();
-
 			final TransferEnvelope transferEnvelope = new TransferEnvelope(i, this.jobID, this.sourceChannelID);
 			transferEnvelope.setBuffer(buffer);
 

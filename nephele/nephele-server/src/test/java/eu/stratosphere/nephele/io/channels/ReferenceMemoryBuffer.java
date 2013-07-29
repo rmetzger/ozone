@@ -204,18 +204,6 @@ public final class ReferenceMemoryBuffer extends Buffer {
 		this.bufferRecycler.decreaseReferenceCounter();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void finishWritePhase() {
-
-		if (!this.writeMode.compareAndSet(true, false)) {
-			throw new IllegalStateException("MemoryBuffer is already in read mode!");
-		}
-
-		this.byteBuffer.flip();
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -266,16 +254,5 @@ public final class ReferenceMemoryBuffer extends Buffer {
 		}
 
 		this.byteBuffer.position(oldPos);
-
-		destinationBuffer.finishWritePhase();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isInWriteMode() {
-
-		return this.writeMode.get();
 	}
 }

@@ -62,8 +62,6 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	public abstract boolean isOpen();
 	
 	
-	public abstract boolean isInWriteMode();
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -127,14 +125,6 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	
 	protected abstract void recycle();
 
-	/**
-	 * Switches the buffer from write mode into read mode. After being switched to read
-	 * mode, the buffer will no longer accept write requests.
-	 * 
-	 * @throws IOException
-	 *         throws if an error occurs while finishing writing mode
-	 */
-	public abstract void finishWritePhase() throws IOException;
 
 	/**
 	 * Returns whether the buffer is backed by main memory or a file.
