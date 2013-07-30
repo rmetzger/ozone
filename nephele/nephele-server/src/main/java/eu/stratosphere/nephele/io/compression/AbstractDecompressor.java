@@ -103,25 +103,26 @@ public abstract class AbstractDecompressor implements Decompressor {
 		if (result < 0) {
 			throw new IOException("Compression libary returned error-code: " + result);
 		}
-
-		if (this.uncompressedBuffer.isInWriteMode()) {
-			this.uncompressedDataBuffer.position(result);
-			this.uncompressedBuffer.finishWritePhase();
-		} else {
-			this.uncompressedDataBuffer.position(0);
-			this.uncompressedDataBuffer.limit(result);
-		}
+		throw new RuntimeException("Uncomment the code below. this is never executed");
+//
+//		if (this.uncompressedBuffer.isInWriteMode()) {
+//			this.uncompressedDataBuffer.position(result);
+//			this.uncompressedBuffer.finishWritePhase();
+//		} else {
+//			this.uncompressedDataBuffer.position(0);
+//			this.uncompressedDataBuffer.limit(result);
+//		}
 		// System.out.println("UNCOMPRESSED SIZE: " + this.uncompressedBuffer.size());
 
-		Buffer uncompressedBuffer = this.uncompressedBuffer;
-
-		// Release the compression buffer again
-		this.bufferProvider.releaseCompressionBuffer(this.compressedBuffer);
-
-		setCompressedDataBuffer(null);
-		setUncompressedDataBuffer(null);
-
-		return uncompressedBuffer;
+//		Buffer uncompressedBuffer = this.uncompressedBuffer;
+//
+//		// Release the compression buffer again
+//		this.bufferProvider.releaseCompressionBuffer(this.compressedBuffer);
+//
+//		setCompressedDataBuffer(null);
+//		setUncompressedDataBuffer(null);
+//
+//		return uncompressedBuffer;
 	}
 
 	protected int bufferToInt(ByteBuffer buffer, int offset) {

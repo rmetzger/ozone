@@ -33,56 +33,56 @@ import eu.stratosphere.nephele.jobgraph.JobTaskVertex;
 
 public class CompressionTest {
 
-	public static void main(String[] args) {
-
-		// Create job graph
-		JobGraph jobGraph = new JobGraph("Compression Test Job");
-
-		JobFileInputVertex input = new JobFileInputVertex("Input 1", jobGraph);
-		input.setFileInputClass(DirectoryReader.class);
-		input.setFilePath(new Path("file:///home/akli/trainingfiles"));
-
-		JobTaskVertex task1 = new JobTaskVertex("Task 1", jobGraph);
-		task1.setTaskClass(CompressionTestTask.class);
-
-		JobFileOutputVertex output = new JobFileOutputVertex("Output 1", jobGraph);
-		output.setFileOutputClass(DirectoryWriter.class);
-		output.setFilePath(new Path("file:///home/akli/compOutput"));
-
-		try {
-
-			input.connectTo(task1, ChannelType.FILE, CompressionLevel.MEDIUM_COMPRESSION);
-			// task1.connectTo(task2, ChannelType.INMEMORY, CompressionLevel.NO_COMPRESSION);
-			task1.connectTo(output, ChannelType.FILE, CompressionLevel.MEDIUM_COMPRESSION);
-		} catch (JobGraphDefinitionException e) {
-			e.printStackTrace();
-			return;
-		}
-
-		// Create configuration for the job
-		// Configuration jobConfiguration = new Configuration();
-		// jobConfiguration.setString("job.cloud.username", "admin");
-		// jobConfiguration.setString("job.cloud.privatekey",
-		// loadFile("/home/warneke/.euca/euca2-admin-b03fc65d-pk.pem2"));
-		// jobConfiguration.setString("job.cloud.certificate",
-		// loadFile("/home/warneke/.euca/euca2-admin-b03fc65d-cert.pem"));
-
-		// jobGraph.setJobConfiguration(jobConfiguration);
-		jobGraph.addJar(new Path("file:///home/akli/Compression.jar"));
-
-		Configuration clientConfiguration = new Configuration();
-		clientConfiguration.setString("jobmanager.rpc.port", "6023");
-		clientConfiguration.setString("jobmanager.rpc.address", "192.168.2.111");
-
-		try {
-			JobClient jobClient = new JobClient(jobGraph, clientConfiguration);
-
-			jobClient.submitJobAndWait();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JobExecutionException e) {
-			e.printStackTrace();
-		}
-	}
+//	public static void main(String[] args) {
+//
+//		// Create job graph
+//		JobGraph jobGraph = new JobGraph("Compression Test Job");
+//
+//		JobFileInputVertex input = new JobFileInputVertex("Input 1", jobGraph);
+//		input.setFileInputClass(DirectoryReader.class);
+//		input.setFilePath(new Path("file:///home/akli/trainingfiles"));
+//
+//		JobTaskVertex task1 = new JobTaskVertex("Task 1", jobGraph);
+//		task1.setTaskClass(CompressionTestTask.class);
+//
+//		JobFileOutputVertex output = new JobFileOutputVertex("Output 1", jobGraph);
+//		output.setFileOutputClass(DirectoryWriter.class);
+//		output.setFilePath(new Path("file:///home/akli/compOutput"));
+//
+//		try {
+//
+//			input.connectTo(task1, ChannelType.FILE, CompressionLevel.MEDIUM_COMPRESSION);
+//			// task1.connectTo(task2, ChannelType.INMEMORY, CompressionLevel.NO_COMPRESSION);
+//			task1.connectTo(output, ChannelType.FILE, CompressionLevel.MEDIUM_COMPRESSION);
+//		} catch (JobGraphDefinitionException e) {
+//			e.printStackTrace();
+//			return;
+//		}
+//
+//		// Create configuration for the job
+//		// Configuration jobConfiguration = new Configuration();
+//		// jobConfiguration.setString("job.cloud.username", "admin");
+//		// jobConfiguration.setString("job.cloud.privatekey",
+//		// loadFile("/home/warneke/.euca/euca2-admin-b03fc65d-pk.pem2"));
+//		// jobConfiguration.setString("job.cloud.certificate",
+//		// loadFile("/home/warneke/.euca/euca2-admin-b03fc65d-cert.pem"));
+//
+//		// jobGraph.setJobConfiguration(jobConfiguration);
+//		jobGraph.addJar(new Path("file:///home/akli/Compression.jar"));
+//
+//		Configuration clientConfiguration = new Configuration();
+//		clientConfiguration.setString("jobmanager.rpc.port", "6023");
+//		clientConfiguration.setString("jobmanager.rpc.address", "192.168.2.111");
+//
+//		try {
+//			JobClient jobClient = new JobClient(jobGraph, clientConfiguration);
+//
+//			jobClient.submitJobAndWait();
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (JobExecutionException e) {
+//			e.printStackTrace();
+//		}
+//	}
 }
