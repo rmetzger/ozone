@@ -255,4 +255,9 @@ public final class ReferenceMemoryBuffer extends Buffer {
 
 		this.byteBuffer.position(oldPos);
 	}
+
+	@Override
+	public void flip() {
+		byteBuffer.flip();
+	}
 }

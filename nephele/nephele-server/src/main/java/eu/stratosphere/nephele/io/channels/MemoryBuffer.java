@@ -233,6 +233,7 @@ public final class MemoryBuffer extends Buffer {
 		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
 				target.getMemorySegment().getBackingArray(),target.position(), limit()- position() );
 		target.position(limit()-position()); // even if we do not change the source (this), we change the destination!!
+		destinationBuffer.flip();
 	}
 
 	 

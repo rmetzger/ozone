@@ -31,6 +31,7 @@ import org.junit.Test;
 import eu.stratosphere.nephele.io.channels.Buffer;
 import eu.stratosphere.nephele.io.channels.BufferFactory;
 import eu.stratosphere.nephele.io.channels.ChannelID;
+import eu.stratosphere.nephele.io.channels.MemoryBuffer;
 import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 import eu.stratosphere.nephele.taskmanager.bufferprovider.BufferAvailabilityListener;
@@ -205,7 +206,7 @@ public class DefaultDeserializerTest {
 			final Queue<MemorySegment> bufferPool = new ArrayDeque<MemorySegment>();
 			final MemorySegment ms = new MemorySegment(new byte[TEST_BUFFER_CAPACITY]);
 
-			final Buffer buffer = BufferFactory.createFromMemory(ms.size(), ms, new BufferPoolConnector(bufferPool));
+			final MemoryBuffer buffer = BufferFactory.createFromMemory(ms.size(), ms, new BufferPoolConnector(bufferPool));
 
 			final ByteBuffer srcBuffer = ByteBuffer.allocate(testBufferSize);
 			for (int i = 0; i < testBufferSize; ++i) {
@@ -214,7 +215,7 @@ public class DefaultDeserializerTest {
 			srcBuffer.flip();
 
 			buffer.write(srcBuffer);
-			
+			buffer.flip();
 			te.setBuffer(buffer);
 		}
 

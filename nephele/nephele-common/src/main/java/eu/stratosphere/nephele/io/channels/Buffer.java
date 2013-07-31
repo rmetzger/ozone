@@ -165,5 +165,9 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	 */
 	public abstract int writeTo(WritableByteChannel writableByteChannel) throws IOException;
 
+	/**
+	 * Flip buffer (exchange limit and position).
+	 */
+	public abstract void flip();
 
 }

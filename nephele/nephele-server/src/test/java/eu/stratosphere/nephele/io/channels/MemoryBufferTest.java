@@ -44,7 +44,6 @@ public class MemoryBufferTest {
 		ByteBuffer target = ByteBuffer.allocate(INT_SIZE);
 		ByteBuffer largeTarget = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
 		int i = 0;
-		System.err.println("Starting to read");
 		while(buf.hasRemaining()) {
 			buf.read(target);
 			target.rewind();
@@ -144,6 +143,8 @@ public class MemoryBufferTest {
 			src.rewind();
 			buf.write(src);
 		}
+		assertEquals(INT_COUNT * INT_SIZE, src.position());
+		buf.flip();
 	}
 	
 	
