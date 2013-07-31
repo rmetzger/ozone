@@ -15,7 +15,7 @@ import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 import eu.stratosphere.nephele.util.BufferPoolConnector;
 
 
-public class TestMemoryBuffer {
+public class MemoryBufferTest {
 
 	private MemoryBufferPoolConnector bufferPoolConnector;
 	private Queue<MemorySegment> bufferPool;
