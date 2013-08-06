@@ -52,8 +52,8 @@ public final class MemoryBuffer extends Buffer {
 		this.limit(bufferSize);
 	}
 
-	private MemoryBuffer(final int bufferSize, final MemorySegment memory, final MemoryBufferRecycler bufferRecycler) {
-		this.position(0);
+	private MemoryBuffer(final int bufferSize, final int pos, final MemorySegment memory, final MemoryBufferRecycler bufferRecycler) {
+		this.position(pos);
 		this.limit(bufferSize);
 		this.bufferRecycler = bufferRecycler;
 		this.internalMemorySegment = memory;
@@ -213,8 +213,7 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	@Override
 	public MemoryBuffer duplicate() {
-		final MemoryBuffer duplicatedMemoryBuffer = new MemoryBuffer(this.limit(), this.internalMemorySegment, this.bufferRecycler);
-
+		final MemoryBuffer duplicatedMemoryBuffer = new MemoryBuffer(this.limit(), this.position(), this.internalMemorySegment, this.bufferRecycler);
 		this.bufferRecycler.increaseReferenceCounter();
 		return duplicatedMemoryBuffer;
 	}
