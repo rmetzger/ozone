@@ -9,6 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
@@ -35,9 +36,6 @@ public class MemoryBufferTest {
 
 	@Test
 	public void readToSmallByteBuffer() throws IOException {
-		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
-		fillBuffer(ref);
-		
 		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE]), bufferPoolConnector);
 		fillBuffer(buf);
 		
@@ -59,42 +57,6 @@ public class MemoryBufferTest {
 		validateByteBuffer(largeTarget);
 	}
 		
-	@Test
-	public void readToByteBuffer() throws IOException {
-		
-		ReferenceMemoryBuffer ref = new ReferenceMemoryBuffer(INT_COUNT*INT_SIZE, ByteBuffer.allocate(INT_COUNT*INT_SIZE), bufferPoolConnector);
-		fillBuffer(ref);
-		
-		MemoryBuffer buf = new MemoryBuffer(INT_COUNT*INT_SIZE, new MemorySegment(new byte[INT_COUNT*INT_SIZE]), bufferPoolConnector);
-		fillBuffer(buf);
-		
-		ByteBuffer target = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
-		
-		// test for similar starting position
-		assertEquals(ref.getByteBuffer().limit(), buf.limit());
-		assertEquals(ref.getByteBuffer().position(), buf.position());
-		
-		// call to be tested!
-		buf.read(target);
-		final int actLim = buf.limit();
-		final int actPos = buf.position();
-		
-		validateByteBuffer(target);
-		final int actLim1 = buf.limit();
-		final int actPos1 = buf.position();
-		
-		target.clear();
-		
-		ref.read(target);
-		assertEquals(ref.getByteBuffer().limit(), actLim);
-		assertEquals(ref.getByteBuffer().position(), actPos);
-		
-		validateByteBuffer(target);
-		assertEquals(ref.getByteBuffer().limit(), actLim1);
-		assertEquals(ref.getByteBuffer().position(), actPos1);
-		
-		buf.close(); // make eclipse happy
-	}
 	
 	/**
 	 * CopyToBuffer uses system.arraycopy()
@@ -127,10 +89,10 @@ public class MemoryBufferTest {
 		destination.position(written);
 		destination.limit(destination.getTotalSize());
 		// allocate another byte buffer to write the rest of destination into a byteBuffer
-		ByteBuffer testRemiander = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
-		written = destination.read(testRemiander);
+		ByteBuffer testRemainder = ByteBuffer.allocate(INT_COUNT*INT_SIZE);
+		written = destination.read(testRemainder);
 		assertEquals(INT_COUNT*INT_SIZE, written);
-		expectAllNullByteBuffer(testRemiander);
+		expectAllNullByteBuffer(testRemainder);
 		
 		buf.close(); // make eclipse happy
 	}
@@ -143,7 +105,6 @@ public class MemoryBufferTest {
 			src.rewind();
 			buf.write(src);
 		}
-		assertEquals(INT_COUNT * INT_SIZE, src.position());
 		buf.flip();
 	}
 	

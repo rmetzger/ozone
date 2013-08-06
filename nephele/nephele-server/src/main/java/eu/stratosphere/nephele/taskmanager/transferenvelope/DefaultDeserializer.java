@@ -78,6 +78,7 @@ public final class DefaultDeserializer extends AbstractDeserializer {
 
 			if (!buffer.hasRemaining()) {
 				// We are done, the buffer has been fully read
+				buffer.flip();
 				return false;
 			} else {
 				if (bytesWritten == -1) {
