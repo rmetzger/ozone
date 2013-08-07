@@ -238,15 +238,17 @@ public final class MemoryBuffer extends Buffer {
 	 */
 	@Override
 	public int write(final ByteBuffer src) throws IOException {
-		final int initialPos = position();
-		while(src.hasRemaining()) {
-			if(position() >= limit()) {
-				return index-initialPos;
-			}
-			this.internalMemorySegment.put(position(), src.get());
-			position(position()+1);
+		int numBytes = src.remaining();
+		final int thisRemaining = this.remaining();
+		if(thisRemaining == 0) {
+			return 0;
 		}
-		return position()-initialPos;
+		if(numBytes > thisRemaining) {
+			numBytes = thisRemaining;
+		}
+		this.internalMemorySegment.put(position(), src, numBytes);
+		this.index += numBytes;
+		return numBytes;
 	}
 
 	/**
