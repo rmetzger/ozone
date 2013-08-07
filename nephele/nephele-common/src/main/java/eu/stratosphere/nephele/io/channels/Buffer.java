@@ -169,5 +169,11 @@ public abstract class Buffer implements ReadableByteChannel, WritableByteChannel
 	 * Flip buffer (exchange limit and position).
 	 */
 	public abstract void flip();
+	
+	/**
+	 * Returns the current read/write position for relative operations.
+	 * @return
+	 */
+	public abstract int position();
 
 }

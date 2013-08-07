@@ -65,19 +65,17 @@ public final class MemoryBuffer extends Buffer {
 		if (!this.hasRemaining()) {
 			return -1;
 		}
-		
-		if (!dst.hasRemaining()) {
+		int numBytes = dst.remaining();
+		final int remaining = this.remaining();
+		if (numBytes == 0) {
 			return 0;
 		}
-			
-		final int oldIndex = index;
-		for(; index < limit; index++) {
-			if(!dst.hasRemaining()) {
-				break;
-			}
-			dst.put(this.internalMemorySegment.get(index));
+		if(numBytes > remaining) {
+			numBytes = remaining;
 		}
-		return index-oldIndex;
+		internalMemorySegment.get(position(), dst, numBytes);
+		index += numBytes;
+		return numBytes;
 	}
 	
 
@@ -132,6 +130,7 @@ public final class MemoryBuffer extends Buffer {
 		index = i;
 	}
 	
+	@Override
 	public final int position() {
 		return index;
 	}
@@ -228,9 +227,7 @@ public final class MemoryBuffer extends Buffer {
 				+ size() + " vs. " + destinationBuffer.size());
 		}
 		final MemoryBuffer target = (MemoryBuffer) destinationBuffer;
-		
-		System.arraycopy(this.getMemorySegment().getBackingArray(), 0,
-				target.getMemorySegment().getBackingArray(),target.position(), limit()- position() );
+		this.internalMemorySegment.copyTo(this.position(), target.getMemorySegment(), destinationBuffer.position(), limit()-position());
 		target.position(limit()-position()); // even if we do not change the source (this), we change the destination!!
 		destinationBuffer.flip();
 	}
