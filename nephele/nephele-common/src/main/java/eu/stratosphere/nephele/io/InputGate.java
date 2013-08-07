@@ -22,8 +22,6 @@ import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.io.channels.bytebuffered.FileInputChannel;
 import eu.stratosphere.nephele.io.channels.bytebuffered.InMemoryInputChannel;
 import eu.stratosphere.nephele.io.channels.bytebuffered.NetworkInputChannel;
-import eu.stratosphere.nephele.io.compression.CompressionException;
-import eu.stratosphere.nephele.io.compression.CompressionLevel;
 import eu.stratosphere.nephele.types.Record;
 
 /**
@@ -87,14 +85,6 @@ public interface InputGate<T extends Record> extends Gate<T> {
 	void notifyDataUnitConsumed(int channelIndex);
 
 	/**
-	 * Initializes the decompressor objects inside the input channels attached to this gate.
-	 * 
-	 * @throws CompressionException
-	 *         thrown if an error occurs while loading the decompressor objects
-	 */
-	void initializeDecompressors() throws CompressionException;
-
-	/**
 	 * Activates all of the task's input channels.
 	 * 
 	 * @throws IOException
@@ -131,7 +121,7 @@ public interface InputGate<T extends Record> extends Gate<T> {
 	 * @return the new network input channel
 	 */
 	NetworkInputChannel<T> createNetworkInputChannel(InputGate<T> inputGate, ChannelID channelID,
-			ChannelID connectedChannelID, CompressionLevel compressionLevel);
+			ChannelID connectedChannelID);
 
 	/**
 	 * Creates a new file input channel and assigns it to the given input gate.
@@ -163,7 +153,7 @@ public interface InputGate<T extends Record> extends Gate<T> {
 	 * @return the new in-memory input channel
 	 */
 	InMemoryInputChannel<T> createInMemoryInputChannel(InputGate<T> inputGate, ChannelID channelID,
-			ChannelID connectedChannelID, CompressionLevel compressionLevel);
+			ChannelID connectedChannelID);
 
 	/**
 	 * Removes all input channels from the input gate.
