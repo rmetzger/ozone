@@ -21,15 +21,33 @@
 			<artifactId>nephele-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+		  <groupId>org.apache.avro</groupId>
+		  <artifactId>avro</artifactId>
+		  <version>1.7.5</version>
+		  <scope>test</scope>
+		</dependency>
 	</dependencies>
-
-	<reporting>
-		<plugins>
-		</plugins>
-	</reporting>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.avro</groupId>
+				<artifactId>avro-maven-plugin</artifactId>
+				<version>1.7.5</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>schema</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${project.basedir}/src/test/resources/avro</sourceDirectory>
+							<outputDirectory>${project.basedir}/src/test/java/</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
