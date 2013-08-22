@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.fs.FileInputSplit;
+import eu.stratosphere.pact.common.io.avro.AvroInputFormat;
 import eu.stratosphere.pact.common.io.avro.generated.User;
 import eu.stratosphere.pact.common.type.PactRecord;
 import eu.stratosphere.pact.common.type.base.PactString;
@@ -21,7 +22,9 @@ import eu.stratosphere.pact.common.type.base.PactString;
 
 /**
  * Test the avro input format.
- *
+ * (The testcase is mostly the getting started tutorial of avro)
+ * http://avro.apache.org/docs/current/gettingstartedjava.html
+ * 
  */
 public class AvroInputFormatTest {
 	
@@ -61,11 +64,11 @@ public class AvroInputFormatTest {
 		PactRecord record = new PactRecord();
 		Assert.assertTrue(format.nextRecord(record));
 		PactString name = record.getField(0, PactString.class);
-		Assert.assertNotNull(name);
-		Assert.assertEquals(name.getValue(), TEST_NAME);
+		Assert.assertNotNull("empty record", name);
+		Assert.assertEquals("name not equal",name.getValue(), TEST_NAME);
 		
-		Assert.assertFalse(format.reachedEnd());
-		Assert.assertTrue(format.nextRecord(record));
+		Assert.assertFalse("expecting second element", format.reachedEnd());
+		Assert.assertTrue("expecting second element", format.nextRecord(record));
 		
 		Assert.assertFalse(format.nextRecord(record));
 		Assert.assertTrue(format.reachedEnd());
