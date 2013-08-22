@@ -12,7 +12,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 
 import eu.stratosphere.nephele.fs.FileInputSplit;
-import eu.stratosphere.pact.common.contract.DataDistribution;
 import eu.stratosphere.pact.common.io.FileInputFormat;
 import eu.stratosphere.pact.common.type.PactRecord;
 import eu.stratosphere.pact.common.type.Value;

@@ -28,6 +28,12 @@
 		</dependency>
 	</dependencies>
 
+	<reporting>
+		<plugins>
+		</plugins>
+	</reporting>
+
+
 	<build>
 		<plugins>
 			<plugin>
