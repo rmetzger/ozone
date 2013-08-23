@@ -15,6 +15,7 @@ import eu.stratosphere.nephele.fs.FileInputSplit;
 import eu.stratosphere.pact.common.io.FileInputFormat;
 import eu.stratosphere.pact.common.type.PactRecord;
 import eu.stratosphere.pact.common.type.Value;
+import eu.stratosphere.pact.common.type.base.PactBoolean;
 import eu.stratosphere.pact.common.type.base.PactInteger;
 import eu.stratosphere.pact.common.type.base.PactString;
 
@@ -55,7 +56,6 @@ public class AvroInputFormat extends FileInputFormat {
 		reuseAvroRecord = dataFileReader.next(reuseAvroRecord);
 		List<Field> fields = reuseAvroRecord.getSchema().getFields();
 		for(Field field : fields) {
-			
 			final Value value = convertAvroToPactValue(field, reuseAvroRecord.get(field.pos()));
 			record.setField(field.pos(), value);
 		}
@@ -75,8 +75,10 @@ public class AvroInputFormat extends FileInputFormat {
 				return new PactString((CharSequence) avroRecord);
 			case INT:
 				return new PactInteger((Integer) avroRecord);
+			case BOOLEAN:
+				return new PactBoolean((Boolean) avroRecord) ;
 			default:
-				throw new RuntimeException("Implement type "+field.schema().getType()+" for AvroInputFormat!");
+				throw new RuntimeException("Implement type "+type+" for AvroInputFormat!");
 		}
 	}
 	
