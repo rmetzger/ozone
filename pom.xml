@@ -32,7 +32,7 @@
 	<pluginRepositories>
 	</pluginRepositories>
 	
-	<!-- <repositories>
+	<repositories>
       <repository>
         <id>cloudera-releases</id>
         <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
@@ -43,7 +43,7 @@
           <enabled>false</enabled>
         </snapshots>
       </repository>
-    </repositories>  -->
+    </repositories>
 
 	<dependencies>
 	
