@@ -17,9 +17,11 @@ package eu.stratosphere.pact.client;
 import java.io.File;
 import java.io.FileWriter;
 
+import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Assert;
 import org.junit.Test;
 
+import eu.stratosphere.nephele.util.Logging;
 import eu.stratosphere.pact.example.wordcount.WordCount;
 
 
@@ -27,6 +29,7 @@ public class LocalDistributedExecutorTest {
 
 	@Test
 	public void testLocalDistributedExecutorWithWordCount() {
+		Logging.initialize();
 		try {
 			// set up the files
 			File inFile = File.createTempFile("wctext", ".in");

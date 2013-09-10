@@ -251,7 +251,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			LOG.info("Trying to load " + instanceManagerClassName + " as instance manager");
 			this.instanceManager = JobManagerUtils.loadInstanceManager(instanceManagerClassName);
 			if (this.instanceManager == null) {
-				LOG.error("UNable to load instance manager " + instanceManagerClassName);
+				LOG.error("Unable to load instance manager " + instanceManagerClassName);
 				System.exit(FAILURERETURNCODE);
 			}
 		}
