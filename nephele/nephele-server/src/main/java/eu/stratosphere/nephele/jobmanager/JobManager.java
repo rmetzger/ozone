@@ -95,6 +95,7 @@ import eu.stratosphere.nephele.instance.InstanceManager;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.instance.InstanceTypeDescription;
 import eu.stratosphere.nephele.instance.local.LocalInstanceManager;
+import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
@@ -109,12 +110,17 @@ import eu.stratosphere.nephele.jobmanager.web.WebInfoServer;
 import eu.stratosphere.nephele.managementgraph.ManagementGraph;
 import eu.stratosphere.nephele.managementgraph.ManagementVertexID;
 import eu.stratosphere.nephele.multicast.MulticastManager;
+import eu.stratosphere.nephele.plugins.JobManagerPlugin;
+import eu.stratosphere.nephele.plugins.PluginID;
+import eu.stratosphere.nephele.plugins.PluginManager;
 import eu.stratosphere.nephele.profiling.JobManagerProfiler;
+import eu.stratosphere.nephele.profiling.ProfilingListener;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.ExtendedManagementProtocol;
 import eu.stratosphere.nephele.protocols.InputSplitProviderProtocol;
 import eu.stratosphere.nephele.protocols.JobManagerProtocol;
+import eu.stratosphere.nephele.protocols.PluginCommunicationProtocol;
 import eu.stratosphere.nephele.taskmanager.AbstractTaskResult;
 import eu.stratosphere.nephele.taskmanager.TaskCancelResult;
 import eu.stratosphere.nephele.taskmanager.TaskExecutionState;
@@ -171,11 +177,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	private final AtomicBoolean isShutdownInProgress = new AtomicBoolean(false);
 
 	private volatile boolean isShutDown = false;
-	
-	private WebInfoServer server;
+
 	
 	public JobManager(ExecutionMode executionMode) {
-		
+
 		final String ipcAddressString = GlobalConfiguration
 			.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
 
@@ -241,7 +246,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			LOG.info("Trying to load " + instanceManagerClassName + " as instance manager");
 			this.instanceManager = JobManagerUtils.loadInstanceManager(instanceManagerClassName);
 			if (this.instanceManager == null) {
-				LOG.error("UNable to load instance manager " + instanceManagerClassName);
+				LOG.error("Unable to load instance manager " + instanceManagerClassName);
 				System.exit(FAILURERETURNCODE);
 			}
 		}
@@ -428,7 +433,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		
 		// First, try to load global configuration
 		GlobalConfiguration.loadConfiguration(configDir);
-		
+
 		// Create a new job manager object
 		JobManager jobManager = new JobManager(executionMode);
 		
@@ -549,7 +554,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			if (this.eventCollector != null) {
 				this.profiler.registerForProfilingData(eg.getJobID(), this.eventCollector);
 			}
-			
+
 		}
 
 		// Register job with the dynamic input split assigner
@@ -1238,4 +1243,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		}
 	}
 
+	public int getNumberOfTaskTrackers() {
+		return this.instanceManager.getNumberOfTaskTrackers();
+	}
 }

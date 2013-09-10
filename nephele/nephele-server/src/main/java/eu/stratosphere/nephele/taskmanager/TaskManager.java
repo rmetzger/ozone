@@ -538,7 +538,6 @@ public class TaskManager implements TaskOperationProtocol {
 		Task task = null;
 
 		synchronized (this) {
-
 			final Task runningTask = this.runningTasks.get(id);
 			boolean registerTask = true;
 			if (runningTask == null) {
