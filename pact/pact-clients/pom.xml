@@ -35,20 +35,6 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>eu.stratosphere</groupId>
-			<artifactId>nephele-clustermanager</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>eu.stratosphere</groupId>
-			<artifactId>nephele-queuescheduler</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
 		
 		<dependency>
 			<groupId>commons-cli</groupId>

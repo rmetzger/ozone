@@ -1,4 +1,4 @@
-package eu.stratosphere.pact.client;
+package eu.stratosphere.pact.test.localDistributed;
 
 import static org.junit.Assert.fail;
 
@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.stratosphere.nephele.client.AbstractJobResult.ReturnCode;
+import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
@@ -23,7 +26,9 @@ import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
 import eu.stratosphere.pact.compiler.util.DummyOutputFormat;
 
 public class LocalDistributedExecutor  {
-	private static int NUM_TASKMANAGERS = 10; // + 1 from the regular local mode
+	private static int NUM_TASKMANAGERS = 2; // + 1 from the regular local mode
+	
+	private static int JOBMANAGER_RPC_PORT = 6498;
 	
 	public static class JobManagerThread extends Thread {
 		JobManager jm;
@@ -34,11 +39,11 @@ public class LocalDistributedExecutor  {
 		@Override
 		public void run() {
 			jm.runTaskLoop();
-			jm.shutdown();
+		//	jm.shutdown();
 		}
 	}
-	public void run(Plan plan) {
-		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(6498, 6500,
+	public void run(Plan plan) throws Exception {
+		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(JOBMANAGER_RPC_PORT, 6500,
 				7501, 7533, null, true);
 		GlobalConfiguration.includeConfiguration(conf);
 			
@@ -55,13 +60,16 @@ public class LocalDistributedExecutor  {
 	
 		
 		JobManagerThread jobManagerThread = new JobManagerThread(jobManager);
+		jobManagerThread.setDaemon(true);
 		jobManagerThread.start();
 		
 		List<LocalTaskManagerThread> tms = new ArrayList<LocalTaskManagerThread>();
 		for(int tm = 0; tm < NUM_TASKMANAGERS; tm++) {
 			Configuration tmConf = new Configuration();
-			conf.setInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
-						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT+tm);
+			tmConf.setInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
+						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT+tm+100);
+			tmConf.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT+tm); // taskmanager.data.port
+			System.err.println("new conf "+tmConf);
 			GlobalConfiguration.includeConfiguration(tmConf);
 			
 			System.err.println("Setting new Port "+GlobalConfiguration.getConfiguration());
@@ -70,19 +78,38 @@ public class LocalDistributedExecutor  {
 			tms.add(t);
 		}
 		
+		try {
+			Thread.sleep(1000*3);  // Sleep for 5 secs
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
 		PactCompiler pc = new PactCompiler(new DataStatistics());
 		OptimizedPlan op = pc.compile(plan);
 		
 		NepheleJobGraphGenerator jgg = new NepheleJobGraphGenerator();
 		JobGraph jobGraph = jgg.compileJobGraph(op);
+	
 		try {
-			jobManager.submitJob(jobGraph);
+			JobClient jobClient = getJobClient(jobGraph);
+			
+			JobSubmissionResult res = jobClient.submitJob();
+			if( res.getReturnCode() == ReturnCode.ERROR) {
+				System.err.println("Job submission/execution failed with message: "+res.getDescription());
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void main(String args[]) {
+	public JobClient getJobClient(JobGraph jobGraph) throws Exception {
+		Configuration configuration = jobGraph.getJobConfiguration();
+		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
+		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, JOBMANAGER_RPC_PORT);
+		return new JobClient(jobGraph, configuration);
+	}
+	
+	public static void main(String args[]) throws Exception {
 		LocalDistributedExecutor lde = new LocalDistributedExecutor();
 		
 		FileDataSink sink = new FileDataSink(DummyOutputFormat.class, "file:///tmp/test", "file sink");

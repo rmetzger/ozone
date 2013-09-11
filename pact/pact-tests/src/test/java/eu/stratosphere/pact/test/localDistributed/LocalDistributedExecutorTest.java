@@ -12,16 +12,16 @@
  * specific language governing permissions and limitations under the License.
  *
  **********************************************************************************************************************/
-package eu.stratosphere.pact.client;
+package eu.stratosphere.pact.test.localDistributed;
 
 import java.io.File;
 import java.io.FileWriter;
 
-import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Assert;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.util.Logging;
+import eu.stratosphere.pact.client.LocalExecutorTest;
 import eu.stratosphere.pact.example.wordcount.WordCount;
 
 
