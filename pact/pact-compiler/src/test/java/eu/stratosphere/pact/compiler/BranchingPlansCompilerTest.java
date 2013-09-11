@@ -116,6 +116,141 @@ public class BranchingPlansCompilerTest extends CompilerTestBase {
 		}
 	}
 	
+	
+	/**
+	 * This test case targets the following exception
+	 * 
+	 * Exception in thread "main" java.lang.NullPointerException
+	 *	at java.util.ArrayList.addAll(ArrayList.java:559)
+	 * 	at eu.stratosphere.pact.compiler.plan.SinkJoiner.computeUnclosedBranchStack(SinkJoiner.java:80)
+	 *	at eu.stratosphere.pact.compiler.PactCompiler$BranchesVisitor.postVisit(PactCompiler.java:1233)
+	 *	at eu.stratosphere.pact.compiler.PactCompiler$BranchesVisitor.postVisit(PactCompiler.java:1)
+	 *	at eu.stratosphere.pact.compiler.plan.TwoInputNode.accept(TwoInputNode.java:809)
+	 *	at eu.stratosphere.pact.compiler.plan.TwoInputNode.accept(TwoInputNode.java:807)
+	 *	at eu.stratosphere.pact.compiler.PactCompiler.compile(PactCompiler.java:703)
+	 *
+	 * <pre>
+	 *                (SRC A)  
+	 *                   |
+	 *                (MAP A)
+	 *             /         \   
+	 *            /         (MAP C)
+	 *           /           /     
+	 *        (SINK A)    (SINK B) .. 5 times the sinks
+	 * </pre>
+	 */
+	@Test
+	public void testMultipleDataSinks() {
+		
+				
+		try {
+			List<GenericDataSink> sinks = new ArrayList<GenericDataSink>();
+			
+			// construct the plan
+			final String out1Path = "file:///test/1";
+			final String out2Path = "file:///test/2";
+			final String out3Path = "file:///test/3";
+	
+			FileDataSource sourceA = new FileDataSource(DummyInputFormat.class, IN_FILE);
+
+			final int MAPS = 3;
+			final int SINKS_PER_MAP = 2;
+			
+			MapContract[] mapContr = new MapContract[MAPS];
+			FileDataSink[] sinksAr = new FileDataSink[MAPS*SINKS_PER_MAP];
+			int s = 0;
+			for(int map = 0; map < MAPS; map++) {
+				mapContr[map] = MapContract.builder(IdentityMap.class).input(sourceA).name("Map "+map).build();
+				
+				for(int sink = 0; sink < SINKS_PER_MAP; sink++) {
+					sinksAr[s] = new FileDataSink(DummyOutputFormat.class, out1Path, mapContr[map], "Sink "+sink+" for Map "+map);
+					sinks.add(sinksAr[s++]);
+				}
+			}
+			
+			FileDataSink sinkC = new FileDataSink(DummyOutputFormat.class, out3Path, sourceA, "Sink C");
+			sinks.add(sinkC);
+			
+			FileDataSink sinkB = new FileDataSink(DummyOutputFormat.class, out3Path, mapContr[2], "Sink C");
+			sinks.add(sinkB);
+			
+			// return the PACT plan
+			Plan plan = new Plan(sinks, "Plans With Multiple Data Sinks");
+			
+			OptimizedPlan oPlan = compileNoStats(plan);
+			
+			// ---------- check the optimizer plan ----------
+			
+			
+			// ---------- compile plan to nephele job graph to verify that no error is thrown ----------
+			
+			NepheleJobGraphGenerator jobGen = new NepheleJobGraphGenerator();
+			jobGen.compileJobGraph(oPlan);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		}
+	}
+	
+	
+	/** 
+	 * This test targets the following exception:
+	 * 
+	 * java.lang.IllegalArgumentException: Cannot subtract more cost then there is.
+		at eu.stratosphere.pact.compiler.costs.Costs.subtractCosts(Costs.java:367)
+		at eu.stratosphere.pact.compiler.plan.candidate.DualInputPlanNode.setCosts(DualInputPlanNode.java:208)
+		at eu.stratosphere.pact.compiler.plan.candidate.SinkJoinerPlanNode.setCosts(SinkJoinerPlanNode.java:39)
+		at eu.stratosphere.pact.compiler.costs.CostEstimator.costOperator(CostEstimator.java:205)
+		at eu.stratosphere.pact.compiler.plan.TwoInputNode.getAlternativePlans(TwoInputNode.java:490)
+		at eu.stratosphere.pact.compiler.plan.TwoInputNode.getAlternativePlans(TwoInputNode.java:341)
+		at eu.stratosphere.pact.compiler.plan.TwoInputNode.getAlternativePlans(TwoInputNode.java:341)
+		at eu.stratosphere.pact.compiler.plan.TwoInputNode.getAlternativePlans(TwoInputNode.java:341)
+		at eu.stratosphere.pact.compiler.plan.TwoInputNode.getAlternativePlans(TwoInputNode.java:341)
+		at eu.stratosphere.pact.compiler.PactCompiler.compile(PactCompiler.java:712)
+	 **/
+	
+	
+	@Test
+	public void testCostComputationWithMultipleDataSinks() {
+		final int SINKS = 5;
+				
+		try {
+			List<GenericDataSink> sinks = new ArrayList<GenericDataSink>();
+			
+			// construct the plan
+			final String out1Path = "file:///test/1";
+			final String out2Path = "file:///test/2";
+	
+			FileDataSource sourceA = new FileDataSource(DummyInputFormat.class, IN_FILE);
+
+			MapContract mapA = MapContract.builder(IdentityMap.class).input(sourceA).name("Map A").build();
+			MapContract mapC = MapContract.builder(IdentityMap.class).input(mapA).name("Map C").build();
+			
+			FileDataSink[] sinkA = new FileDataSink[SINKS];
+			FileDataSink[] sinkB = new FileDataSink[SINKS];
+			for(int sink = 0; sink < SINKS; sink++) {
+				sinkA[sink] = new FileDataSink(DummyOutputFormat.class, out1Path, mapA, "Sink A:"+sink);
+				sinks.add(sinkA[sink]);
+				
+				sinkB[sink] = new FileDataSink(DummyOutputFormat.class, out2Path, mapC, "Sink B:"+sink);
+				sinks.add(sinkB[sink]);
+			}
+			
+			
+			// return the PACT plan
+			Plan plan = new Plan(sinks, "Plans With Multiple Data Sinks");
+			
+			OptimizedPlan oPlan = compileNoStats(plan);
+			
+			// ---------- compile plan to nephele job graph to verify that no error is thrown ----------
+			
+			NepheleJobGraphGenerator jobGen = new NepheleJobGraphGenerator();
+			jobGen.compileJobGraph(oPlan);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		}
+	}
 
 	/**
 	 * <pre>
