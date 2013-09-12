@@ -65,16 +65,17 @@ public abstract class GenericTableOutputFormat implements OutputFormat<PactRecor
 
 	@Override
 	public void open(int taskNumber) throws IOException {
-		this.hadoopConfig = getHadoopConfig(this.config);
-		final TaskAttemptID attemptId = new TaskAttemptID(this.jtID, this.jobId, TaskType.MAP, taskNumber - 1, 0);
-
-		this.context = new org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl(this.hadoopConfig, attemptId);
-		final HFileOutputFormat outFormat = new HFileOutputFormat();
-		try {
-			this.writer = outFormat.getRecordWriter(this.context);
-		} catch (InterruptedException iex) {
-			throw new IOException("Opening the writer was interrupted.", iex);
-		}
+		throw new RuntimeException("TODO: Fix maven profiles compatility issues + write testcases");
+//		this.hadoopConfig = getHadoopConfig(this.config);
+//		final TaskAttemptID attemptId = new TaskAttemptID(this.jtID, this.jobId, TaskType.MAP, taskNumber - 1, 0);
+//
+//		this.context = new org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl(this.hadoopConfig, attemptId);
+//		final HFileOutputFormat outFormat = new HFileOutputFormat();
+//		try {
+//			this.writer = outFormat.getRecordWriter(this.context);
+//		} catch (InterruptedException iex) {
+//			throw new IOException("Opening the writer was interrupted.", iex);
+//		}
 	}
 
 	@Override
