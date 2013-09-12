@@ -9,4 +9,4 @@ env:
 
 install: true
 
-script: "mvn -D$PROFILE clean verify"
+script: "mvn -P$PROFILE clean verify"
