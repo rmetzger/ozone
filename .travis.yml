@@ -3,4 +3,4 @@ jdk:
   - oraclejdk7
   - openjdk7
   - openjdk6
-script: "mvn verify"
+script: "./.travis_build.sh"
