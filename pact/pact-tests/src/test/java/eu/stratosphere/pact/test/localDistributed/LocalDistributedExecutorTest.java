@@ -45,6 +45,8 @@ public class LocalDistributedExecutorTest {
 			WordCount wc = new WordCount();
 			LocalDistributedExecutor lde = new LocalDistributedExecutor();
 			lde.run( wc.getPlan("4", "file://" + inFile.getAbsolutePath(), "file://" + outFile.getAbsolutePath()));
+			
+			Thread.sleep(1000 * 1000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail(e.getMessage());
