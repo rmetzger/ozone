@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.util.Logging;
-import eu.stratosphere.pact.client.LocalExecutorTest;
 import eu.stratosphere.pact.example.wordcount.WordCount;
 
 
