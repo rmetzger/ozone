@@ -140,7 +140,7 @@ public class LocalInstanceManager implements InstanceManager {
 
 		this.instanceTypeDescriptionMap = new SerializableHashMap<InstanceType, InstanceTypeDescription>();
 
-		this.localTaskManagerThread = new LocalTaskManagerThread();
+		this.localTaskManagerThread = new LocalTaskManagerThread("Local Taskmanager IO Loop");
 		this.localTaskManagerThread.start();
 	}
 

@@ -21,6 +21,12 @@ import eu.stratosphere.pact.compiler.PactCompiler;
 import eu.stratosphere.pact.compiler.plan.candidate.OptimizedPlan;
 import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
 
+/**
+ * This executor allows to execute a Job on one machine (locally) using multiple
+ * TaskManagers that communicate via TCP/IP, not memory.
+ * 
+ *
+ */
 public class LocalDistributedExecutor  {
 	private static int JOBMANAGER_RPC_PORT = 6498;
 	
@@ -66,7 +72,7 @@ public class LocalDistributedExecutor  {
 						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT + 100 + tm + numTaskMgr);
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT+tm); // taskmanager.data.port
 			GlobalConfiguration.includeConfiguration(tmConf);
-			LocalTaskManagerThread t = new LocalTaskManagerThread();
+			LocalTaskManagerThread t = new LocalTaskManagerThread(this.getClass().getName()+": LocalTaskManagerThread-#"+tm);
 			t.start();
 			tms.add(t);
 		}
