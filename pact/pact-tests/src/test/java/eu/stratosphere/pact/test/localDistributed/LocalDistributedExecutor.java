@@ -42,7 +42,7 @@ public class LocalDistributedExecutor  {
 		}
 	}
 	
-	public void run(final Plan plan, final int numTaskMgr) throws Exception {
+	public static void run(final JobGraph jobGraph, final int numTaskMgr) throws Exception {
 		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(JOBMANAGER_RPC_PORT, 6500,
 				7501, 7533, null, true);
 		GlobalConfiguration.includeConfiguration(conf);
@@ -72,7 +72,7 @@ public class LocalDistributedExecutor  {
 						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT + 100 + tm + numTaskMgr);
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT+tm); // taskmanager.data.port
 			GlobalConfiguration.includeConfiguration(tmConf);
-			LocalTaskManagerThread t = new LocalTaskManagerThread(this.getClass().getName()+": LocalTaskManagerThread-#"+tm);
+			LocalTaskManagerThread t = new LocalTaskManagerThread("LocalDistributedExecutor: LocalTaskManagerThread-#"+tm);
 			t.start();
 			tms.add(t);
 		}
@@ -90,11 +90,7 @@ public class LocalDistributedExecutor  {
 		}
 		
 		
-		PactCompiler pc = new PactCompiler(new DataStatistics());
-		OptimizedPlan op = pc.compile(plan);
 		
-		NepheleJobGraphGenerator jgg = new NepheleJobGraphGenerator();
-		JobGraph jobGraph = jgg.compileJobGraph(op);
 	
 		try {
 			JobClient jobClient = getJobClient(jobGraph);
@@ -105,7 +101,17 @@ public class LocalDistributedExecutor  {
 		}
 	}
 	
-	public JobClient getJobClient(JobGraph jobGraph) throws Exception {
+	public static void run(final Plan plan, final int numTaskMgr) throws Exception {
+		PactCompiler pc = new PactCompiler(new DataStatistics());
+		OptimizedPlan op = pc.compile(plan);
+		
+		NepheleJobGraphGenerator jgg = new NepheleJobGraphGenerator();
+		JobGraph jobGraph = jgg.compileJobGraph(op);
+		run(jobGraph, numTaskMgr);
+	}
+	
+	
+	public static JobClient getJobClient(JobGraph jobGraph) throws Exception {
 		Configuration configuration = jobGraph.getJobConfiguration();
 		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, JOBMANAGER_RPC_PORT);

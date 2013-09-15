@@ -48,6 +48,7 @@ import org.junit.Test;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
+import eu.stratosphere.pact.test.localDistributed.LocalDistributedExecutor;
 import eu.stratosphere.pact.test.util.filesystem.FilesystemProvider;
 import eu.stratosphere.pact.test.util.minicluster.ClusterProvider;
 import eu.stratosphere.pact.test.util.minicluster.ClusterProviderPool;
@@ -90,7 +91,7 @@ public abstract class TestBase {
 
 	@Before
 	public void startCluster() throws Exception {
-		cluster = ClusterProviderPool.getInstance(clusterConfig);
+		// cluster = ClusterProviderPool.getInstance(clusterConfig);
 	}
 
 	@After
@@ -107,23 +108,24 @@ public abstract class TestBase {
 		preSubmit();
 
 		// submit job
-		JobGraph jobGraph = null;
-		try {
-			jobGraph = getJobGraph();
-		} catch(Exception e) {
-			LOG.error(e);
-			e.printStackTrace();
-			Assert.fail("Failed to obtain JobGraph!");
-		}
-		
-		try {
-			final JobClient client = cluster.getJobClient(jobGraph, getJarFilePath());
-			client.setConsoleStreamForReporting(TestBase2.getNullPrintStream());
-			client.submitJobAndWait();
-		} catch(Exception e) {
-			LOG.error(e);
-			Assert.fail("Job execution failed!");
-		}
+//		JobGraph jobGraph = null;
+//		try {
+//			jobGraph = getJobGraph();
+//		} catch(Exception e) {
+//			LOG.error(e);
+//			e.printStackTrace();
+//			Assert.fail("Failed to obtain JobGraph!");
+//		}
+//		
+//		try {
+//			final JobClient client = cluster.getJobClient(jobGraph, getJarFilePath());
+//			client.setConsoleStreamForReporting(TestBase2.getNullPrintStream());
+//			client.submitJobAndWait();
+//		} catch(Exception e) {
+//			LOG.error(e);
+//			Assert.fail("Job execution failed!");
+//		}
+		LocalDistributedExecutor.run(getJobGraph(), 2);
 		
 		// post-submit
 		postSubmit();
