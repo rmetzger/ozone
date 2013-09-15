@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import eu.stratosphere.nephele.util.Logging;
+import eu.stratosphere.pact.clients.examples.LocalExecutorTest;
 import eu.stratosphere.pact.example.wordcount.WordCount;
 
 
@@ -43,9 +44,7 @@ public class LocalDistributedExecutorTest {
 			// run WordCount
 			WordCount wc = new WordCount();
 			LocalDistributedExecutor lde = new LocalDistributedExecutor();
-			lde.run( wc.getPlan("4", "file://" + inFile.getAbsolutePath(), "file://" + outFile.getAbsolutePath()));
-			
-			Thread.sleep(1000 * 1000);
+			lde.run( wc.getPlan("4", "file://" + inFile.getAbsolutePath(), "file://" + outFile.getAbsolutePath()), 3);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail(e.getMessage());

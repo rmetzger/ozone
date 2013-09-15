@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.stratosphere.nephele.client.AbstractJobResult.ReturnCode;
 import eu.stratosphere.nephele.client.JobClient;
-import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
@@ -16,19 +14,14 @@ import eu.stratosphere.nephele.instance.local.LocalTaskManagerThread;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.nephele.jobmanager.JobManager;
 import eu.stratosphere.nephele.jobmanager.JobManager.ExecutionMode;
-import eu.stratosphere.nephele.util.Logging;
 import eu.stratosphere.pact.client.minicluster.NepheleMiniCluster;
-import eu.stratosphere.pact.common.contract.FileDataSink;
 import eu.stratosphere.pact.common.plan.Plan;
 import eu.stratosphere.pact.compiler.DataStatistics;
 import eu.stratosphere.pact.compiler.PactCompiler;
 import eu.stratosphere.pact.compiler.plan.candidate.OptimizedPlan;
 import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
-import eu.stratosphere.pact.compiler.util.DummyOutputFormat;
 
 public class LocalDistributedExecutor  {
-	private static int NUM_TASKMANAGERS = 2; // + 1 from the regular local mode
-	
 	private static int JOBMANAGER_RPC_PORT = 6498;
 	
 	public static class JobManagerThread extends Thread {
@@ -40,10 +33,10 @@ public class LocalDistributedExecutor  {
 		@Override
 		public void run() {
 			jm.runTaskLoop();
-		//	jm.shutdown();
 		}
 	}
-	public void run(Plan plan) throws Exception {
+	
+	public void run(final Plan plan, final int numTaskMgr) throws Exception {
 		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(JOBMANAGER_RPC_PORT, 6500,
 				7501, 7533, null, true);
 		GlobalConfiguration.includeConfiguration(conf);
@@ -64,26 +57,32 @@ public class LocalDistributedExecutor  {
 		jobManagerThread.setDaemon(true);
 		jobManagerThread.start();
 		
+		// start the taskmanagers
 		List<LocalTaskManagerThread> tms = new ArrayList<LocalTaskManagerThread>();
-		for(int tm = 0; tm < NUM_TASKMANAGERS; tm++) {
+		for(int tm = 0; tm < numTaskMgr; tm++) {
+			// The whole thing can only work if we assign different IP addresses to each TaskManager
 			Configuration tmConf = new Configuration();
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
-						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT+tm+100);
+						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT + 100 + tm + numTaskMgr);
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT+tm); // taskmanager.data.port
-			System.err.println("new conf "+tmConf);
 			GlobalConfiguration.includeConfiguration(tmConf);
-			
-			System.err.println("Setting new Port "+GlobalConfiguration.getConfiguration());
 			LocalTaskManagerThread t = new LocalTaskManagerThread();
 			t.start();
 			tms.add(t);
 		}
 		
-		try {
-			Thread.sleep(1000*3);  // Sleep for 5 secs
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+		final int sleepTime = 100;
+		final int maxSleep = 1000 * 2 * numTaskMgr; // we wait 2 seconds PER TaskManager.
+		int slept = 0;
+		// wait for all taskmanagers to register to the JM
+		while(jobManager.getNumberOfTaskTrackers() < numTaskMgr) {
+			Thread.sleep(sleepTime);
+			if(slept >= maxSleep) {
+				throw new RuntimeException("Waited for more than 2 seconds per TaskManager to register at "
+						+ "the JobManager.");
+			}
 		}
+		
 		
 		PactCompiler pc = new PactCompiler(new DataStatistics());
 		OptimizedPlan op = pc.compile(plan);
@@ -94,10 +93,7 @@ public class LocalDistributedExecutor  {
 		try {
 			JobClient jobClient = getJobClient(jobGraph);
 			
-			JobSubmissionResult res = jobClient.submitJob();
-			if( res.getReturnCode() == ReturnCode.ERROR) {
-				System.err.println("Job submission/execution failed with message: "+res.getDescription());
-			}
+			jobClient.submitJobAndWait();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -108,13 +104,5 @@ public class LocalDistributedExecutor  {
 		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, JOBMANAGER_RPC_PORT);
 		return new JobClient(jobGraph, configuration);
-	}
-	
-	public static void main(String args[]) throws Exception {
-		LocalDistributedExecutor lde = new LocalDistributedExecutor();
-		
-		FileDataSink sink = new FileDataSink(DummyOutputFormat.class, "file:///tmp/test", "file sink");
-		Plan plan = new Plan(sink, "Branching Plans With Multiple Data Sinks");
-		lde.run(plan);
 	}
 }

@@ -400,4 +400,9 @@ public class LocalInstanceManager implements InstanceManager {
 
 		// The local instance manager does not support pending requests, so nothing to do here
 	}
+
+	@Override
+	public int getNumberOfTaskTrackers() {
+		return (this.localInstance == null) ? 0 : 1; // this instance manager can have at most one TaskTracker
+	}
 }

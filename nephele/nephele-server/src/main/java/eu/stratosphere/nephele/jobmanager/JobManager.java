@@ -1279,4 +1279,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 		return jmp.requestData(data);
 	}
+	
+	public int getNumberOfTaskTrackers() {
+		return this.instanceManager.getNumberOfTaskTrackers();
+	}
 }
