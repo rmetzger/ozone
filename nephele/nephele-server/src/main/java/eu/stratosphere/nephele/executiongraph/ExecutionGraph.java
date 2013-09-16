@@ -527,8 +527,8 @@ public class ExecutionGraph implements ExecutionListener {
 
 			if (maximumNumberOfSubtasks != -1) {
 				if (jobVertex.getNumberOfSubtasks() > maximumNumberOfSubtasks) {
-					throw new GraphConversionException("Number of subtasks for vertex " + jobVertex.getName()
-						+ " can be at most " + maximumNumberOfSubtasks);
+					throw new GraphConversionException("Number of subtasks for vertex '" + jobVertex.getName()
+						+ "' can be at most " + maximumNumberOfSubtasks);
 				}
 			}
 		}
