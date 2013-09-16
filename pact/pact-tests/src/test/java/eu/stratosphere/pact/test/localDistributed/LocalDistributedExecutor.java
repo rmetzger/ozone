@@ -28,7 +28,9 @@ import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
  *
  */
 public class LocalDistributedExecutor  {
+	
 	private static int JOBMANAGER_RPC_PORT = 6498;
+	private boolean running = false;
 	
 	public static class JobManagerThread extends Thread {
 		JobManager jm;
@@ -41,7 +43,12 @@ public class LocalDistributedExecutor  {
 			jm.runTaskLoop();
 		}
 	}
-	public static void startNephele(final int numTaskMgr) throws InterruptedException {
+	
+	public void startNephele(final int numTaskMgr) throws InterruptedException {
+		if(running) {
+			return;
+		}
+		
 		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(JOBMANAGER_RPC_PORT, 6500,
 				7501, 7533, null, true);
 		GlobalConfiguration.includeConfiguration(conf);
@@ -87,15 +94,20 @@ public class LocalDistributedExecutor  {
 						+ "the JobManager.");
 			}
 		}
+		this.running = true;
 	}
 	
-	public static void run(final JobGraph jobGraph, final int numTaskMgr) throws Exception {
-		// startNephele(numTaskMgr);
+	public void run(final JobGraph jobGraph) throws Exception {
+		if(!running) {
+			throw new IllegalStateException("Nephele has not been started");
+		}
 		runNepheleJobGraph(jobGraph);
 	}
 	
-	public static void run(final Plan plan, final int numTaskMgr) throws Exception {
-		startNephele(numTaskMgr);
+	public void run(final Plan plan) throws Exception {
+		if(!running) {
+			throw new IllegalStateException("Nephele has not been started");
+		}
 		PactCompiler pc = new PactCompiler(new DataStatistics());
 		OptimizedPlan op = pc.compile(plan);
 		
@@ -104,7 +116,7 @@ public class LocalDistributedExecutor  {
 		runNepheleJobGraph(jobGraph);
 	}
 	
-	private static void runNepheleJobGraph(JobGraph jobGraph) throws Exception {
+	private void runNepheleJobGraph(JobGraph jobGraph) throws Exception {
 		try {
 			JobClient jobClient = getJobClient(jobGraph);
 			jobClient.submitJobAndWait();
@@ -114,7 +126,7 @@ public class LocalDistributedExecutor  {
 	}
 	
 	
-	private static JobClient getJobClient(JobGraph jobGraph) throws Exception {
+	private JobClient getJobClient(JobGraph jobGraph) throws Exception {
 		Configuration configuration = jobGraph.getJobConfiguration();
 		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, JOBMANAGER_RPC_PORT);

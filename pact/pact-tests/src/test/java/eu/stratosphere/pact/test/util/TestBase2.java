@@ -119,8 +119,9 @@ public abstract class TestBase2 {
 			e.printStackTrace();
 			Assert.fail("Pre-submit work caused an error: " + e.getMessage());
 		}
-
-		LocalDistributedExecutor.run(getPactPlan(), 2);
+		LocalDistributedExecutor lde = new LocalDistributedExecutor();
+		lde.startNephele(2);
+		lde.run(getPactPlan());
 		
 //		// submit job
 //		JobGraph jobGraph = null;

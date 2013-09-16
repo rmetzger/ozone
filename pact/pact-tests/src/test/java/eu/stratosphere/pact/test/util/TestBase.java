@@ -127,8 +127,9 @@ public abstract class TestBase {
 //			LOG.error(e);
 //			Assert.fail("Job execution failed!");
 //		}
-		LocalDistributedExecutor.startNephele(2);
-		LocalDistributedExecutor.run(getJobGraph(), 2);
+		LocalDistributedExecutor lde = new LocalDistributedExecutor();
+		lde.startNephele(2);
+		lde.run(getJobGraph());
 		
 		// post-submit
 		postSubmit();
