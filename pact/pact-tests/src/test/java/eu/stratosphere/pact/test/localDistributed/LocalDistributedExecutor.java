@@ -41,7 +41,7 @@ public class LocalDistributedExecutor  {
 			jm.runTaskLoop();
 		}
 	}
-	private static void startNephele(final int numTaskMgr) throws InterruptedException {
+	public static void startNephele(final int numTaskMgr) throws InterruptedException {
 		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(JOBMANAGER_RPC_PORT, 6500,
 				7501, 7533, null, true);
 		GlobalConfiguration.includeConfiguration(conf);
@@ -90,7 +90,7 @@ public class LocalDistributedExecutor  {
 	}
 	
 	public static void run(final JobGraph jobGraph, final int numTaskMgr) throws Exception {
-		startNephele(numTaskMgr);
+		// startNephele(numTaskMgr);
 		runNepheleJobGraph(jobGraph);
 	}
 	

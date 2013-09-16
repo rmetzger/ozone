@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +51,7 @@ import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.pact.test.localDistributed.LocalDistributedExecutor;
 import eu.stratosphere.pact.test.util.filesystem.FilesystemProvider;
+import eu.stratosphere.pact.test.util.filesystem.LocalFSProvider;
 import eu.stratosphere.pact.test.util.minicluster.ClusterProvider;
 import eu.stratosphere.pact.test.util.minicluster.ClusterProviderPool;
 
@@ -96,10 +98,10 @@ public abstract class TestBase {
 
 	@After
 	public void stopCluster() throws Exception {
-		cluster.stopCluster();
-		ClusterProviderPool.removeInstance(clusterConfig);
-		FileSystem.closeAll();
-		System.gc();
+//		cluster.stopCluster();
+//		ClusterProviderPool.removeInstance(clusterConfig);
+//		FileSystem.closeAll();
+//		System.gc();
 	}
 
 	@Test
@@ -125,6 +127,7 @@ public abstract class TestBase {
 //			LOG.error(e);
 //			Assert.fail("Job execution failed!");
 //		}
+		LocalDistributedExecutor.startNephele(2);
 		LocalDistributedExecutor.run(getJobGraph(), 2);
 		
 		// post-submit
@@ -138,8 +141,12 @@ public abstract class TestBase {
 	 * Assert.
 	 * @return The FilesystemProvider of the cluster setup
 	 */
+	FilesystemProvider fsp = null;
 	public FilesystemProvider getFilesystemProvider() {
-		return cluster.getFilesystemProvider();
+		if(fsp == null) {
+			this.fsp = new LocalFSProvider();
+		}
+		return this.fsp;
 	}
 
 	/**
