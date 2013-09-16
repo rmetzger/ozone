@@ -41,8 +41,7 @@ public class LocalDistributedExecutor  {
 			jm.runTaskLoop();
 		}
 	}
-	
-	public static void run(final JobGraph jobGraph, final int numTaskMgr) throws Exception {
+	private static void startNephele(final int numTaskMgr) throws InterruptedException {
 		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(JOBMANAGER_RPC_PORT, 6500,
 				7501, 7533, null, true);
 		GlobalConfiguration.includeConfiguration(conf);
@@ -88,30 +87,34 @@ public class LocalDistributedExecutor  {
 						+ "the JobManager.");
 			}
 		}
-		
-		
-		
+	}
 	
+	public static void run(final JobGraph jobGraph, final int numTaskMgr) throws Exception {
+		startNephele(numTaskMgr);
+		runNepheleJobGraph(jobGraph);
+	}
+	
+	public static void run(final Plan plan, final int numTaskMgr) throws Exception {
+		startNephele(numTaskMgr);
+		PactCompiler pc = new PactCompiler(new DataStatistics());
+		OptimizedPlan op = pc.compile(plan);
+		
+		NepheleJobGraphGenerator jgg = new NepheleJobGraphGenerator();
+		JobGraph jobGraph = jgg.compileJobGraph(op);
+		runNepheleJobGraph(jobGraph);
+	}
+	
+	private static void runNepheleJobGraph(JobGraph jobGraph) throws Exception {
 		try {
 			JobClient jobClient = getJobClient(jobGraph);
-			
 			jobClient.submitJobAndWait();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void run(final Plan plan, final int numTaskMgr) throws Exception {
-		PactCompiler pc = new PactCompiler(new DataStatistics());
-		OptimizedPlan op = pc.compile(plan);
-		
-		NepheleJobGraphGenerator jgg = new NepheleJobGraphGenerator();
-		JobGraph jobGraph = jgg.compileJobGraph(op);
-		run(jobGraph, numTaskMgr);
-	}
 	
-	
-	public static JobClient getJobClient(JobGraph jobGraph) throws Exception {
+	private static JobClient getJobClient(JobGraph jobGraph) throws Exception {
 		Configuration configuration = jobGraph.getJobConfiguration();
 		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, JOBMANAGER_RPC_PORT);
