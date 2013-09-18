@@ -30,6 +30,13 @@ The directory structure here looks like the contents of an official release dist
 
 Please refer to our [README](https://github.com/dimalabs/ozone/blob/master/README.md) for further instructions on running your first code.
 
+<div style="background-color: #fcf2f2;border-color: #dFb5b4;margin: 20px 0;padding: 15px 30px 15px 15px;border-left: 5px solid #eee;">
+	<b>What is the difference between Stratosphere and Ozone?</b>
+	<br>
+	Stratosphere is the official name of the University research project. Many different (incompatible) versions of Stratosphere existed during the time of University research. This is why we decided to build Ozone, which is stable and transparently developed to the public, so that others in the open source community can participate.
+</div>
+
+
 ## Releases
 
 There are currently no official releases of Stratosphere. Our most recent development version is the best you can get.
