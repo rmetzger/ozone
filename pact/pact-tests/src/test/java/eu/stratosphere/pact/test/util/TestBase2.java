@@ -52,6 +52,7 @@ import eu.stratosphere.pact.compiler.PactCompiler;
 import eu.stratosphere.pact.compiler.plan.candidate.OptimizedPlan;
 import eu.stratosphere.pact.compiler.plandump.PlanJSONDumpGenerator;
 import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
+import eu.stratosphere.pact.test.localDistributed.LocalDistributedExecutor;
 
 public abstract class TestBase2 {
 	
@@ -90,13 +91,13 @@ public abstract class TestBase2 {
 
 	@Before
 	public void startCluster() throws Exception {
-		this.executer = new NepheleMiniCluster();
-		this.executer.start();
+		//this.executer = new NepheleMiniCluster();
+		//this.executer.start();
 	}
 
 	@After
 	public void stopCluster() throws Exception {
-		try {
+		/*try {
 			if (this.executer != null) {
 				this.executer.stop();
 				this.executer = null;
@@ -105,7 +106,7 @@ public abstract class TestBase2 {
 			}
 		} finally {
 			deleteAllTempFiles();
-		}
+		} */
 	}
 
 	@Test
@@ -118,28 +119,32 @@ public abstract class TestBase2 {
 			e.printStackTrace();
 			Assert.fail("Pre-submit work caused an error: " + e.getMessage());
 		}
-
-		// submit job
-		JobGraph jobGraph = null;
-		try {
-			jobGraph = getJobGraph();
-		} catch(Exception e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			Assert.fail("Failed to obtain JobGraph!");
-		}
+		LocalDistributedExecutor lde = new LocalDistributedExecutor();
+		lde.startNephele(2);
+		lde.run(getPactPlan());
 		
-		Assert.assertNotNull("Obtained null JobGraph", jobGraph);
-		
-		try {
-			JobClient client = this.executer.getJobClient(jobGraph);
-			client.setConsoleStreamForReporting(getNullPrintStream());
-			client.submitJobAndWait();
-		} catch(Exception e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-			Assert.fail("Job execution failed!");
-		}
+//		// submit job
+//		JobGraph jobGraph = null;
+//		try {
+//			jobGraph = getJobGraph();
+//		} catch(Exception e) {
+//			System.err.println(e.getMessage());
+//			e.printStackTrace();
+//			Assert.fail("Failed to obtain JobGraph!");
+//		}
+//		
+//		Assert.assertNotNull("Obtained null JobGraph", jobGraph);
+//		
+//		try {
+//			JobClient client = this.executer.getJobClient(jobGraph);
+//			client.setConsoleStreamForReporting(getNullPrintStream());
+//			client.submitJobAndWait();
+//			
+//		} catch(Exception e) {
+//			System.err.println(e.getMessage());
+//			e.printStackTrace();
+//			Assert.fail("Job execution failed!");
+//		}
 		
 		// post-submit
 		try {

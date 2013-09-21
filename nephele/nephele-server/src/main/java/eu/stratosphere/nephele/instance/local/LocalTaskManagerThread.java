@@ -32,8 +32,8 @@ public class LocalTaskManagerThread extends Thread {
 	/**
 	 * Constructs a new thread to run the task manager in Nephele's local mode.
 	 */
-	public LocalTaskManagerThread() {
-		super("Local Taskmanager IO Loop");
+	public LocalTaskManagerThread(String name) {
+		super(name);
 
 		TaskManager tmpTaskManager = null;
 		try {
@@ -42,6 +42,7 @@ public class LocalTaskManagerThread extends Thread {
 			throw new RuntimeException(e);
 		}
 		this.taskManager = tmpTaskManager;
+		System.err.println("Creating local taskmgr thread");
 	}
 
 	/**
@@ -50,6 +51,7 @@ public class LocalTaskManagerThread extends Thread {
 	@Override
 	public void run() {
 
+		System.err.println("Starting local taskmgr Threadname: "+this.getName());
 		this.taskManager.runIOLoop();
 
 		// Wait until the task manager is shut down

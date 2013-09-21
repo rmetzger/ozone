@@ -403,6 +403,7 @@ public class TaskManager implements TaskOperationProtocol, PluginCommunicationPr
 			// Send heartbeat
 			try {
 				this.jobManager.sendHeartbeat(this.localInstanceConnectionInfo, this.hardwareDescription);
+				LOG.debug("Heartbeat!!!!!");
 			} catch (IOException e) {
 				LOG.debug("sending the heart beat caused on IO Exception");
 			}
@@ -579,6 +580,9 @@ public class TaskManager implements TaskOperationProtocol, PluginCommunicationPr
 
 		synchronized (this) {
 
+			if(LOG.isDebugEnabled()) {
+				LOG.debug("Create new Task");
+			}
 			final Task runningTask = this.runningTasks.get(id);
 			boolean registerTask = true;
 			if (runningTask == null) {
