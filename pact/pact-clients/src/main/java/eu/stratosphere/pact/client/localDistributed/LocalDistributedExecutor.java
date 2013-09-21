@@ -1,4 +1,4 @@
-package eu.stratosphere.pact.test.localDistributed;
+package eu.stratosphere.pact.client.localDistributed;
 
 import static org.junit.Assert.fail;
 

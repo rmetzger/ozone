@@ -45,6 +45,7 @@ import com.google.common.io.Files;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
+import eu.stratosphere.pact.client.localDistributed.LocalDistributedExecutor;
 import eu.stratosphere.pact.client.minicluster.NepheleMiniCluster;
 import eu.stratosphere.pact.common.plan.Plan;
 import eu.stratosphere.pact.compiler.DataStatistics;
@@ -52,7 +53,6 @@ import eu.stratosphere.pact.compiler.PactCompiler;
 import eu.stratosphere.pact.compiler.plan.candidate.OptimizedPlan;
 import eu.stratosphere.pact.compiler.plandump.PlanJSONDumpGenerator;
 import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
-import eu.stratosphere.pact.test.localDistributed.LocalDistributedExecutor;
 
 public abstract class TestBase2 {
 	
