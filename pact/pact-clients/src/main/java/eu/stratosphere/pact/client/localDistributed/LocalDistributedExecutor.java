@@ -1,6 +1,5 @@
 package eu.stratosphere.pact.client.localDistributed;
 
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +59,6 @@ public class LocalDistributedExecutor  {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			fail(e.getMessage());
 			return;
 		}
 	
