@@ -403,13 +403,20 @@ public class TaskManager implements TaskOperationProtocol, PluginCommunicationPr
 			// Send heartbeat
 			try {
 				this.jobManager.sendHeartbeat(this.localInstanceConnectionInfo, this.hardwareDescription);
-				LOG.debug("Heartbeat!!!!!");
 			} catch (IOException e) {
 				LOG.debug("sending the heart beat caused on IO Exception");
 			}
 
 			// Check the status of the task threads to detect unexpected thread terminations
 			checkTaskExecution();
+			
+			if(LOG.isDebugEnabled()) {
+				try {
+					logBufferUtilization();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		// Shutdown the individual components of the task manager
