@@ -12,7 +12,7 @@
  * specific language governing permissions and limitations under the License.
  *
  **********************************************************************************************************************/
-package eu.stratosphere.pact.client;
+package eu.stratosphere.pact.clients.examples;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import eu.stratosphere.pact.client.LocalExecutor;
 import eu.stratosphere.pact.example.wordcount.WordCount;
 
 
@@ -48,7 +49,7 @@ public class LocalExecutorTest {
 		
 	}
 	
-	private static final String TEXT = "Goethe - Faust: Der Tragoedie erster Teil\n" + "Prolog im Himmel.\n"
+	public static final String TEXT = "Goethe - Faust: Der Tragoedie erster Teil\n" + "Prolog im Himmel.\n"
 			+ "Der Herr. Die himmlischen Heerscharen. Nachher Mephistopheles. Die drei\n" + "Erzengel treten vor.\n"
 			+ "RAPHAEL: Die Sonne toent, nach alter Weise, In Brudersphaeren Wettgesang,\n"
 			+ "Und ihre vorgeschriebne Reise Vollendet sie mit Donnergang. Ihr Anblick\n"

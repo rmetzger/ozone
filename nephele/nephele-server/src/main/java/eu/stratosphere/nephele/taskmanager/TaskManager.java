@@ -409,6 +409,14 @@ public class TaskManager implements TaskOperationProtocol, PluginCommunicationPr
 
 			// Check the status of the task threads to detect unexpected thread terminations
 			checkTaskExecution();
+			
+			if(LOG.isDebugEnabled()) {
+				try {
+					logBufferUtilization();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		// Shutdown the individual components of the task manager
@@ -579,6 +587,9 @@ public class TaskManager implements TaskOperationProtocol, PluginCommunicationPr
 
 		synchronized (this) {
 
+			if(LOG.isDebugEnabled()) {
+				LOG.debug("Create new Task");
+			}
 			final Task runningTask = this.runningTasks.get(id);
 			boolean registerTask = true;
 			if (runningTask == null) {
