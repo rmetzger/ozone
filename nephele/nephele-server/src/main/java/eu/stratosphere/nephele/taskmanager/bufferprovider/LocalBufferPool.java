@@ -116,12 +116,15 @@ public final class LocalBufferPool implements BufferProvider {
 			boolean async = false;
 
 			synchronized (this.buffers) {
-
+				if(this.requestedNumberOfBuffers > this.designatedNumberOfBuffers) {
+					System.err.println("Too many buffers requested: " + this.requestedNumberOfBuffers+" design: " + this.designatedNumberOfBuffers);
+				}
 				// Make sure we return excess buffers immediately
 				while (this.requestedNumberOfBuffers > this.designatedNumberOfBuffers) {
 
 					final MemorySegment seg = this.buffers.poll();
 					if (seg == null) {
+						System.err.println("Breaking out. Buffers size: "+buffers.size()+"; Requested: "+this.requestedNumberOfBuffers);
 						break;
 					}
 
