@@ -32,6 +32,7 @@ import eu.stratosphere.nephele.executiongraph.ExecutionVertexID;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
 import eu.stratosphere.nephele.io.AbstractID;
 import eu.stratosphere.nephele.io.GateID;
+import eu.stratosphere.nephele.io.RuntimeInputGate;
 import eu.stratosphere.nephele.io.channels.Buffer;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.io.channels.ChannelType;
@@ -43,6 +44,8 @@ import eu.stratosphere.nephele.taskmanager.bufferprovider.BufferProviderBroker;
 import eu.stratosphere.nephele.taskmanager.bufferprovider.GlobalBufferPool;
 import eu.stratosphere.nephele.taskmanager.bufferprovider.LocalBufferPool;
 import eu.stratosphere.nephele.taskmanager.bufferprovider.LocalBufferPoolOwner;
+import eu.stratosphere.nephele.taskmanager.runtime.RuntimeInputGateContext;
+import eu.stratosphere.nephele.taskmanager.runtime.RuntimeTaskContext;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelope;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelopeDispatcher;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelopeReceiverList;
@@ -786,12 +789,13 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 	 * Redistributes the global buffers among the registered tasks.
 	 */
 	private void redistributeGlobalBuffers() {
-
+		
 		final int totalNumberOfBuffers = GlobalBufferPool.getInstance().getTotalNumberOfBuffers();
 		int totalNumberOfChannels = this.registeredChannels.size();
 		if (this.multicastEnabled) {
 			totalNumberOfChannels += NUMBER_OF_CHANNELS_FOR_MULTICAST;
 		}
+		System.err.println("++++ REDISTRIBUTE GLOBAL "+totalNumberOfBuffers+" BUFFERS TO "+totalNumberOfChannels+" channels +++");
 		final double buffersPerChannel = (double) totalNumberOfBuffers / (double) totalNumberOfChannels;
 		if (buffersPerChannel < 1.0) {
 			LOG.warn("System is low on memory buffers. This may result in reduced performance.");
@@ -807,15 +811,30 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 		}
 
 		final Iterator<LocalBufferPoolOwner> it = this.localBufferPoolOwner.values().iterator();
+		int totBuf = 0;
 		while (it.hasNext()) {
 			final LocalBufferPoolOwner lbpo = it.next();
-			lbpo.setDesignatedNumberOfBuffers((int) Math.ceil(buffersPerChannel * lbpo.getNumberOfChannels()));
+			String name = "unkown";
+			if(lbpo instanceof RuntimeInputGateContext) {
+				RuntimeInputGateContext rc = (RuntimeInputGateContext) lbpo;
+				name = rc.getTaskName();
+			}
+			if(lbpo instanceof RuntimeTaskContext) {
+				RuntimeTaskContext rc = (RuntimeTaskContext) lbpo;
+				name = rc.task.getTaskName();
+			}
+			int nrBuf = (int) Math.ceil(buffersPerChannel * lbpo.getNumberOfChannels());
+			totBuf += nrBuf;
+			System.err.println("Assigning "+nrBuf+" buffers to "+name);
+			lbpo.setDesignatedNumberOfBuffers(nrBuf);
 		}
-
+		
 		if (this.multicastEnabled) {
 			this.transitBufferPool.setDesignatedNumberOfBuffers((int) Math.ceil(buffersPerChannel
 				* NUMBER_OF_CHANNELS_FOR_MULTICAST));
+			System.err.println("Assigning "+( totBuf += (int) Math.ceil(buffersPerChannel* NUMBER_OF_CHANNELS_FOR_MULTICAST)) + " to transitBufferPool");
 		}
+		System.err.println("Assigned "+totBuf+" buffers in total!");
 	}
 
 	/**

@@ -301,7 +301,6 @@ public final class GlobalConfiguration {
 	 *        the XML document file
 	 */
 	private void loadResource(final File file) {
-
 		final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		// Ignore comments in the XML file
 		docBuilderFactory.setIgnoringComments(true);

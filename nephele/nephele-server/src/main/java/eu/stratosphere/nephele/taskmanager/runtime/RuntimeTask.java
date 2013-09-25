@@ -110,7 +110,7 @@ public final class RuntimeTask implements Task, ExecutionObserver {
 	 * 
 	 * @return the name of the task associated with this observer object
 	 */
-	private String getTaskName() {
+	public String getTaskName() {
 
 		return this.environment.getTaskName() + " (" + (this.environment.getIndexInSubtaskGroup() + 1) + "/"
 			+ this.environment.getCurrentNumberOfSubtasks() + ")";

@@ -14,8 +14,8 @@ public class Logging {
 	 */
 	public static void initialize() {
 		Logger rootLogger = Logger.getRootLogger();
+		rootLogger.setLevel(Level.INFO);
 		if (!rootLogger.getAllAppenders().hasMoreElements()) {
-			rootLogger.setLevel(Level.DEBUG);
 			rootLogger.addAppender(new ConsoleAppender(new PatternLayout("%-5p [%t]: %m%n"), "system.err"));
 		}
 	}

@@ -41,7 +41,7 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 
 	private final LocalBufferPool localBufferPool;
 
-	private final RuntimeTask task;
+	public final RuntimeTask task;
 
 	private final int numberOfOutputChannels;
 

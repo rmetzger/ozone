@@ -48,7 +48,7 @@ public final class BufferPoolConnector implements MemoryBufferPoolConnector {
 	 */
 	@Override
 	public void recycle(final MemorySegment memSeg) {
-
+		System.err.println("Recycling object (from pool "+this.memoryPool);
 		synchronized (this.memoryPool) {
 			this.memoryPool.add(memSeg);
 			this.memoryPool.notify();

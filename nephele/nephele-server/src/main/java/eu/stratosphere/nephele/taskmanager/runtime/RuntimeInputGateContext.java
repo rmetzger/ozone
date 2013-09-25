@@ -32,7 +32,7 @@ import eu.stratosphere.nephele.taskmanager.bytebuffered.InputGateContext;
 import eu.stratosphere.nephele.taskmanager.transferenvelope.TransferEnvelopeDispatcher;
 import eu.stratosphere.nephele.types.Record;
 
-final class RuntimeInputGateContext implements BufferProvider, InputGateContext, LocalBufferPoolOwner {
+final public class RuntimeInputGateContext implements BufferProvider, InputGateContext, LocalBufferPoolOwner {
 
 	private final String taskName;
 
@@ -192,7 +192,7 @@ final class RuntimeInputGateContext implements BufferProvider, InputGateContext,
 	 * 
 	 * @return the name of the task this gate belongs to
 	 */
-	String getTaskName() {
+	public String getTaskName() {
 
 		return this.taskName;
 	}
