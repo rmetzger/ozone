@@ -218,8 +218,5 @@ public class LocalScheduler extends AbstractScheduler implements JobStatusListen
 
 		// Deploy the assigned vertices
 		deployAssignedInputVertices(executionStage.getExecutionGraph());
-
-		// Initialize the replay of the previous stage's checkpoints
-		replayCheckpointsFromPreviousStage(executionStage.getExecutionGraph());
 	}
 }

@@ -30,7 +30,7 @@ import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 public final class LocalBufferPool implements BufferProvider {
 
 	void log(String m) {
-		System.err.println("["+Thread.currentThread().getName()+"]{"+this.buffers.size()+"}"+m);
+		System.err.println("["+Thread.currentThread().getName()+"-"+Thread.currentThread().getId()+"]{"+this.buffers.size()+"}"+m);
 	}
 	
 	private static final class LocalBufferPoolConnector implements MemoryBufferPoolConnector {
@@ -108,7 +108,6 @@ public final class LocalBufferPool implements BufferProvider {
 
 	private Buffer requestBufferInternal(final int minimumSizeOfBuffer, final boolean block) throws IOException,
 			InterruptedException {
-		log("Request buffer");
 		if (minimumSizeOfBuffer > this.maximumBufferSize) {
 			throw new IllegalArgumentException("Buffer of " + minimumSizeOfBuffer
 				+ " bytes is requested, but maximum buffer size is " + this.maximumBufferSize);
@@ -119,6 +118,7 @@ public final class LocalBufferPool implements BufferProvider {
 			boolean async = false;
 
 			synchronized (this.buffers) {
+				log("Request buffer block:"+block);
 				if(this.requestedNumberOfBuffers > this.designatedNumberOfBuffers) {
 			//		System.err.println("Too many buffers requested: " + this.requestedNumberOfBuffers+" design: " + this.designatedNumberOfBuffers);
 				}

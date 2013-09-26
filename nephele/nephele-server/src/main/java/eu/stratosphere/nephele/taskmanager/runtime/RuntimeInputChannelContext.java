@@ -107,7 +107,7 @@ final class RuntimeInputChannelContext implements InputChannelContext, ByteBuffe
 
 			return null;
 		}
-
+		 System.err.println("["+Thread.currentThread().getName()+"] Removed buffer from inputChannel queuedEnvolopes");
 		// Moved event processing to releaseConsumedReadBuffer method // copy anything 
 
 		return transferEnvelope.getBuffer();

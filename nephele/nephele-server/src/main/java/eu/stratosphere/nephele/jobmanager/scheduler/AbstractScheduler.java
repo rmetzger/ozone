@@ -536,22 +536,6 @@ public abstract class AbstractScheduler implements InstanceListener {
 		return this.deploymentManager;
 	}
 
-	protected void replayCheckpointsFromPreviousStage(final ExecutionGraph executionGraph) {
-
-		final int currentStageIndex = executionGraph.getIndexOfCurrentExecutionStage();
-		final ExecutionStage previousStage = executionGraph.getStage(currentStageIndex - 1);
-
-		final List<ExecutionVertex> verticesToBeReplayed = new ArrayList<ExecutionVertex>();
-
-		for (int i = 0; i < previousStage.getNumberOfOutputExecutionVertices(); ++i) {
-
-			final ExecutionVertex vertex = previousStage.getOutputExecutionVertex(i);
-			vertex.updateExecutionState(ExecutionState.ASSIGNED);
-			verticesToBeReplayed.add(vertex);
-		}
-
-		deployAssignedVertices(verticesToBeReplayed);
-	}
 
 	/**
 	 * Returns a map of vertices to be restarted once they have switched to their <code>CANCELED</code> state.

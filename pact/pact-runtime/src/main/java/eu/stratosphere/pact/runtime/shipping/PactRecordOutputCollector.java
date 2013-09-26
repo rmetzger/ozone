@@ -76,6 +76,7 @@ public class PactRecordOutputCollector implements Collector<PactRecord>
 	{
 		try {
 			for (int i = 0; i < writers.length; i++) {
+			//	System.err.println("["+Thread.currentThread().getName()+"] emitting record to writer "+i);
 				this.writers[i].emit(record);	
 			}
 		}
