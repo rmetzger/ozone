@@ -599,12 +599,7 @@ public class TaskManager implements TaskOperationProtocol, PluginCommunicationPr
 				if (runningTask instanceof RuntimeTask) {
 					// Task is already running
 					return null;
-				} else {
-					// There is already a replay task running, we will simply restart it
-					task = runningTask;
-					registerTask = false;
 				}
-
 			}
 
 			final Environment ee = task.getEnvironment();

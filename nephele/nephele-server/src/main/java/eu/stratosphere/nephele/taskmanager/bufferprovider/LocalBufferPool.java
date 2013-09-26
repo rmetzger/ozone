@@ -29,6 +29,10 @@ import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
 
 public final class LocalBufferPool implements BufferProvider {
 
+	void log(String m) {
+		System.err.println("["+Thread.currentThread().getName()+"]{"+this.buffers.size()+"}"+m);
+	}
+	
 	private static final class LocalBufferPoolConnector implements MemoryBufferPoolConnector {
 
 		private final LocalBufferPool localBufferPool;
@@ -126,7 +130,7 @@ public final class LocalBufferPool implements BufferProvider {
 				//		System.err.println("Breaking out. Buffers size: "+buffers.size()+"; Requested: "+this.requestedNumberOfBuffers);
 						break;
 					}
-
+					log("removing buffers on request, got more than designated");
 					this.globalBufferPool.releaseGlobalBuffer(seg);
 					this.requestedNumberOfBuffers--;
 				}
@@ -138,6 +142,7 @@ public final class LocalBufferPool implements BufferProvider {
 
 						final MemorySegment memSeg = this.globalBufferPool.lockGlobalBuffer();
 						if (memSeg != null) {
+							log("getting new buffers from global on request, have more designated");
 							this.buffers.add(memSeg);
 							this.requestedNumberOfBuffers++;
 						//	System.err.println("Getting (locking) a buffer from global "+this.buffers);
@@ -159,6 +164,7 @@ public final class LocalBufferPool implements BufferProvider {
 				}
 
 				if (!async) {
+					log("handing out buffer");
 					final MemorySegment memSeg = this.buffers.poll();
 					return BufferFactory.createFromMemory(minimumSizeOfBuffer, memSeg, this.bufferPoolConnector);
 				}
@@ -193,7 +199,7 @@ public final class LocalBufferPool implements BufferProvider {
 				if (this.buffers.isEmpty()) {
 					break;
 				}
-
+				log("designated nr changed to "+designatedNumberOfBuffers+" removing buffers to global pool");
 				this.globalBufferPool.releaseGlobalBuffer(this.buffers.poll());
 				this.requestedNumberOfBuffers--;
 			}
@@ -214,6 +220,7 @@ public final class LocalBufferPool implements BufferProvider {
 			this.isDestroyed = true;
 
 			while (!this.buffers.isEmpty()) {
+				log("removing buffers because -- got destroyed");
 				this.globalBufferPool.releaseGlobalBuffer(this.buffers.poll());
 			}
 
@@ -252,15 +259,18 @@ public final class LocalBufferPool implements BufferProvider {
 	}
 
 	private void recycleBuffer(final MemorySegment memSeg) {
-
+		
 		synchronized (this.buffers) {
 
 			if (this.isDestroyed) {
+				log("DESTROYED!!!!");
 				this.globalBufferPool.releaseGlobalBuffer(memSeg);
 				this.requestedNumberOfBuffers--;
 			} else {
+				log("getting back buffer");
 				this.buffers.add(memSeg);
 				this.buffers.notify();
+				log("on recycle. here it is!");
 			}
 
 			while (!this.bufferAvailabilityListenerQueue.isEmpty()) {

@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -127,11 +128,14 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 	public void register(final Task task, final Set<ChannelID> activeOutputChannels)
 			throws InsufficientResourcesException {
 
+		
 		// Check if we can safely run this task with the given resources
 		checkBufferAvailability(task);
 
 		final Environment environment = task.getEnvironment();
 
+		System.err.println("Registering new task with ByteBufferedChannelMgr: "+environment.getTaskName());
+		System.err.flush();
 		final TaskContext taskContext = task.createTaskContext(this,
 			this.localBufferPoolOwner.remove(task.getVertexID()));
 
@@ -812,8 +816,10 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 
 		final Iterator<LocalBufferPoolOwner> it = this.localBufferPoolOwner.values().iterator();
 		int totBuf = 0;
-		while (it.hasNext()) {
-			final LocalBufferPoolOwner lbpo = it.next();
+		//while (it.hasNext()) {
+		for(Entry<AbstractID, LocalBufferPoolOwner> entry : localBufferPoolOwner.entrySet()) {
+			//final LocalBufferPoolOwner lbpo = it.next();
+			final LocalBufferPoolOwner lbpo = entry.getValue();
 			String name = "unkown";
 			if(lbpo instanceof RuntimeInputGateContext) {
 				RuntimeInputGateContext rc = (RuntimeInputGateContext) lbpo;
@@ -825,14 +831,15 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 			}
 			int nrBuf = (int) Math.ceil(buffersPerChannel * lbpo.getNumberOfChannels());
 			totBuf += nrBuf;
-			System.err.println("Assigning "+nrBuf+" buffers to "+name);
+			System.err.println("Assigning "+nrBuf+" buffers to "+name+" ("+entry.getKey()+")");
 			lbpo.setDesignatedNumberOfBuffers(nrBuf);
 		}
 		
 		if (this.multicastEnabled) {
-			this.transitBufferPool.setDesignatedNumberOfBuffers((int) Math.ceil(buffersPerChannel
-				* NUMBER_OF_CHANNELS_FOR_MULTICAST));
-			System.err.println("Assigning "+( totBuf += (int) Math.ceil(buffersPerChannel* NUMBER_OF_CHANNELS_FOR_MULTICAST)) + " to transitBufferPool");
+			int des = (int) Math.ceil(buffersPerChannel * NUMBER_OF_CHANNELS_FOR_MULTICAST);
+			this.transitBufferPool.setDesignatedNumberOfBuffers(des);
+			System.err.println("Assigning "+des + " to transitBufferPool");
+			totBuf += des;
 		}
 		System.err.println("Assigned "+totBuf+" buffers in total!");
 	}
