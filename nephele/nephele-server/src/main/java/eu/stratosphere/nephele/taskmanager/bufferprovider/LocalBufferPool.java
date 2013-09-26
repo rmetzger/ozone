@@ -108,7 +108,7 @@ public final class LocalBufferPool implements BufferProvider {
 
 	private Buffer requestBufferInternal(final int minimumSizeOfBuffer, final boolean block) throws IOException,
 			InterruptedException {
-
+		log("Request buffer");
 		if (minimumSizeOfBuffer > this.maximumBufferSize) {
 			throw new IllegalArgumentException("Buffer of " + minimumSizeOfBuffer
 				+ " bytes is requested, but maximum buffer size is " + this.maximumBufferSize);
