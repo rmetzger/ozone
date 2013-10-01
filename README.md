@@ -1,15 +1,6 @@
-# ozone
+# Stratosphere - "Ozone" Distribution
 
-
-This is the source code repository of the Stratosphere research project. 
-
-See www.stratosphere.eu for project details, publications, etc
-
-ozone is the codename of the latest Stratosphere distribution.
-
-
-
-Build Status: [![Build Status](https://travis-ci.org/dimalabs/ozone.png)](https://travis-ci.org/dimalabs/ozone)
+Big Data looks tiny from Stratosphere.
 
 ## Getting Started
 Below are three short tutorials that guide you through the first steps: Building, running and developing.
@@ -19,16 +10,16 @@ Below are three short tutorials that guide you through the first steps: Building
 This tutorial shows how to build Stratosphere on your own system. Please open a bug report if you have any troubles!
 
 #### Requirements
-* Unix-like environment (We use Linux, Mac OS X, it should run with cygwin)
+* Unix-like environment (We use Linux, Mac OS X, Cygwin)
 * git
 * maven
 * Java 6 or 7
 
-.
-
-	git clone https://github.com/dimalabs/ozone.git
-	cd ozone
-	mvn -DskipTests clean package # this will take up to 5 minutes
+```
+git clone https://github.com/dimalabs/ozone.git
+cd ozone
+mvn -DskipTests clean package # this will take up to 5 minutes
+```
 
 Stratosphere is now installed in `stratosphere-dist/target`
 If you’re a Debian/Ubuntu user, you’ll find a .deb package. We will continue with the generic case.
@@ -143,15 +134,13 @@ public class Tutorial implements PlanAssembler, PlanAssemblerDescription {
 ## Support
 Don’t hesitate to ask!
 
-[Open an issue](https://github.com/dimalabs/ozone/issues/new) on github, if you need our help.
-
-We have a mailing list for our users: https://lists.tu-berlin.de/mailman/listinfo/stratosphere-users
+[Open an issue](https://github.com/dimalabs/ozone/issues/new) on Github, if you found a bug or need any help.
+We also have a [mailing list](https://groups.google.com/d/forum/ozone-dev) for both users and developers.
 
 
 ## Documentation
 
 There is our (old) [official Wiki](https://stratosphere.eu/wiki/doku).
-
 We are in the progress of migrating it to the [GitHub Wiki](https://github.com/dimalabs/ozone/wiki/_pages)
 
 Please make edits to the Wiki if you find inconsistencies or [Open an issue](https://github.com/dimalabs/ozone/issues/new) 
@@ -160,10 +149,9 @@ Please make edits to the Wiki if you find inconsistencies or [Open an issue](htt
 ## Fork and Contribute
 
 This is an active open-source project. We are always open to people who want to use the system or contribute to it. 
+Contact us if you are looking for implementation tasks that fit your skills.
 
-The development community lives on GitHub and our [mailing list](https://lists.tu-berlin.de/mailman/listinfo/stratosphere-dev (But we prefer github)
-
-We use the github Pull Request system for the development of Stratosphere. Just open a request if you want to contribute.
+We use the GitHub Pull Request system for the development of Stratosphere. Just open a request if you want to contribute.
 
 ### What to contribute
 * Bug reports
@@ -175,7 +163,14 @@ We use the github Pull Request system for the development of Stratosphere. Just 
 
 Let us know if you have created a system that uses Stratosphere, so that we can link to you.
 
+## About
 
+[Stratosphere](www.stratosphere.eu) is a DFG-founded research project. Ozone is the codename of the latest Stratosphere distribution. 
+We combine cutting edge research outcomes with a stable and usable codebase.
+Decisions are not made behind closed doors. We discuss all changes and plans on our Mailinglists and on GitHub.
+
+
+Build Status: [![Build Status](https://travis-ci.org/dimalabs/ozone.png)](https://travis-ci.org/dimalabs/ozone)
 
 
 

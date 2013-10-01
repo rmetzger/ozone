@@ -7,9 +7,9 @@
 	<parent>
 		<artifactId>pact</artifactId>
 		<groupId>eu.stratosphere</groupId>
-		<version>0.2-ozone</version>
-        <relativePath>..</relativePath>
-    </parent>
+		<version>0.4-ozone-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 
 	<artifactId>pact-common</artifactId>
 	<name>pact-common</name>
@@ -22,6 +22,11 @@
 			<artifactId>nephele-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
 	</dependencies>
 
 	<reporting>
