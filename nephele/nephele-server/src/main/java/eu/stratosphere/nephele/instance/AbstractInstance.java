@@ -94,7 +94,7 @@ public abstract class AbstractInstance extends NetworkNode {
 	 * @throws IOException
 	 *         thrown if the RPC stub object for the task manager cannot be created
 	 */
-	private TaskOperationProtocol getTaskManagerProxy() throws IOException {
+	public TaskOperationProtocol getTaskManagerProxy() throws IOException {
 
 		if (this.taskManager == null) {
 

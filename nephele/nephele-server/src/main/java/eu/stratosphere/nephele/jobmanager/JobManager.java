@@ -33,17 +33,15 @@
 
 package eu.stratosphere.nephele.jobmanager;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,10 +57,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 
 import eu.stratosphere.nephele.client.AbstractJobResult;
 import eu.stratosphere.nephele.client.AbstractJobResult.ReturnCode;
@@ -70,7 +64,6 @@ import eu.stratosphere.nephele.client.JobCancelResult;
 import eu.stratosphere.nephele.client.JobProgressResult;
 import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
-import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.deployment.TaskDeploymentDescriptor;
 import eu.stratosphere.nephele.discovery.DiscoveryException;
@@ -95,6 +88,7 @@ import eu.stratosphere.nephele.instance.InstanceManager;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.instance.InstanceTypeDescription;
 import eu.stratosphere.nephele.instance.local.LocalInstanceManager;
+import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
@@ -105,11 +99,11 @@ import eu.stratosphere.nephele.jobmanager.scheduler.AbstractScheduler;
 import eu.stratosphere.nephele.jobmanager.scheduler.SchedulingException;
 import eu.stratosphere.nephele.jobmanager.splitassigner.InputSplitManager;
 import eu.stratosphere.nephele.jobmanager.splitassigner.InputSplitWrapper;
-import eu.stratosphere.nephele.jobmanager.web.WebInfoServer;
 import eu.stratosphere.nephele.managementgraph.ManagementGraph;
 import eu.stratosphere.nephele.managementgraph.ManagementVertexID;
 import eu.stratosphere.nephele.multicast.MulticastManager;
 import eu.stratosphere.nephele.profiling.JobManagerProfiler;
+import eu.stratosphere.nephele.profiling.ProfilingListener;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.ExtendedManagementProtocol;
@@ -140,7 +134,7 @@ import eu.stratosphere.nephele.util.StringUtils;
 public class JobManager implements DeploymentManager, ExtendedManagementProtocol, InputSplitProviderProtocol,
 		JobManagerProtocol, ChannelLookupProtocol, JobStatusListener {
 	
-	public static enum ExecutionMode { LOCAL, CLUSTER }
+	public static enum ExecutionMode { LOCAL, CLUSTER, YARN }
 	
 	// --------------------------------------------------------------------------------------------
 
@@ -280,6 +274,30 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	}
 
 	/**
+	 * Determines the address the network services of the job manager shall bind to depending on the execution mode.
+	 * 
+	 * @param executionMode
+	 *        the execution mode
+	 * @return the address the network services shall bind to
+	 * @throws UnknownHostException
+	 *         thrown if the address could not be determined
+	 */
+	private static InetAddress determineNetworkAddress(final ExecutionMode executionMode) throws UnknownHostException {
+
+		if (executionMode == ExecutionMode.YARN) {
+			final String host = System.getenv("NM_HOST"); // ApplicationConstants.NM_HOST_ENV
+			if (host == null) {
+				throw new UnknownHostException("Cannot find container host name in the environment variables");
+			}
+
+			return InetAddress.getByName(host);
+		}
+
+		return InetAddress.getByName(GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY,
+			ConfigConstants.DEFAULT_JOB_MANAGER_IPC_ADDRESS));
+	}
+	
+	/**
 	 * This is the main
 	 */
 	public void runTaskLoop() {
@@ -307,9 +325,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		if (this.instanceManager != null) {
 			this.instanceManager.shutdown();
 		}
-
-		// Stop the discovery service
-		DiscoveryService.stopDiscoveryService();
 
 		// Stop profiling if enabled
 		if (this.profiler != null) {
@@ -420,6 +435,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			executionMode = ExecutionMode.LOCAL;
 		} else if ("cluster".equals(executionModeName)) {
 			executionMode = ExecutionMode.CLUSTER;
+		} else if( "yarn".equals(executionModeName)){
+			executionMode = ExecutionMode.YARN;
 		} else {
 			System.err.println("Unrecognized execution mode: " + executionModeName);
 			System.exit(FAILURERETURNCODE);
@@ -619,8 +636,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	 */
 	@Override
 	public void sendHeartbeat(final InstanceConnectionInfo instanceConnectionInfo,
-			final HardwareDescription hardwareDescription) {
+			final HardwareDescription hardwareDescription, final StringRecord taskManagerID) {
 
+		final String tmID = taskManagerID.toString(); 
+		
 		// Delegate call to instance manager
 		if (this.instanceManager != null) {
 
@@ -628,7 +647,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 				@Override
 				public void run() {
-					instanceManager.reportHeartBeat(instanceConnectionInfo, hardwareDescription);
+					instanceManager.reportHeartBeat(instanceConnectionInfo, hardwareDescription, tmID);
 				}
 			};
 
@@ -1240,5 +1259,20 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 	public int getNumberOfTaskTrackers() {
 		return this.instanceManager.getNumberOfTaskTrackers();
+	}
+	@Override
+	public void shutdownSystem() throws IOException {		
+		if(this.executionMode == ExecutionMode.YARN) {		
+			// Shutdown the TaskManager instance after 2s.
+			new Timer().schedule( new TimerTask() {
+				@Override
+				public void run() {				
+					shutdown();
+					System.exit(0);		
+				}
+			}, 2500 );
+		} else {
+			LOG.debug("Function has only in yarn mode an effect.");
+		}
 	}
 }

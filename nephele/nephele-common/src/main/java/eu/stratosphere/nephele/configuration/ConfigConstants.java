@@ -24,7 +24,24 @@ public final class ConfigConstants {
 	// ------------------------------------------------------------------------
 	// Configuration Keys
 	// ------------------------------------------------------------------------
+	
+	// -------------------------- YARN specific -------------------------
+	/**
+	 * The name of the environment variable storing the job manager IPC address (if set).
+	 */
+	public static final String JOB_MANAGER_IPC_ADDRESS_ENV_KEY = "NEPHELE_JM_IPC_ADDRESS";
 
+	/**
+	 * The name of the environment variable storing the job manager IPC port (if set).
+	 */
+	public static final String JOB_MANAGER_IPC_PORT_ENV_KEY = "NEPHELE_JM_IPC_PORT";
+
+	/**
+	 * The name of the environment variable storing an optional task manager ID.
+	 */
+	public static final String TASK_MANAGER_ID_ENV_KEY = "NEPHELE_TM_ID";
+	
+	
 	// -------------------------- Addresses and Ports -------------------------
 
 	/**
@@ -107,6 +124,11 @@ public final class ConfigConstants {
 	// Default Values
 	// ------------------------------------------------------------------------
 
+	/**
+	 * The default network address to connect to for communication with the job manager.
+	 */
+	public static final String DEFAULT_JOB_MANAGER_IPC_ADDRESS = "localhost";
+	
 	/**
 	 * The default network port to connect to for communication with the job manager.
 	 */
