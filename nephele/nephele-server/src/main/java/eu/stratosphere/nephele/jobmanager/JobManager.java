@@ -43,6 +43,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -134,7 +136,7 @@ import eu.stratosphere.nephele.util.StringUtils;
 public class JobManager implements DeploymentManager, ExtendedManagementProtocol, InputSplitProviderProtocol,
 		JobManagerProtocol, ChannelLookupProtocol, JobStatusListener {
 	
-	public static enum ExecutionMode { LOCAL, CLUSTER }
+	public static enum ExecutionMode { LOCAL, CLUSTER, YARN }
 	
 	// --------------------------------------------------------------------------------------------
 
@@ -165,10 +167,18 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	private final AtomicBoolean isShutdownInProgress = new AtomicBoolean(false);
 
 	private volatile boolean isShutDown = false;
+
+	private final DiscoveryService discoveryService;
+	
+	public static int jobManagerIPCPort = -1; 
+	
+	private final ExecutionMode executionMode;
 	
 	public JobManager(ExecutionMode executionMode) {
 
-		final String ipcAddressString = GlobalConfiguration
+	this.executionMode = executionMode; 
+
+		/*final String ipcAddressString = GlobalConfiguration
 			.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
 
 		InetAddress ipcAddress = null;
@@ -180,18 +190,32 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 					+ StringUtils.stringifyException(e));
 				System.exit(FAILURERETURNCODE);
 			}
+		}*/		
+		
+		InetAddress networkAddress = null;
+		try {
+			networkAddress = determineNetworkAddress(executionMode);
+		} catch (UnknownHostException e) {
+			LOG.fatal("Cannot determine local IPC address: " + StringUtils.stringifyException(e));
+			System.exit(FAILURERETURNCODE);
+		}
+		
+		// TODO: CHANGE THAT
+		
+		int ipcPort = 0; // -1;
+		
+		if( executionMode != ExecutionMode.YARN ) {		
+			ipcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
+					ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
 		}
 
-		final int ipcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
-			ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
-
 		// First of all, start discovery manager
-		try {
-			DiscoveryService.startDiscoveryService(ipcAddress, ipcPort);
+		/*try {
+			DiscoveryService.startDiscoveryService(networkAddress, ipcPort);
 		} catch (DiscoveryException e) {
 			LOG.error("Cannot start discovery manager: " + StringUtils.stringifyException(e));
 			System.exit(FAILURERETURNCODE);
-		}
+		}*/
 
 		// Read the suggested client polling interval
 		this.recommendedClientPollingInterval = GlobalConfiguration.getInteger(
@@ -204,8 +228,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		this.inputSplitManager = new InputSplitManager();
 
 		// Determine own RPC address
-		final InetSocketAddress rpcServerAddress = new InetSocketAddress(ipcAddress, ipcPort);
-
+		final InetSocketAddress rpcServerAddress = new InetSocketAddress(networkAddress, ipcPort);
+		
 		// Start job manager's IPC server
 		try {
 			final int handlerCount = GlobalConfiguration.getInteger("jobmanager.rpc.numhandler", 3);
@@ -217,6 +241,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			System.exit(FAILURERETURNCODE);
 		}
 
+		jobManagerIPCPort = this.jobManagerServer.getListenerAddress().getPort();
+		
+		System.err.println( "jobManagerIPCPort = " + jobManagerIPCPort );
+		
 		LOG.info("Starting job manager in " + executionMode + " mode");
 
 		// Try to load the instance manager for the given execution mode
@@ -233,7 +261,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			LOG.info("Trying to load " + instanceManagerClassName + " as instance manager");
 			this.instanceManager = JobManagerUtils.loadInstanceManager(instanceManagerClassName);
 			if (this.instanceManager == null) {
-				LOG.error("UNable to load instance manager " + instanceManagerClassName);
+				LOG.error("Unable to load instance manager " + instanceManagerClassName);
 				System.exit(FAILURERETURNCODE);
 			}
 		}
@@ -252,6 +280,21 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		// Create multicastManager
 		this.multicastManager = new MulticastManager(this.scheduler);
 
+		// Next, start the discovery manager
+		DiscoveryService discoveryService = null;
+		try {
+			int discoveryPort = -1;
+			if (executionMode != ExecutionMode.YARN) {
+				discoveryPort = GlobalConfiguration.getInteger(ConfigConstants.DISCOVERY_PORT_KEY,
+					ConfigConstants.DEFAULT_DISCOVERY_PORT);
+			}
+			discoveryService = new DiscoveryService(discoveryPort, ipcPort);
+		} catch (IOException e) {
+			LOG.fatal("Cannot start discovery manager: " + StringUtils.stringifyException(e));
+			System.exit(FAILURERETURNCODE);
+		}
+		this.discoveryService = discoveryService;
+		
 		// Load profiler if it should be used
 		if (GlobalConfiguration.getBoolean(ProfilingUtils.ENABLE_PROFILING_KEY, false)) {
 			final String profilerClassName = GlobalConfiguration.getString(ProfilingUtils.JOBMANAGER_CLASSNAME_KEY,
@@ -271,6 +314,30 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 	}
 
+	/**
+	 * Determines the address the network services of the job manager shall bind to depending on the execution mode.
+	 * 
+	 * @param executionMode
+	 *        the execution mode
+	 * @return the address the network services shall bind to
+	 * @throws UnknownHostException
+	 *         thrown if the address could not be determined
+	 */
+	private static InetAddress determineNetworkAddress(final ExecutionMode executionMode) throws UnknownHostException {
+
+		if (executionMode == ExecutionMode.YARN) {
+			final String host = System.getenv("NM_HOST"); // ApplicationConstants.NM_HOST_ENV
+			if (host == null) {
+				throw new UnknownHostException("Cannot find container host name in the environment variables");
+			}
+
+			return InetAddress.getByName(host);
+		}
+
+		return InetAddress.getByName(GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY,
+			ConfigConstants.DEFAULT_JOB_MANAGER_IPC_ADDRESS));
+	}
+	
 	/**
 	 * This is the main
 	 */
@@ -301,8 +368,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		}
 
 		// Stop the discovery service
-		DiscoveryService.stopDiscoveryService();
-
+		if (this.discoveryService != null) {
+			this.discoveryService.shutdown();
+		}
+		
 		// Stop profiling if enabled
 		if (this.profiler != null) {
 			this.profiler.shutdown();
@@ -375,6 +444,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			executionMode = ExecutionMode.LOCAL;
 		} else if ("cluster".equals(executionModeName)) {
 			executionMode = ExecutionMode.CLUSTER;
+		} else if( "yarn".equals(executionModeName)){
+			executionMode = ExecutionMode.YARN;
 		} else {
 			System.err.println("Unrecognized execution mode: " + executionModeName);
 			System.exit(FAILURERETURNCODE);
@@ -495,7 +566,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			if (this.eventCollector != null) {
 				this.profiler.registerForProfilingData(eg.getJobID(), this.eventCollector);
 			}
-			
 		}
 
 		// Register job with the dynamic input split assigner
@@ -565,8 +635,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	 */
 	@Override
 	public void sendHeartbeat(final InstanceConnectionInfo instanceConnectionInfo,
-			final HardwareDescription hardwareDescription) {
+			final HardwareDescription hardwareDescription, final StringRecord taskManagerID) {
 
+		final String tmID = taskManagerID.toString(); 
+		
 		// Delegate call to instance manager
 		if (this.instanceManager != null) {
 
@@ -574,7 +646,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 				@Override
 				public void run() {
-					instanceManager.reportHeartBeat(instanceConnectionInfo, hardwareDescription);
+					instanceManager.reportHeartBeat(instanceConnectionInfo, hardwareDescription, tmID);
 				}
 			};
 
@@ -1166,4 +1238,32 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		return new InputSplitWrapper(jobID, this.inputSplitManager.getNextInputSplit(vertex, sequenceNumber.getValue()));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IntegerRecord getDiscoveryPort() throws IOException, InterruptedException {
+
+		if (this.discoveryService == null) {
+			return new IntegerRecord( -1 );
+		}
+
+		return new IntegerRecord( this.discoveryService.getDiscoveryPort() );
+	}
+
+	@Override
+	public void shutdownSystem() throws IOException {		
+		if(this.executionMode == ExecutionMode.YARN) {		
+			// Shutdown the TaskManager instance after 2s.
+			new Timer().schedule( new TimerTask() {
+				@Override
+				public void run() {				
+					shutdown();
+					System.exit(0);		
+				}
+			}, 2500 );
+		} else {
+			LOG.debug("Function has only in yarn mode an effect.");
+		}
+	}
 }

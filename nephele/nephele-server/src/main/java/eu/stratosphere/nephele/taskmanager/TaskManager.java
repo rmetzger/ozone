@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,16 +60,21 @@ import eu.stratosphere.nephele.executiongraph.ExecutionVertexID;
 import eu.stratosphere.nephele.instance.HardwareDescription;
 import eu.stratosphere.nephele.instance.HardwareDescriptionFactory;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
+import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
 import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.net.NetUtils;
+import eu.stratosphere.nephele.plugins.PluginID;
+import eu.stratosphere.nephele.plugins.PluginManager;
+import eu.stratosphere.nephele.plugins.TaskManagerPlugin;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.profiling.TaskManagerProfiler;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.InputSplitProviderProtocol;
 import eu.stratosphere.nephele.protocols.JobManagerProtocol;
+import eu.stratosphere.nephele.protocols.PluginCommunicationProtocol;
 import eu.stratosphere.nephele.protocols.TaskOperationProtocol;
 import eu.stratosphere.nephele.services.iomanager.IOManager;
 import eu.stratosphere.nephele.services.memorymanager.MemoryManager;
@@ -137,6 +143,19 @@ public class TaskManager implements TaskOperationProtocol {
 	 * Stores whether the task manager has already been shut down.
 	 */
 	private boolean isShutDown = false;
+
+	/**
+	 * The flag indicates if the TaskManager is bootstrapped in YARN mode.
+	 */
+	private Boolean isYarnMode = false;
+	/**
+	 * Constructs a new task manager, starts its IPC service and attempts to discover the job manager to
+	 * receive an initial configuration. All parameters are obtained from the 
+	 * {@link GlobalConfiguration}, which must be loaded prior to instantiating the task manager.
+	 */
+	public TaskManager() throws Exception {
+		this(null);
+	}
 	
 	/**
 	 * Constructs a new task manager, starts its IPC service and attempts to discover the job manager to
@@ -147,52 +166,15 @@ public class TaskManager implements TaskOperationProtocol {
 		
 		// IMPORTANT! At this point, the GlobalConfiguration must have been read!
 
-		// Use discovery service to find the job manager in the network?
-		final String address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
-		InetSocketAddress jobManagerAddress = null;
-		if (address == null) {
-			// Address is null, use discovery manager to determine address
-			LOG.info("Using discovery service to locate job manager");
-			try {
-				jobManagerAddress = DiscoveryService.getJobManagerAddress();
-			} catch (DiscoveryException e) {
-				throw new Exception("Failed to locate job manager via discovery: " + e.getMessage(), e);
-			}
-		} else {
-			LOG.info("Reading location of job manager from configuration");
-
-			final int port = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
-				ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
-
-			// Try to convert configured address to {@link InetAddress}
-			try {
-				final InetAddress tmpAddress = InetAddress.getByName(address);
-				jobManagerAddress = new InetSocketAddress(tmpAddress, port);
-			} catch (UnknownHostException e) {
-				throw new Exception("Failed to locate job manager based on configuration: " + e.getMessage(), e);
-			}
+		// Determine the job manager IPC address
+		final InetSocketAddress jobManagerAddress = determineJobManagerIPCAddress();
+		if (jobManagerAddress == null) {
+			throw new Exception("Unable to determine job manager address");
 		}
 
 		LOG.info("Determined address of job manager to be " + jobManagerAddress);
 
-		// Determine interface address that is announced to the job manager
-		final int ipcPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
-			ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT);
-		final int dataPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY,
-			ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT);
-
 		InetAddress taskManagerAddress = null;
-
-		try {
-			taskManagerAddress = DiscoveryService.getTaskManagerAddress(jobManagerAddress.getAddress());
-		} catch (DiscoveryException e) {
-			throw new Exception("Failed to initialize discovery service. " + e.getMessage(), e);
-		}
-
-		this.localInstanceConnectionInfo = new InstanceConnectionInfo(taskManagerAddress, ipcPort, dataPort);
-
-		LOG.info("Announcing connection information " + this.localInstanceConnectionInfo + " to job manager");
-
 		// Try to create local stub for the job manager
 		JobManagerProtocol jobManager = null;
 		try {
@@ -203,6 +185,15 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.jobManager = jobManager;
 
+		// Determine the port of the discovery service;
+		final int discoveryPort = this.jobManager.getDiscoveryPort().getValue();		
+		
+		try {
+			taskManagerAddress = DiscoveryService.getTaskManagerAddress(jobManagerAddress.getAddress(), discoveryPort);
+		} catch (DiscoveryException e) {
+			throw new Exception("Failed to initialize discovery service. " + e.getMessage(), e);
+		}
+		
 		// Try to create local stub of the global input split provider
 		InputSplitProviderProtocol globalInputSplitProvider = null;
 		try {
@@ -224,7 +215,17 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.lookupService = lookupService;
 
-		// Start local RPC server
+		// Start local RPC server		
+		int ipcPort = -1;
+		if(isYarnMode) {
+			ipcPort = findFreePort();
+			// write ipc-port to err-log, only for debugging purposes.
+			System.err.println( "taskmanager ipcport = " + ipcPort );
+		} else {
+			ipcPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
+					ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT);
+		}
+
 		Server taskManagerServer = null;
 		try {
 			taskManagerServer = RPC.getServer(this, taskManagerAddress.getHostName(), ipcPort, handlerCount);
@@ -235,6 +236,19 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.taskManagerServer = taskManagerServer;
 
+		int dataPort = -1; 
+		if( isYarnMode ) {
+			dataPort = findFreePort();
+			// write data-port to err-log, only for debugging purposes.
+			System.err.println( "taskmanager dataport = " + dataPort );			
+		} else {
+			dataPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY,
+					ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT);		
+		}
+
+		this.localInstanceConnectionInfo = new InstanceConnectionInfo(taskManagerAddress, ipcPort, dataPort);		
+		LOG.info("Announcing connection information " + this.localInstanceConnectionInfo + " to job manager");	
+		
 		// Load profiler if it should be used
 		if (GlobalConfiguration.getBoolean(ProfilingUtils.ENABLE_PROFILING_KEY, false)) {
 			final String profilerClassName = GlobalConfiguration.getString(ProfilingUtils.TASKMANAGER_CLASSNAME_KEY,
@@ -300,6 +314,56 @@ public class TaskManager implements TaskOperationProtocol {
 	}
 
 	/**
+	 * Determines the IPC address of the job manager. The method first attempts to retrieve the address from the
+	 * environment variables. If this fails, it checks the configuration. If that fails as well, the methods tries to
+	 * discover the job manager through the {@link DiscoveryService}.
+	 * 
+	 * @return the IPC address of job manager or <code>null</code> if it could not be found
+	 */
+	private InetSocketAddress determineJobManagerIPCAddress() {
+
+		// 1. Check the environment variables
+		String address = null;
+		int port = -1;
+
+		address = System.getenv(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_ENV_KEY);
+
+		final String portString = System.getenv(ConfigConstants.JOB_MANAGER_IPC_PORT_ENV_KEY);
+		if (portString != null) {
+			try {
+				port = Integer.parseInt(portString);
+			} catch (NumberFormatException nfe) {
+			}
+			
+			// If we can read JobManager RPC port from system environment,
+			// we are in YARN mode.
+			isYarnMode = true; 
+		}
+
+		if (address != null && port > 0) {
+			return new InetSocketAddress(address, port);
+		}
+
+		// 2. Check the configuration file
+		address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
+		port = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, -1);
+
+		if (address != null && port > 0) {
+			return new InetSocketAddress(address, port);
+		}
+
+		// 3. Use the discovery service
+		try {
+			return DiscoveryService.getJobManagerAddress();
+		} catch (DiscoveryException e) {
+			LOG.error("Failed to locate job manager via discovery: " + e.getMessage(), e);
+		}
+
+		return null;
+	}
+
+	
+	/**
 	 * Entry point for the program.
 	 * 
 	 * @param args
@@ -331,7 +395,7 @@ public class TaskManager implements TaskOperationProtocol {
 		// Create a new task manager object
 		TaskManager taskManager = null;
 		try {
-			taskManager = new TaskManager();
+			taskManager = new TaskManager(configDir);
 		} catch (Exception e) {
 			LOG.fatal("Taskmanager startup failed:" + StringUtils.stringifyException(e));
 			System.exit(FAILURERETURNCODE);
@@ -349,6 +413,9 @@ public class TaskManager implements TaskOperationProtocol {
 
 		long interval = GlobalConfiguration.getInteger("taskmanager.setup.periodictaskinterval",
 			DEFAULTPERIODICTASKSINTERVAL);
+		
+		// Look for the optional task manager ID environment variable
+		final String taskManagerID = System.getenv(ConfigConstants.TASK_MANAGER_ID_ENV_KEY);
 
 		while (!Thread.interrupted()) {
 
@@ -362,7 +429,9 @@ public class TaskManager implements TaskOperationProtocol {
 
 			// Send heartbeat
 			try {
-				this.jobManager.sendHeartbeat(this.localInstanceConnectionInfo, this.hardwareDescription);
+				
+				this.jobManager.sendHeartbeat(this.localInstanceConnectionInfo, this.hardwareDescription,
+						new StringRecord( taskManagerID ) );
 			} catch (IOException e) {
 				LOG.debug("sending the heart beat caused on IO Exception");
 			}
@@ -437,10 +506,9 @@ public class TaskManager implements TaskOperationProtocol {
 		return new TaskKillResult(id, AbstractTaskResult.ReturnCode.SUCCESS);
 	}
 
-	private void reportAsyncronousEvent(final ExecutionVertexID vertexID) {
-
-		this.byteBufferedChannelManager.reportAsynchronousEvent(vertexID);
-	}
+	//private void reportAsyncronousEvent(final ExecutionVertexID vertexID) {
+	//	this.byteBufferedChannelManager.reportAsynchronousEvent(vertexID);
+	//}
 
 	/**
 	 * {@inheritDoc}
@@ -823,5 +891,30 @@ public class TaskManager implements TaskOperationProtocol {
 				throw new Exception("Temporary file directory #" + (i + 1) + " is not writable.");
 			}
 		}
+	}
+	
+	/**
+	 * Utility method to determine a free port.
+	 * @return A free port.
+	 * @throws IOException
+	 */
+	private static int findFreePort() throws IOException {
+		ServerSocket server = new ServerSocket(0);
+		int port = server.getLocalPort();
+		server.close();
+		return port;
+	}
+
+	@Override
+	public void shutdownTaskManager() throws IOException {
+		LOG.info("received remote shutdown.");		
+		// Shutdown the TaskManager instance after 2.5s.
+		new Timer().schedule( new TimerTask() {
+			@Override
+			public void run() {				
+				shutdown();
+				System.exit(0);		
+			}
+		}, 2500 );
 	}
 }
