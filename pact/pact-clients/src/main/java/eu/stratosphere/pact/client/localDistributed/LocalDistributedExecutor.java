@@ -23,8 +23,6 @@ import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
 /**
  * This executor allows to execute a Job on one machine (locally) using multiple
  * TaskManagers that communicate via TCP/IP, not memory.
- * 
- *
  */
 public class LocalDistributedExecutor  {
 	
@@ -70,10 +68,10 @@ public class LocalDistributedExecutor  {
 		// start the taskmanagers
 		List<LocalTaskManagerThread> tms = new ArrayList<LocalTaskManagerThread>();
 		for(int tm = 0; tm < numTaskMgr; tm++) {
-			// The whole thing can only work if we assign different IP addresses to each TaskManager
+			// The whole thing can only work if we assign different ports to each TaskManager
 			Configuration tmConf = new Configuration();
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
-						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT + 100 + tm + numTaskMgr);
+						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT + tm + numTaskMgr);
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT+tm); // taskmanager.data.port
 			GlobalConfiguration.includeConfiguration(tmConf);
 			LocalTaskManagerThread t = new LocalTaskManagerThread("LocalDistributedExecutor: LocalTaskManagerThread-#"+tm);

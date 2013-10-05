@@ -42,16 +42,13 @@ public class LocalTaskManagerThread extends Thread {
 			throw new RuntimeException(e);
 		}
 		this.taskManager = tmpTaskManager;
-		System.err.println("Creating local taskmgr thread");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void run() {
-
-		System.err.println("Starting local taskmgr Threadname: "+this.getName());
+	public void run() {	
 		this.taskManager.runIOLoop();
 
 		// Wait until the task manager is shut down
