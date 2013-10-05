@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -93,15 +92,15 @@ public abstract class TestBase {
 
 	@Before
 	public void startCluster() throws Exception {
-		// cluster = ClusterProviderPool.getInstance(clusterConfig);
+		cluster = ClusterProviderPool.getInstance(clusterConfig);
 	}
 
 	@After
 	public void stopCluster() throws Exception {
-//		cluster.stopCluster();
-//		ClusterProviderPool.removeInstance(clusterConfig);
-//		FileSystem.closeAll();
-//		System.gc();
+		cluster.stopCluster();
+		ClusterProviderPool.removeInstance(clusterConfig);
+		FileSystem.closeAll();
+		System.gc();
 	}
 
 	@Test
@@ -110,26 +109,23 @@ public abstract class TestBase {
 		preSubmit();
 
 		// submit job
-//		JobGraph jobGraph = null;
-//		try {
-//			jobGraph = getJobGraph();
-//		} catch(Exception e) {
-//			LOG.error(e);
-//			e.printStackTrace();
-//			Assert.fail("Failed to obtain JobGraph!");
-//		}
-//		
-//		try {
-//			final JobClient client = cluster.getJobClient(jobGraph, getJarFilePath());
-//			client.setConsoleStreamForReporting(TestBase2.getNullPrintStream());
-//			client.submitJobAndWait();
-//		} catch(Exception e) {
-//			LOG.error(e);
-//			Assert.fail("Job execution failed!");
-//		}
-		LocalDistributedExecutor lde = new LocalDistributedExecutor();
-		lde.startNephele(2);
-		lde.run(getJobGraph());
+		JobGraph jobGraph = null;
+		try {
+			jobGraph = getJobGraph();
+		} catch(Exception e) {
+			LOG.error(e);
+			e.printStackTrace();
+			Assert.fail("Failed to obtain JobGraph!");
+		}
+		
+		try {
+			final JobClient client = cluster.getJobClient(jobGraph, getJarFilePath());
+			client.setConsoleStreamForReporting(TestBase2.getNullPrintStream());
+			client.submitJobAndWait();
+		} catch(Exception e) {
+			LOG.error(e);
+			Assert.fail("Job execution failed!");
+		}
 		
 		// post-submit
 		postSubmit();
