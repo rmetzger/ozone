@@ -49,7 +49,6 @@ import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.pact.test.util.filesystem.FilesystemProvider;
-import eu.stratosphere.pact.test.util.filesystem.LocalFSProvider;
 import eu.stratosphere.pact.test.util.minicluster.ClusterProvider;
 import eu.stratosphere.pact.test.util.minicluster.ClusterProviderPool;
 
@@ -137,12 +136,8 @@ public abstract class TestBase {
 	 * Assert.
 	 * @return The FilesystemProvider of the cluster setup
 	 */
-	FilesystemProvider fsp = null;
 	public FilesystemProvider getFilesystemProvider() {
-		if(fsp == null) {
-			this.fsp = new LocalFSProvider();
-		}
-		return this.fsp;
+		return cluster.getFilesystemProvider();
 	}
 
 	/**
