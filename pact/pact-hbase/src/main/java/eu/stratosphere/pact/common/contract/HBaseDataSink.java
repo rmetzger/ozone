@@ -25,7 +25,7 @@ public class HBaseDataSink extends GenericDataSink
 		}
 		
 		setParameter(GenericTableOutputFormat.JT_ID_KEY, bld.toString());
-		setParameter(GenericTableOutputFormat.JOB_ID_KEY, rnd.nextInt());
+		setParameter(GenericTableOutputFormat.JOB_ID_KEY, rnd.nextInt(Integer.MAX_VALUE));
 	}
 
 }
