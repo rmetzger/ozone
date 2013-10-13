@@ -799,7 +799,6 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 		if (this.multicastEnabled) {
 			totalNumberOfChannels += NUMBER_OF_CHANNELS_FOR_MULTICAST;
 		}
-		System.err.println("++++ REDISTRIBUTE GLOBAL "+totalNumberOfBuffers+" BUFFERS TO "+totalNumberOfChannels+" channels +++");
 		final double buffersPerChannel = (double) totalNumberOfBuffers / (double) totalNumberOfChannels;
 		if (buffersPerChannel < 1.0) {
 			LOG.warn("System is low on memory buffers. This may result in reduced performance.");
@@ -831,17 +830,14 @@ public final class ByteBufferedChannelManager implements TransferEnvelopeDispatc
 			}
 			int nrBuf = (int) Math.ceil(buffersPerChannel * lbpo.getNumberOfChannels());
 			totBuf += nrBuf;
-			System.err.println("Assigning "+nrBuf+" buffers to "+name+" ("+entry.getKey()+")");
 			lbpo.setDesignatedNumberOfBuffers(nrBuf);
 		}
 		
 		if (this.multicastEnabled) {
 			int des = (int) Math.ceil(buffersPerChannel * NUMBER_OF_CHANNELS_FOR_MULTICAST);
 			this.transitBufferPool.setDesignatedNumberOfBuffers(des);
-			System.err.println("Assigning "+des + " to transitBufferPool");
 			totBuf += des;
 		}
-		System.err.println("Assigned "+totBuf+" buffers in total!");
 	}
 
 	/**

@@ -226,7 +226,6 @@ public class RuntimeInputGate<T extends Record> extends AbstractGate<T> implemen
 				}
 				
 				this.channelToReadFrom = waitForAnyChannelToBecomeAvailable();
-				 System.err.println("["+Thread.currentThread().getName()+"] Received a new memory segment");
 			}
 			
 			try {

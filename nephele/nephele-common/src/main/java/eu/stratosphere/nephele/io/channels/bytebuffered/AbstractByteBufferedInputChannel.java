@@ -126,8 +126,6 @@ public abstract class AbstractByteBufferedInputChannel<T extends Record> extends
 	}
 
 	private void requestReadBufferFromBroker() {
-		System.err.println("["+Thread.currentThread().getName()+"] InputChannel needs new Buffer to read");
-		// this.leasedReadBuffer = this.inputChannelBroker.getReadBufferToConsume();
 		final Buffer buffer = this.inputChannelBroker.getReadBufferToConsume();
 
 		if (buffer == null) {
@@ -205,7 +203,6 @@ public abstract class AbstractByteBufferedInputChannel<T extends Record> extends
 	}
 
 	private void releasedConsumedReadBuffer() {
-		 System.err.println("["+Thread.currentThread().getName()+"] InputChannel is releasing consumed Read Buffer ");
 		// Keep track of number of bytes transmitted through this channel
 		this.amountOfDataTransmitted += this.dataBuffer.size();
 
