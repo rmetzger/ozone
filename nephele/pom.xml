@@ -52,7 +52,6 @@
 
 	<modules>
 		<module>nephele-common</module>
-		<module>nephele-common-yarn</module>
 		<module>nephele-management</module>
 		<module>nephele-profiling</module>
 		<module>nephele-queuescheduler</module>
@@ -62,6 +61,35 @@
 		<module>nephele-visualization</module>
 		<module>nephele-server</module>
 		<module>nephele-examples</module>
-		<module>nephele-yarn</module>
 	</modules>
+
+	<!-- See main pom.xml for explanation of profiles -->
+	<profiles>
+		<profile>
+			<id>hadoop-1</id>
+			<activation>
+				<property>
+					<!-- Please do not remove the 'hadoop1' comment. See ./tools/generate_specific_pom.sh -->
+					<!--hadoop1--><name>!hadoop.profile</name>
+				</property>
+			</activation>
+			<modules>
+				<!-- No extra modules: hadoop-yarn will never be compatible with Hadoop v1 -->
+			</modules>
+		</profile>
+		<profile>
+			<id>hadoop-2</id>
+			<activation>
+				<property>
+					<!-- Please do not remove the 'hadoop1' comment. See ./tools/generate_specific_pom.sh -->
+					<!--hadoop2--><name>hadoop.profile</name><value>2</value>
+				</property>
+			</activation>
+			<modules>
+				<module>nephele-yarn</module>
+				<module>nephele-common-yarn</module>
+			</modules>
+		</profile>
+	</profiles>
+
 </project>
