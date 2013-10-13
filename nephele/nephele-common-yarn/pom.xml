@@ -11,6 +11,7 @@
   <artifactId>nephele-common-yarn</artifactId>
   <name>nephele-common-yarn</name>
   <packaging>jar</packaging>
+
   <dependencies>
     <dependency>
       <groupId>eu.stratosphere</groupId>
@@ -20,12 +21,10 @@
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
-      <version>2.0.5-alpha</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-yarn-common</artifactId>
-      <version>2.0.5-alpha</version>
     </dependency>
   </dependencies>
 </project>
