@@ -1,4 +1,4 @@
-# Stratosphere - "Ozone" Distribution
+# Stratosphere
 
 Big Data looks tiny from Stratosphere.
 
@@ -17,7 +17,7 @@ This tutorial shows how to build Stratosphere on your own system. Please open a 
 
 ```
 git clone https://github.com/stratosphere/stratosphere.git
-cd ozone
+cd stratosphere
 mvn -DskipTests clean package # this will take up to 5 minutes
 ```
 
