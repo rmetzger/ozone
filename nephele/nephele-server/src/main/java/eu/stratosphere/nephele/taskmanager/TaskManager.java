@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,16 +60,21 @@ import eu.stratosphere.nephele.executiongraph.ExecutionVertexID;
 import eu.stratosphere.nephele.instance.HardwareDescription;
 import eu.stratosphere.nephele.instance.HardwareDescriptionFactory;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
+import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
 import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.net.NetUtils;
+import eu.stratosphere.nephele.plugins.PluginID;
+import eu.stratosphere.nephele.plugins.PluginManager;
+import eu.stratosphere.nephele.plugins.TaskManagerPlugin;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.profiling.TaskManagerProfiler;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.InputSplitProviderProtocol;
 import eu.stratosphere.nephele.protocols.JobManagerProtocol;
+import eu.stratosphere.nephele.protocols.PluginCommunicationProtocol;
 import eu.stratosphere.nephele.protocols.TaskOperationProtocol;
 import eu.stratosphere.nephele.services.iomanager.IOManager;
 import eu.stratosphere.nephele.services.memorymanager.MemoryManager;
@@ -205,7 +211,17 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.lookupService = lookupService;
 
-		// Start local RPC server
+		// Start local RPC server		
+		int ipcPort = -1;
+		if(isYarnMode) {
+			ipcPort = findFreePort();
+			// write ipc-port to err-log, only for debugging purposes.
+			System.err.println( "taskmanager ipcport = " + ipcPort );
+		} else {
+			ipcPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
+					ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT);
+		}
+
 		Server taskManagerServer = null;
 		try {
 			taskManagerServer = RPC.getServer(this, taskManagerAddress.getHostName(), ipcPort, handlerCount);
@@ -395,8 +411,11 @@ public class TaskManager implements TaskOperationProtocol {
 			DEFAULTPERIODICTASKSINTERVAL);
 		
 		// Look for the optional task manager ID environment variable
-		final String taskManagerID = System.getenv(ConfigConstants.TASK_MANAGER_ID_ENV_KEY);
-
+		String taskManagerID = System.getenv(ConfigConstants.TASK_MANAGER_ID_ENV_KEY);
+		if(taskManagerID ==  null) {
+			taskManagerID = "";
+		}
+		
 		while (!Thread.interrupted()) {
 
 			// Sleep

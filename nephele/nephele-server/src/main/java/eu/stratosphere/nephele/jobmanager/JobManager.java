@@ -43,6 +43,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -165,12 +167,16 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	private final AtomicBoolean isShutdownInProgress = new AtomicBoolean(false);
 
 	private volatile boolean isShutDown = false;
+
+	private final DiscoveryService discoveryService;
 	
 	private WebInfoServer server;
 	
 	public JobManager(ExecutionMode executionMode) {
 
-		final String ipcAddressString = GlobalConfiguration
+	this.executionMode = executionMode; 
+
+		/*final String ipcAddressString = GlobalConfiguration
 			.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
 
 		InetAddress ipcAddress = null;
@@ -182,18 +188,26 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 					+ StringUtils.stringifyException(e));
 				System.exit(FAILURERETURNCODE);
 			}
-		}
-
-		final int ipcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
-			ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
-
-		// First of all, start discovery manager
+		}*/		
+		
+		InetAddress networkAddress = null;
 		try {
-			DiscoveryService.startDiscoveryService(ipcAddress, ipcPort);
-		} catch (DiscoveryException e) {
-			LOG.error("Cannot start discovery manager: " + StringUtils.stringifyException(e));
+			networkAddress = determineNetworkAddress(executionMode);
+		} catch (UnknownHostException e) {
+			LOG.fatal("Cannot determine local IPC address: " + StringUtils.stringifyException(e));
 			System.exit(FAILURERETURNCODE);
 		}
+		
+		// TODO: CHANGE THAT
+		
+		int ipcPort = 0; // -1;
+		
+		if( executionMode != ExecutionMode.YARN ) {		
+			ipcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
+					ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
+		}
+
+		// First of all, start discovery manager
 
 		// Read the suggested client polling interval
 		this.recommendedClientPollingInterval = GlobalConfiguration.getInteger(
@@ -206,8 +220,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		this.inputSplitManager = new InputSplitManager();
 
 		// Determine own RPC address
-		final InetSocketAddress rpcServerAddress = new InetSocketAddress(ipcAddress, ipcPort);
-
+		final InetSocketAddress rpcServerAddress = new InetSocketAddress(networkAddress, ipcPort);
+		
 		// Start job manager's IPC server
 		try {
 			final int handlerCount = GlobalConfiguration.getInteger("jobmanager.rpc.numhandler", 3);
@@ -219,6 +233,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			System.exit(FAILURERETURNCODE);
 		}
 
+		jobManagerIPCPort = this.jobManagerServer.getListenerAddress().getPort();
+		
+		System.err.println( "jobManagerIPCPort = " + jobManagerIPCPort );
+		
 		LOG.info("Starting job manager in " + executionMode + " mode");
 
 		// Try to load the instance manager for the given execution mode
@@ -326,6 +344,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			this.instanceManager.shutdown();
 		}
 
+		
 		// Stop profiling if enabled
 		if (this.profiler != null) {
 			this.profiler.shutdown();
@@ -566,7 +585,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			if (this.eventCollector != null) {
 				this.profiler.registerForProfilingData(eg.getJobID(), this.eventCollector);
 			}
-
 		}
 
 		// Register job with the dynamic input split assigner
@@ -1238,8 +1256,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 		return new InputSplitWrapper(jobID, this.inputSplitManager.getNextInputSplit(vertex, sequenceNumber.getValue()));
 	}
-	
-	/**
+
+/**
 	 * Starts the Jetty Infoserver for the Jobmanager
 	 * 
 	 * @param config
@@ -1260,6 +1278,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	public int getNumberOfTaskTrackers() {
 		return this.instanceManager.getNumberOfTaskTrackers();
 	}
+
 	@Override
 	public void shutdownSystem() throws IOException {		
 		if(this.executionMode == ExecutionMode.YARN) {		
