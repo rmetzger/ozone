@@ -173,7 +173,7 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 
 		LOG.info("Determined address of job manager to be " + jobManagerAddress);
-
+		
 		InetAddress taskManagerAddress = null;
 		// Try to create local stub for the job manager
 		JobManagerProtocol jobManager = null;
@@ -185,7 +185,7 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.jobManager = jobManager;
 
-		// Determine the port of the discovery service;
+		// Retrieve the discovery port from JobManager.
 		final int discoveryPort = this.jobManager.getDiscoveryPort().getValue();		
 		
 		try {
@@ -347,6 +347,7 @@ public class TaskManager implements TaskOperationProtocol {
 		// 2. Check the configuration file
 		address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
 		port = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, -1);
+		
 
 		if (address != null && port > 0) {
 			return new InetSocketAddress(address, port);
@@ -415,8 +416,11 @@ public class TaskManager implements TaskOperationProtocol {
 			DEFAULTPERIODICTASKSINTERVAL);
 		
 		// Look for the optional task manager ID environment variable
-		final String taskManagerID = System.getenv(ConfigConstants.TASK_MANAGER_ID_ENV_KEY);
-
+		String taskManagerID = System.getenv(ConfigConstants.TASK_MANAGER_ID_ENV_KEY);
+		if(taskManagerID ==  null) {
+			taskManagerID = "";
+		}
+		
 		while (!Thread.interrupted()) {
 
 			// Sleep
