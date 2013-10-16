@@ -349,7 +349,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		if (executionMode == ExecutionMode.YARN) {
 			final String host = System.getenv("NM_HOST"); // ApplicationConstants.NM_HOST_ENV
 			if (host == null) {
-				throw new UnknownHostException("Cannot find container host name in the environment variables");
+				throw new UnknownHostException("Cannot find container host name in the environment variables. Set NM_HOST.");
 			}
 
 			return InetAddress.getByName(host);

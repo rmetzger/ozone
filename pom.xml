@@ -46,7 +46,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<hadoop-one.version>1.2.1</hadoop-one.version>
-		<hadoop-two.version>2.0.5-alpha</hadoop-two.version>
+		<hadoop-two.version>2.0.6-alpha</hadoop-two.version>
 		<hbase.version>0.94.12</hbase.version>
 	</properties>
 

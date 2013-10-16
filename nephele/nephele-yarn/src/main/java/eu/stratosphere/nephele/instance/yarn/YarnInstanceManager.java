@@ -890,7 +890,7 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	/**
-	 * @param availableInstances
+	 * @param availableInstancesTypes
 	 * @return
 	 */
 	private static InstanceType findInstanceTypeWithSmallestMemory(final Collection<InstanceType> availableInstanceTypes) {
