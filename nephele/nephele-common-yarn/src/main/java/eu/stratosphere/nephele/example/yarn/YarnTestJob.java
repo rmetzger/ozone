@@ -71,7 +71,7 @@ public final class YarnTestJob {
 		// Set configuration
 		final Configuration conf = new Configuration();
 		conf.setInteger(YarnJobClient.YARN_APPLICATIONMASTER_MEMORY_KEY, 256); // main memory for application master
-		conf.setString(YarnJobClient.NEPHELE_HOME_KEY, "/home/robert/Projekte/ozone/ozone/");
+		conf.setString(YarnJobClient.NEPHELE_HOME_KEY, "/home/robert/Projekte/ozone/ozone/stratosphere-dist/target/stratosphere-dist-0.4-SNAPSHOT-bin/stratosphere-0.4-SNAPSHOT");
 		conf.setString("jobmanager.rpc.address", "localhost");
 
 		// Create job client and launch job
