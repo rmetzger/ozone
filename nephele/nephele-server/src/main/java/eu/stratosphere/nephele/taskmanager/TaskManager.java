@@ -343,6 +343,7 @@ public class TaskManager implements TaskOperationProtocol {
 		// 2. Check the configuration file
 		address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
 		port = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, -1);
+		
 
 		if (address != null && port > 0) {
 			return new InetSocketAddress(address, port);
