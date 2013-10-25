@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import junit.framework.Assert;
 
+import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,8 @@ public class LocalInstanceManagerTest {
 	 */
 	@Before
 	public void startDiscoveryService() {
-
+		BasicConfigurator.configure();
+		
 		final String configDir = ServerTestUtils.getConfigDir();
 		if (configDir == null) {
 			fail("Cannot locate configuration directory");
