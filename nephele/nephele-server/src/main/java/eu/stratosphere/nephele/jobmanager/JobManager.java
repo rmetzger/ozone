@@ -174,7 +174,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	
 	public JobManager(ExecutionMode executionMode) {
 
-	this.executionMode = executionMode; 
+		this.executionMode = executionMode; 
 
 		/*final String ipcAddressString = GlobalConfiguration
 			.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
