@@ -19,9 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,21 +59,16 @@ import eu.stratosphere.nephele.executiongraph.ExecutionVertexID;
 import eu.stratosphere.nephele.instance.HardwareDescription;
 import eu.stratosphere.nephele.instance.HardwareDescriptionFactory;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
-import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
 import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.net.NetUtils;
-import eu.stratosphere.nephele.plugins.PluginID;
-import eu.stratosphere.nephele.plugins.PluginManager;
-import eu.stratosphere.nephele.plugins.TaskManagerPlugin;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.profiling.TaskManagerProfiler;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.InputSplitProviderProtocol;
 import eu.stratosphere.nephele.protocols.JobManagerProtocol;
-import eu.stratosphere.nephele.protocols.PluginCommunicationProtocol;
 import eu.stratosphere.nephele.protocols.TaskOperationProtocol;
 import eu.stratosphere.nephele.services.iomanager.IOManager;
 import eu.stratosphere.nephele.services.memorymanager.MemoryManager;
@@ -82,6 +76,7 @@ import eu.stratosphere.nephele.services.memorymanager.spi.DefaultMemoryManager;
 import eu.stratosphere.nephele.taskmanager.bytebuffered.ByteBufferedChannelManager;
 import eu.stratosphere.nephele.taskmanager.bytebuffered.InsufficientResourcesException;
 import eu.stratosphere.nephele.taskmanager.runtime.RuntimeTask;
+import eu.stratosphere.nephele.types.StringRecord;
 import eu.stratosphere.nephele.util.SerializableArrayList;
 import eu.stratosphere.nephele.util.StringUtils;
 
@@ -148,14 +143,7 @@ public class TaskManager implements TaskOperationProtocol {
 	 * The flag indicates if the TaskManager is bootstrapped in YARN mode.
 	 */
 	private Boolean isYarnMode = false;
-	/**
-	 * Constructs a new task manager, starts its IPC service and attempts to discover the job manager to
-	 * receive an initial configuration. All parameters are obtained from the 
-	 * {@link GlobalConfiguration}, which must be loaded prior to instantiating the task manager.
-	 */
-	public TaskManager() throws Exception {
-		this(null);
-	}
+
 	
 	/**
 	 * Constructs a new task manager, starts its IPC service and attempts to discover the job manager to
@@ -396,7 +384,7 @@ public class TaskManager implements TaskOperationProtocol {
 		// Create a new task manager object
 		TaskManager taskManager = null;
 		try {
-			taskManager = new TaskManager(configDir);
+			taskManager = new TaskManager();
 		} catch (Exception e) {
 			LOG.fatal("Taskmanager startup failed:" + StringUtils.stringifyException(e));
 			System.exit(FAILURERETURNCODE);
