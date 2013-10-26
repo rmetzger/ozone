@@ -21,7 +21,6 @@ import eu.stratosphere.nephele.instance.HardwareDescription;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
 import eu.stratosphere.nephele.protocols.VersionedProtocol;
 import eu.stratosphere.nephele.taskmanager.TaskExecutionState;
-import eu.stratosphere.nephele.types.IntegerRecord;
 import eu.stratosphere.nephele.types.StringRecord;
 
 /**
@@ -55,15 +54,4 @@ public interface JobManagerProtocol extends VersionedProtocol {
 	 *         thrown if an error occurs during this remote procedure call
 	 */
 	void updateTaskExecutionState(TaskExecutionState taskExecutionState) throws IOException;
-	
-	/**
-	 * Returns the port the job manager's discovery service is bound to.
-	 * 
-	 * @return the port the job manager's discovery service is bound to
-	 * @throws IOException
-	 *         thrown if an error occurs during this remote procedure call
-	 * @throws InterruptedException
-	 *         thrown if the caller is interrupted while waiting for the response of the remote procedure call
-	 */
-	IntegerRecord getDiscoveryPort() throws IOException, InterruptedException;
 }

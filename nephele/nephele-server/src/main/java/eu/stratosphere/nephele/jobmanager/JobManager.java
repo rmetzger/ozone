@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -68,8 +67,6 @@ import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.deployment.TaskDeploymentDescriptor;
-import eu.stratosphere.nephele.discovery.DiscoveryException;
-import eu.stratosphere.nephele.discovery.DiscoveryService;
 import eu.stratosphere.nephele.event.job.AbstractEvent;
 import eu.stratosphere.nephele.event.job.RecentJobEvent;
 import eu.stratosphere.nephele.execution.ExecutionState;
@@ -90,7 +87,6 @@ import eu.stratosphere.nephele.instance.InstanceManager;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.instance.InstanceTypeDescription;
 import eu.stratosphere.nephele.instance.local.LocalInstanceManager;
-import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
@@ -105,7 +101,6 @@ import eu.stratosphere.nephele.managementgraph.ManagementGraph;
 import eu.stratosphere.nephele.managementgraph.ManagementVertexID;
 import eu.stratosphere.nephele.multicast.MulticastManager;
 import eu.stratosphere.nephele.profiling.JobManagerProfiler;
-import eu.stratosphere.nephele.profiling.ProfilingListener;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.ExtendedManagementProtocol;
@@ -168,8 +163,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 	private volatile boolean isShutDown = false;
 
-	private final DiscoveryService discoveryService;
-	
 	public static int jobManagerIPCPort = -1; 
 	
 	private final ExecutionMode executionMode;
@@ -205,29 +198,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			ipcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
 					ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
 		}
-
-		// Next, start the discovery manager
-		DiscoveryService discoveryService = null;
-		try {
-			int discoveryPort = -1;
-			if (executionMode != ExecutionMode.YARN) {
-				discoveryPort = GlobalConfiguration.getInteger(ConfigConstants.DISCOVERY_PORT_KEY,
-													   		   ConfigConstants.DEFAULT_DISCOVERY_PORT); 						
-			}
-			discoveryService = new DiscoveryService(discoveryPort, ipcPort);
-		} catch (IOException e) {
-			LOG.fatal("Cannot start discovery manager: " + StringUtils.stringifyException(e));
-			System.exit(FAILURERETURNCODE);
-		}
-		this.discoveryService = discoveryService;		
-		
-		// First of all, start discovery manager
-		/*try {
-			DiscoveryService.startDiscoveryService(networkAddress, ipcPort);
-		} catch (DiscoveryException e) {
-			LOG.error("Cannot start discovery manager: " + StringUtils.stringifyException(e));
-			System.exit(FAILURERETURNCODE);
-		}*/
 
 		// Read the suggested client polling interval
 		this.recommendedClientPollingInterval = GlobalConfiguration.getInteger(
@@ -362,11 +332,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		// Stop instance manager
 		if (this.instanceManager != null) {
 			this.instanceManager.shutdown();
-		}
-
-		// Stop the discovery service
-		if (this.discoveryService != null) {
-			this.discoveryService.shutdown();
 		}
 		
 		// Stop profiling if enabled
@@ -1233,19 +1198,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		}
 
 		return new InputSplitWrapper(jobID, this.inputSplitManager.getNextInputSplit(vertex, sequenceNumber.getValue()));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public IntegerRecord getDiscoveryPort() throws IOException, InterruptedException {
-
-		if (this.discoveryService == null) {
-			return new IntegerRecord( -1 );
-		}
-
-		return new IntegerRecord( this.discoveryService.getDiscoveryPort() );
 	}
 
 	@Override

@@ -19,8 +19,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +51,6 @@ import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.deployment.TaskDeploymentDescriptor;
-import eu.stratosphere.nephele.discovery.DiscoveryException;
-import eu.stratosphere.nephele.discovery.DiscoveryService;
 import eu.stratosphere.nephele.execution.Environment;
 import eu.stratosphere.nephele.execution.ExecutionState;
 import eu.stratosphere.nephele.execution.RuntimeEnvironment;
@@ -157,7 +160,7 @@ public class TaskManager implements TaskOperationProtocol {
 		// Determine the job manager IPC address
 		final InetSocketAddress jobManagerAddress = determineJobManagerIPCAddress();
 		if (jobManagerAddress == null) {
-			throw new Exception("Unable to determine job manager address");
+			throw new Exception("JobManager IPC address not set in configuration.");
 		}
 
 		LOG.info("Determined address of job manager to be " + jobManagerAddress);
@@ -173,13 +176,10 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.jobManager = jobManager;
 
-		// Retrieve the discovery port from JobManager.
-		final int discoveryPort = this.jobManager.getDiscoveryPort().getValue();		
-		
 		try {
-			taskManagerAddress = DiscoveryService.getTaskManagerAddress(jobManagerAddress.getAddress(), discoveryPort);
-		} catch (DiscoveryException e) {
-			throw new Exception("Failed to initialize discovery service. " + e.getMessage(), e);
+			taskManagerAddress = getTaskManagerAddress(jobManagerAddress);
+		} catch(IOException ioe) {
+			throw new RuntimeException("The TaskManager failed to determine its own network address", ioe);
 		}
 		
 		// Try to create local stub of the global input split provider
@@ -301,10 +301,112 @@ public class TaskManager implements TaskOperationProtocol {
 		Runtime.getRuntime().addShutdownHook(new TaskManagerCleanUp(this));
 	}
 
+	
+	/**
+	 * The states of address detection mechanism.
+	 * There is only a state transition if the current
+	 * state failed to determine the address.
+	 */
+	enum AddressDetectionState {
+		ADDRESS(50), 		//detect own IP based on the JobManagers IP address. Look for common prefix
+		FAST_CONNECT(50),	//try to connect to the JobManager on all Interfaces and all their addresses.
+							//this state uses a low timeout (say 50 ms) for fast detection.
+		SLOW_CONNECT(1000);	//same as FAST_CONNECT, but with a timeout of 1000 ms (1s).
+		
+		
+		private int timeout;
+		AddressDetectionState(int timeout) {
+			this.timeout = timeout;
+		}
+		public int getTimeout() {
+			return timeout;
+		}
+	}
+	
+	/**
+	 * Find out the TaskManager's own IP address.
+	 */
+	private InetAddress getTaskManagerAddress(InetSocketAddress jobManagerAddress) throws IOException {
+		AddressDetectionState strategy = AddressDetectionState.ADDRESS;
+		
+		while(true) {
+			Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+		    while (e.hasMoreElements())  {
+		        NetworkInterface n = e.nextElement();
+		        System.err.println("Interface:"+n.getName());
+	        	Enumeration<InetAddress> ee = n.getInetAddresses();
+		        while (ee.hasMoreElements()) {
+		            InetAddress i = ee.nextElement();
+		            System.err.println("Current strategy "+strategy);
+		            switch(strategy) {
+		            	case ADDRESS:
+		            		if(hasCommonPrefix(jobManagerAddress.getAddress().getAddress(),i.getAddress())) {
+		            			System.err.println("\t trying on address "+i.getHostAddress());
+		            			if(tryToConnect(i, jobManagerAddress, strategy.getTimeout())) {
+		            				System.err.println("+++ my own address seems to be "+i.getHostAddress()+"++++");
+		            			}
+		            		}
+		            		break;
+		            	case FAST_CONNECT:
+		            	case SLOW_CONNECT:
+		            		System.err.println("\t trying on "+strategy+" "+i.getHostAddress());
+				            boolean correct = tryToConnect(i, jobManagerAddress, strategy.getTimeout());
+				            System.err.println("Connectable "+correct);
+				            if(correct) {
+				            	System.err.println("+++ my own address seems to be "+i.getHostAddress()+"++++");
+				            }
+				            break;
+				        default:
+				        	throw new RuntimeException("Unkown address detection strategy: "+strategy);
+		            }
+		        }
+		    }
+		    // state control
+		    switch(strategy) {
+			    case ADDRESS:
+			    	strategy = AddressDetectionState.FAST_CONNECT;
+			    	break;
+			    case FAST_CONNECT:
+			    	strategy = AddressDetectionState.SLOW_CONNECT;
+			    	break;
+			    case SLOW_CONNECT:
+			    	throw new RuntimeException("The TaskManager failed to detect its own IP address");
+		    }
+		}
+	}
+	
+	/**
+	 * Checks if two addresses have a common prefix (first 2 bytes).
+	 * Example: 192.168.???.???
+	 * Works also with ipv6, but accepts probably too many addresses
+	 */
+	private static boolean hasCommonPrefix(byte[] address, byte[] address2) {
+		return address[0] == address2[0] && address[1] == address2[1];
+	}
+
+	public static boolean tryToConnect(InetAddress fromAddress, SocketAddress toSocket, int timeout) throws IOException {
+		boolean connectable = true;
+        Socket socket = null;
+        try {
+        	socket = new Socket(); 
+        	SocketAddress bindP = new InetSocketAddress(fromAddress, 0); // 0 = let the OS choose the port on this machine
+			socket.bind(bindP);
+        	socket.connect(toSocket,timeout);
+        } catch(Exception ex) {
+        	System.err.println("Cause: "+ex.getMessage());
+        	connectable = false;
+        } finally {
+        	if(socket != null) {
+        		socket.close();
+        	}
+        }
+        return connectable;
+	}
+	
+	
 	/**
 	 * Determines the IPC address of the job manager. The method first attempts to retrieve the address from the
-	 * environment variables. If this fails, it checks the configuration. If that fails as well, the methods tries to
-	 * discover the job manager through the {@link DiscoveryService}.
+	 * environment variables. If this fails, it checks the configuration.
 	 * 
 	 * @return the IPC address of job manager or <code>null</code> if it could not be found
 	 */
@@ -339,13 +441,6 @@ public class TaskManager implements TaskOperationProtocol {
 
 		if (address != null && port > 0) {
 			return new InetSocketAddress(address, port);
-		}
-
-		// 3. Use the discovery service
-		try {
-			return DiscoveryService.getJobManagerAddress();
-		} catch (DiscoveryException e) {
-			LOG.error("Failed to locate job manager via discovery: " + e.getMessage(), e);
 		}
 
 		return null;
@@ -616,7 +711,6 @@ public class TaskManager implements TaskOperationProtocol {
 
 			}
 
-			final Environment ee = task.getEnvironment();
 			if (registerTask) {
 				// Register the task with the byte buffered channel manager
 				this.byteBufferedChannelManager.register(task, activeOutputChannels);
