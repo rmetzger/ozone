@@ -336,33 +336,34 @@ public class TaskManager implements TaskOperationProtocol {
 	 * Find out the TaskManager's own IP address.
 	 */
 	private InetAddress getTaskManagerAddress(InetSocketAddress jobManagerAddress) throws IOException {
+		if(LOG.isDebugEnabled()) {
+	    	LOG.debug("Detecting TaskManager's own IP address");
+	    }
+		
 		AddressDetectionState strategy = AddressDetectionState.ADDRESS;
 		
 		while(true) {
 			Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
 		    while (e.hasMoreElements())  {
 		        NetworkInterface n = e.nextElement();
-		        System.err.println("Interface:"+n.getName());
 	        	Enumeration<InetAddress> ee = n.getInetAddresses();
 		        while (ee.hasMoreElements()) {
 		            InetAddress i = ee.nextElement();
-		            System.err.println("Current strategy "+strategy);
 		            switch(strategy) {
 		            	case ADDRESS:
 		            		if(hasCommonPrefix(jobManagerAddress.getAddress().getAddress(),i.getAddress())) {
-		            			System.err.println("\t trying on address "+i.getHostAddress());
 		            			if(tryToConnect(i, jobManagerAddress, strategy.getTimeout())) {
-		            				System.err.println("+++ my own address seems to be "+i.getHostAddress()+"++++");
+		            				LOG.info("Determined "+i+" as the TaskTracker's own IP address");
+		            				return i;
 		            			}
 		            		}
 		            		break;
 		            	case FAST_CONNECT:
 		            	case SLOW_CONNECT:
 		            		System.err.println("\t trying on "+strategy+" "+i.getHostAddress());
-				            boolean correct = tryToConnect(i, jobManagerAddress, strategy.getTimeout());
-				            System.err.println("Connectable "+correct);
-				            if(correct) {
-				            	System.err.println("+++ my own address seems to be "+i.getHostAddress()+"++++");
+				            if(tryToConnect(i, jobManagerAddress, strategy.getTimeout())) {
+				            	LOG.info("Determined "+i+" as the TaskTracker's own IP address");
+				            	return i;
 				            }
 				            break;
 				        default:
@@ -381,6 +382,9 @@ public class TaskManager implements TaskOperationProtocol {
 			    case SLOW_CONNECT:
 			    	throw new RuntimeException("The TaskManager failed to detect its own IP address");
 		    }
+		    if(LOG.isDebugEnabled()) {
+		    	LOG.debug("Defaulting to detection strategy "+strategy);
+		    }
 		}
 	}
 	
@@ -394,6 +398,9 @@ public class TaskManager implements TaskOperationProtocol {
 	}
 
 	public static boolean tryToConnect(InetAddress fromAddress, SocketAddress toSocket, int timeout) throws IOException {
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("Trying to connect to JobManager ("+toSocket+") from local address "+fromAddress+" with timeout "+timeout);
+		}
 		boolean connectable = true;
         Socket socket = null;
         try {
@@ -402,7 +409,9 @@ public class TaskManager implements TaskOperationProtocol {
 			socket.bind(bindP);
         	socket.connect(toSocket,timeout);
         } catch(Exception ex) {
-        	System.err.println("Cause: "+ex.getMessage());
+        	if(LOG.isDebugEnabled()) {
+        		LOG.debug("Failed on this address: "+ex.getMessage());
+        	}
         	connectable = false;
         } finally {
         	if(socket != null) {

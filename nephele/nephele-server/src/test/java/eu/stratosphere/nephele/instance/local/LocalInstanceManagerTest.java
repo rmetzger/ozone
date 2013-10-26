@@ -30,6 +30,8 @@ import org.junit.Test;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.instance.InstanceType;
+import eu.stratosphere.nephele.jobmanager.JobManager;
+import eu.stratosphere.nephele.jobmanager.JobManager.ExecutionMode;
 import eu.stratosphere.nephele.util.ServerTestUtils;
 
 /**
@@ -51,12 +53,17 @@ public class LocalInstanceManagerTest {
 			fail("Cannot locate configuration directory");
 		}
 
+        GlobalConfiguration.loadConfiguration(configDir);
+        
+        
+		// start JobManager
+        ExecutionMode executionMode = ExecutionMode.LOCAL;
+        JobManager jm = new JobManager(executionMode);
+       
 		final TestInstanceListener testInstanceListener = new TestInstanceListener();
 
-		LocalInstanceManager lm = null;
+		LocalInstanceManager lm = (LocalInstanceManager) jm.getInstanceManager(); // this is for sure, because I chose the local strategy
 		try {
-
-			lm = new LocalInstanceManager();
 			lm.setInstanceListener(testInstanceListener);
 
 			final InstanceType defaultInstanceType = lm.getDefaultInstanceType();
@@ -71,10 +78,7 @@ public class LocalInstanceManagerTest {
 			e.printStackTrace();
 			Assert.fail("Instantiation of LocalInstanceManager failed: " + e.getMessage());
 		} finally {
-
-			if (lm != null) {
-				lm.shutdown();
-			}
+			jm.shutdown();
 		}
 	}
 }
