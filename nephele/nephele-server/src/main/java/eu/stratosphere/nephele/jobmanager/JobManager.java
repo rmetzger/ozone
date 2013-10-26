@@ -225,8 +225,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 		jobManagerIPCPort = this.jobManagerServer.getListenerAddress().getPort();
 		
-		System.err.println( "jobManagerIPCPort = " + jobManagerIPCPort );
-		
 		LOG.info("Starting job manager in " + executionMode + " mode");
 
 		// Try to load the instance manager for the given execution mode
