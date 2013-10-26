@@ -167,10 +167,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	private final AtomicBoolean isShutdownInProgress = new AtomicBoolean(false);
 
 	private volatile boolean isShutDown = false;
-
-	private final DiscoveryService discoveryService;
 	
-	private WebInfoServer server;
+	public static int jobManagerIPCPort = -1; 
+	
+	private final ExecutionMode executionMode;
 	
 	public JobManager(ExecutionMode executionMode) {
 
@@ -201,13 +201,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		// TODO: CHANGE THAT
 		
 		int ipcPort = 0; // -1;
-		
 		if( executionMode != ExecutionMode.YARN ) {		
 			ipcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
 					ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
 		}
-
-		// First of all, start discovery manager
 
 		// Read the suggested client polling interval
 		this.recommendedClientPollingInterval = GlobalConfiguration.getInteger(
@@ -271,7 +268,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 		// Create multicastManager
 		this.multicastManager = new MulticastManager(this.scheduler);
-
+		
 		// Load profiler if it should be used
 		if (GlobalConfiguration.getBoolean(ProfilingUtils.ENABLE_PROFILING_KEY, false)) {
 			final String profilerClassName = GlobalConfiguration.getString(ProfilingUtils.JOBMANAGER_CLASSNAME_KEY,
@@ -343,7 +340,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		if (this.instanceManager != null) {
 			this.instanceManager.shutdown();
 		}
-
 		
 		// Stop profiling if enabled
 		if (this.profiler != null) {
@@ -467,15 +463,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 		// Create a new job manager object
 		JobManager jobManager = new JobManager(executionMode);
-		
-		// Set base dir for info server
-		Configuration infoserverConfig = GlobalConfiguration.getConfiguration();
-		if (configDir != null) {
-			infoserverConfig.setString(ConfigConstants.STRATOSPHERE_BASE_DIR_PATH_KEY, configDir+"/..");
-		}
-				
-		// Start info server for jobmanager
-		jobManager.startInfoServer(infoserverConfig);
 
 		// Run the main task loop
 		jobManager.runTaskLoop();

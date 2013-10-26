@@ -29,8 +29,6 @@ import org.junit.Test;
 
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
-import eu.stratosphere.nephele.discovery.DiscoveryException;
-import eu.stratosphere.nephele.discovery.DiscoveryService;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.util.ServerTestUtils;
 
@@ -41,56 +39,6 @@ import eu.stratosphere.nephele.util.ServerTestUtils;
  */
 public class LocalInstanceManagerTest {
 
-	private DiscoveryService discoveryService;
-	
-	/**
-	 * Starts the discovery service before the tests.
-	 */
-	@Before
-	public void startDiscoveryService() {
-		BasicConfigurator.configure();
-		
-		final String configDir = ServerTestUtils.getConfigDir();
-		if (configDir == null) {
-			fail("Cannot locate configuration directory");
-		}
-
-		GlobalConfiguration.loadConfiguration(configDir);
-
-		/*final String address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
-		InetAddress bindAddress = null;
-		if (address != null) {
-			try {
-				bindAddress = InetAddress.getByName(address);
-			} catch (UnknownHostException e) {
-				fail(e.getMessage());
-			}
-		}*/
-
-		// Start discovery service
-		final int discoveryPort = GlobalConfiguration.getInteger(ConfigConstants.DISCOVERY_PORT_KEY,
-			ConfigConstants.DEFAULT_DISCOVERY_PORT);
-
-		// Start RPC service
-		final int rpcPort = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
-			ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
-		
-		try {
-			this.discoveryService = new DiscoveryService(discoveryPort, rpcPort);
-		} catch (IOException e) {
-			fail(e.getMessage());
-		}
-	}
-
-	/**
-	 * Stops the discovery service after the tests.
-	 */
-	@After
-	public void stopDiscoveryService() {
-		if (this.discoveryService != null) {
-			this.discoveryService.shutdown();
-		}
-	}
 
 	/**
 	 * Checks if the local instance manager reads the default correctly from the configuration file.
