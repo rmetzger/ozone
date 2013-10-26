@@ -1005,6 +1005,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 
 		return null;
 	}
+	
+	public InstanceManager getInstanceManager() {
+		return this.instanceManager;
+	}
 
 	/**
 	 * {@inheritDoc}
