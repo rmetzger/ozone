@@ -75,6 +75,7 @@ public class CliFrontend {
 	private static final Option CLASS_OPTION = new Option("c", "class", true, "Pact program assembler class");
 	private static final Option ARGS_OPTION = new Option("a", "arguments", true, "Pact program arguments");
 	private static final Option WAIT_OPTION = new Option("w", "wait", false, "Wait until program finishes");
+	private static final Option YARN_OPTION = new Option("y", "yarn", false, "Submit to (running) YARN cluster");
 	
 	// info options
 	private static final Option DESCR_OPTION = new Option("d", "description", false, "Show argument description of pact program");
@@ -146,6 +147,8 @@ public class CliFrontend {
 		options.addOption(ARGS_OPTION);
 		WAIT_OPTION.setRequired(false);
 		options.addOption(WAIT_OPTION);
+		YARN_OPTION.setRequired(false);
+		options.addOption(YARN_OPTION);
 		
 		return options;
 	}
