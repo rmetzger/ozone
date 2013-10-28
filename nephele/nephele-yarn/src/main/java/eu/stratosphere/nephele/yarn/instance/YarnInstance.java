@@ -13,7 +13,7 @@
  *
  **********************************************************************************************************************/
 
-package eu.stratosphere.nephele.instance.yarn;
+package eu.stratosphere.nephele.yarn.instance;
 
 import org.apache.hadoop.yarn.api.records.Container;
 

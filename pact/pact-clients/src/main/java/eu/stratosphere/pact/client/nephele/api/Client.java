@@ -304,7 +304,7 @@ public class Client {
 		JobClient client;
 		try {
 			if(submitToYarn) {
-				client = 
+				client = null;
 			} else {
 				client = new JobClientImpl(jobGraph, nepheleConfig);
 			}

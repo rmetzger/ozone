@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>nephele</artifactId>
+		<groupId>eu.stratosphere</groupId>
+		<version>0.4-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+  <!--
+  This package contaisn disfunctional classes that are put in place if Stratosphere has not been
+  build with YARN support.
+     -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>nephele-noyarn</artifactId>
+  <name>nephele-noyarn</name>
+  <url>http://maven.apache.org</url>
+
+</project>
