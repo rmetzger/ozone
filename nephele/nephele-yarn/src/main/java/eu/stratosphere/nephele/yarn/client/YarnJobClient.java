@@ -13,7 +13,7 @@
  *
  **********************************************************************************************************************/
 
-package eu.stratosphere.nephele.client;
+package eu.stratosphere.nephele.yarn.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +55,12 @@ import org.apache.hadoop.yarn.ipc.YarnRPC;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
+import eu.stratosphere.nephele.client.AbstractJobResult;
+import eu.stratosphere.nephele.client.JobCancelResult;
+import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobExecutionException;
+import eu.stratosphere.nephele.client.JobProgressResult;
+import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.event.job.AbstractEvent;

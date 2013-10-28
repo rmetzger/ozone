@@ -75,6 +75,7 @@
 			</activation>
 			<modules>
 				<!-- No extra modules: hadoop-yarn will never be compatible with Hadoop v1 -->
+				<module>nephele-noyarn</module>
 			</modules>
 		</profile>
 		<profile>
@@ -87,7 +88,6 @@
 			</activation>
 			<modules>
 				<module>nephele-yarn</module>
-				<module>nephele-common-yarn</module>
 			</modules>
 		</profile>
 	</profiles>

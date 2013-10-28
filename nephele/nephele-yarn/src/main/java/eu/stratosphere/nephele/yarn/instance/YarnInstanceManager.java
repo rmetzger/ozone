@@ -13,7 +13,7 @@
  *
  **********************************************************************************************************************/
 
-package eu.stratosphere.nephele.instance.yarn;
+package eu.stratosphere.nephele.yarn.instance;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -45,7 +45,6 @@ import org.apache.hadoop.yarn.ipc.YarnRPC;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
-import eu.stratosphere.nephele.client.YarnJobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.instance.AbstractInstance;
 import eu.stratosphere.nephele.instance.AllocatedResource;
@@ -65,6 +64,7 @@ import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.jobmanager.JobManager;
 import eu.stratosphere.nephele.topology.NetworkTopology;
 import eu.stratosphere.nephele.util.StringUtils;
+import eu.stratosphere.nephele.yarn.client.YarnJobClient;
 
 
 public final class YarnInstanceManager implements InstanceManager {

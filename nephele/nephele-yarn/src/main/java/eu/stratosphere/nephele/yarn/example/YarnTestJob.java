@@ -13,11 +13,10 @@
  *
  **********************************************************************************************************************/
 
-package eu.stratosphere.nephele.example.yarn;
+package eu.stratosphere.nephele.yarn.example;
 
 import org.mortbay.log.Log;
 
-import eu.stratosphere.nephele.client.YarnJobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.io.DistributionPattern;
 import eu.stratosphere.nephele.io.channels.ChannelType;
@@ -26,6 +25,7 @@ import eu.stratosphere.nephele.jobgraph.JobGenericOutputVertex;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.nephele.jobgraph.JobGraphDefinitionException;
 import eu.stratosphere.nephele.util.StringUtils;
+import eu.stratosphere.nephele.yarn.client.YarnJobClient;
 
 public final class YarnTestJob {
 

@@ -1,4 +1,4 @@
-package eu.stratosphere.nephele.instance.yarn;
+package eu.stratosphere.nephele.yarn.instance;
 
 import java.util.List;
 
