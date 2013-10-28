@@ -58,7 +58,7 @@ final class YarnContainerBootstrapper extends Thread {
 	/**
 	 * Name of the shell script launching the Nephele task manager inside the YARN container.
 	 */
-	private static final String NEPHELE_YARN_TM_LAUNCHER = "nephele-yarn-tm-launcher.sh";
+	private static final String NEPHELE_YARN_TM_LAUNCHER = "nephele-taskmanager.sh start yarn";
 
 	/**
 	 * Handle to the allocated container.
