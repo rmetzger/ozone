@@ -136,7 +136,7 @@ public final class YarnJobClient {
 
 	private static final String YARN_APPLICATION_NAME_PREFIX = "nephele";
 
-	private static final String NEPHELE_YARN_JM_LAUNCHER = "nephele-yarn-jm-launcher.sh";
+	private static final String NEPHELE_YARN_JM_LAUNCHER = "nephele-jobmanager.sh start yarn";
 	
 	/*-----------------------------------------------------------------------
 	 * Fields.
