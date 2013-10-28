@@ -32,7 +32,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import eu.stratosphere.nephele.client.AbstractJobResult.ReturnCode;
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
@@ -77,7 +77,7 @@ public class ClientTest {
 	JobGraph jobGraphMock;
 
 	@Mock
-	JobClient jobClientMock;
+	JobClientImpl jobClientMock;
 	@Mock
 	JobSubmissionResult jobSubmissionResultMock;
 	
@@ -101,7 +101,7 @@ public class ClientTest {
 		whenNew(NepheleJobGraphGenerator.class).withNoArguments().thenReturn(generatorMock);
 		when(generatorMock.compileJobGraph(optimizedPlanMock)).thenReturn(jobGraphMock);
 		
-		whenNew(JobClient.class).withArguments(any(JobGraph.class), any(Configuration.class)).thenReturn(this.jobClientMock);
+		whenNew(JobClientImpl.class).withArguments(any(JobGraph.class), any(Configuration.class)).thenReturn(this.jobClientMock);
 		
 		when(this.jobClientMock.submitJob()).thenReturn(jobSubmissionResultMock);
 	}

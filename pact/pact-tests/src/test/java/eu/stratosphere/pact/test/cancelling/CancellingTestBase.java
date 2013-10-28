@@ -29,7 +29,7 @@ import org.junit.Before;
 
 import eu.stratosphere.nephele.client.AbstractJobResult;
 import eu.stratosphere.nephele.client.JobCancelResult;
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobProgressResult;
 import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.event.job.AbstractEvent;
@@ -102,7 +102,7 @@ public abstract class CancellingTestBase {
 
 			final long startingTime = System.currentTimeMillis();
 			long cancelTime = -1L;
-			final JobClient client = cluster.getJobClient(jobGraph, null);
+			final JobClientImpl client = cluster.getJobClient(jobGraph, null);
 			final JobSubmissionResult submissionResult = client.submitJob();
 			if (submissionResult.getReturnCode() != AbstractJobResult.ReturnCode.SUCCESS) {
 				throw new IllegalStateException(submissionResult.getDescription());

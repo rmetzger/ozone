@@ -227,6 +227,7 @@ public class CliFrontend {
 		String assemblerClass = null;
 		String[] programArgs = null;
 		boolean wait = false;
+		boolean submitToYarn = false;
 		
 		// Parse command line options
 		CommandLine line = null;
@@ -270,6 +271,9 @@ public class CliFrontend {
 		// get wait flag
 		wait = line.hasOption(WAIT_OPTION.getOpt());
 		
+		// check for yarn flag
+		submitToYarn = line.hasOption(YARN_OPTION.getOpt());
+		
 		// Try to get load plan
 		PactProgram program = null;
 		try {
@@ -285,7 +289,7 @@ public class CliFrontend {
 		Configuration configuration = getConfiguration();
 		Client client = new Client(configuration);
 		try {
-			client.run(program.getPlanWithJars(), wait);
+			client.run(program.getPlanWithJars(), wait, submitToYarn);
 		} catch (ProgramInvocationException e) {
 			handleError(e);
 		} catch (ErrorInPlanAssemblerException e) {
