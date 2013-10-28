@@ -22,20 +22,19 @@ bin=`cd "$bin"; pwd`
 HOSTLIST=$NEPHELE_SLAVES
 
 if [ "$HOSTLIST" = "" ]; then
-	HOSTLIST="${NEPHELE_CONF_DIR}/slaves"
+    HOSTLIST="${NEPHELE_CONF_DIR}/slaves"
 fi
 
 if [ ! -f $HOSTLIST ]; then
-	echo $HOSTLIST is not a valid slave list
-	exit 1
+    echo $HOSTLIST is not a valid slave list
+    exit 1
 fi
-
 
 # cluster mode, only bring up job manager locally and a task manager on every slave host
 $NEPHELE_BIN_DIR/nephele-jobmanager.sh start cluster
 
 while read line
 do
-	HOST=$( extractHostName $line)
-	ssh -n $NEPHELE_SSH_OPTS $HOST -- "nohup /bin/bash $NEPHELE_BIN_DIR/nephele-taskmanager.sh start &"
+    HOST=$( extractHostName $line)
+    ssh -n $NEPHELE_SSH_OPTS $HOST -- "nohup /bin/bash $NEPHELE_BIN_DIR/nephele-taskmanager.sh start &"
 done < $HOSTLIST

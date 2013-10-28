@@ -13,7 +13,7 @@
  *
  **********************************************************************************************************************/
 
-package eu.stratosphere.pact.array.example;
+package eu.stratosphere.pact.example.wordcount;
 
 import java.util.Iterator;
 
@@ -24,6 +24,7 @@ import eu.stratosphere.pact.array.stubs.DataTypes;
 import eu.stratosphere.pact.array.stubs.MapStub;
 import eu.stratosphere.pact.array.stubs.ReduceStub;
 import eu.stratosphere.pact.array.util.AsciiUtils;
+import eu.stratosphere.pact.client.LocalExecutor;
 import eu.stratosphere.pact.common.contract.FileDataSink;
 import eu.stratosphere.pact.common.contract.FileDataSource;
 import eu.stratosphere.pact.common.io.TextInputFormat;
@@ -103,17 +104,8 @@ public class WordCountArrayTuples implements PlanAssembler, PlanAssemblerDescrip
 			this.result[0] = element[0];
 			out.collect(this.result);
 		}
-		
-		@Override
-		public void combine(Iterator<Value[]> records, Collector<Value[]> out) throws Exception {
-			// the logic is the same as in the reduce function, so simply call the reduce method
-			this.reduce(records, out);
-		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Plan getPlan(String... args) {
 		// parse job parameters
@@ -141,11 +133,26 @@ public class WordCountArrayTuples implements PlanAssembler, PlanAssemblerDescrip
 		return plan;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getDescription() {
 		return "Parameters: [numSubStasks] [input] [output]";
+	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		WordCountArrayTuples wc = new WordCountArrayTuples();
+		
+		if (args.length < 3) {
+			System.err.println(wc.getDescription());
+			System.exit(1);
+		}
+		
+		Plan plan = wc.getPlan(args);
+		
+		// This will execute the word-count embedded in a local context. replace this line by the commented
+		// succeeding line to send the job to a local installation or to a cluster for execution
+		LocalExecutor.execute(plan);
+//		PlanExecutor ex = new RemoteExecutor("localhost", 6123, "target/pact-examples-0.4-SNAPSHOT-WordCount.jar");
+//		ex.executePlan(plan);
 	}
 }

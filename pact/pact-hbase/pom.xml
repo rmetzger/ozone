@@ -7,7 +7,7 @@
 	<parent>
 		<artifactId>pact</artifactId>
 		<groupId>eu.stratosphere</groupId>
-		<version>0.4-ozone-SNAPSHOT</version>
+		<version>0.4-SNAPSHOT</version>
 	    <relativePath>..</relativePath>
     </parent>
   
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>eu.stratosphere</groupId>
 			<artifactId>pact-common</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>

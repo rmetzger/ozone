@@ -6,8 +6,8 @@
 
 	<parent>
 		<groupId>eu.stratosphere</groupId>
-		<artifactId>ozone</artifactId>
-		<version>0.4-ozone-SNAPSHOT</version>
+		<artifactId>stratosphere</artifactId>
+		<version>0.4-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -90,6 +90,16 @@
 		<dependency>
 			<groupId>eu.stratosphere</groupId>
 			<artifactId>pact-runtime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.stratosphere</groupId>
+			<artifactId>pact-scala-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.stratosphere</groupId>
+			<artifactId>pact-scala-examples</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -209,16 +219,6 @@
 										<user>root</user>
 										<group>root</group>
 										<filemode>0755</filemode>
-									</mapper>
-								</data>
-								<data>
-									<src>${project.build.directory}/${project.artifactId}-${project.version}-bin/stratosphere-${project.version}/docs</src>
-									<type>directory</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/${project.artifactId}/docs</prefix>
-										<user>root</user>
-										<group>root</group>
 									</mapper>
 								</data>
 								<data>

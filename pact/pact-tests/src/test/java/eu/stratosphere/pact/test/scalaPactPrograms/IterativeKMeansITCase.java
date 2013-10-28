@@ -13,8 +13,32 @@
  *
  **********************************************************************************************************************/
 
-package eu.stratosphere.nephele.taskmanager.transferenvelope;
+package eu.stratosphere.pact.test.scalaPactPrograms;
 
-public class SpillingQueueTest {
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import eu.stratosphere.nephele.configuration.Configuration;
+import eu.stratosphere.pact.common.plan.Plan;
+import eu.stratosphere.scala.examples.datamining.KMeans;
+
+@RunWith(Parameterized.class)
+public class IterativeKMeansITCase extends eu.stratosphere.pact.test.iterative.IterativeKMeansITCase {
+
+	public IterativeKMeansITCase(Configuration config) {
+		super(config);
+	}
+
+	@Override
+	protected Plan getPactPlan() {
+
+		KMeans kmi = new KMeans();
+
+		return kmi.getScalaPlan(
+				config.getInteger("IterativeKMeansITCase#NoSubtasks", 1),
+				dataPath,
+				clusterPath,
+				resultPath,
+				Integer.parseInt(config.getString("IterativeKMeansITCase#NumIterations", "1")));
+	}
 }

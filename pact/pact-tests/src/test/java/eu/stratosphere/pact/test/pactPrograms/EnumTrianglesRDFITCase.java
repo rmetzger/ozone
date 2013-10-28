@@ -35,9 +35,9 @@ import eu.stratosphere.pact.example.triangles.EnumTrianglesRdfFoaf;
 import eu.stratosphere.pact.test.util.TestBase;
 
 @RunWith(Parameterized.class)
-public class EnumTrianglesITCase extends TestBase {
+public class EnumTrianglesRDFITCase extends TestBase {
 
-	private static final Log LOG = LogFactory.getLog(EnumTrianglesITCase.class);
+	private static final Log LOG = LogFactory.getLog(EnumTrianglesRDFITCase.class);
 	
 	String edgesPath = null;
 	String resultPath = null; 
@@ -53,7 +53,7 @@ public class EnumTrianglesITCase extends TestBase {
 	private String expected = "<a> <b> <c>\n" + "<a> <b> <d>\n" + "<a> <c> <d>\n" + 
 	                          "<b> <c> <d>\n" + "<f> <g> <i>\n";
 	
-	public EnumTrianglesITCase(Configuration config) {
+	public EnumTrianglesRDFITCase(Configuration config) {
 		super(config);
 	}
 
