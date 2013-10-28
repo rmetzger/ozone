@@ -67,7 +67,7 @@ import eu.stratosphere.nephele.protocols.JobManagementProtocol;
 import eu.stratosphere.nephele.types.IntegerRecord;
 import eu.stratosphere.nephele.util.StringUtils;
 
-public final class YarnJobClient {
+public class YarnJobClient implements JobClient{
 
 	/*-----------------------------------------------------------------------
 	 * Inner Classes.
@@ -417,7 +417,7 @@ public final class YarnJobClient {
 	/**
 	 * {@inheritDoc}
 	 */
-	//@Override
+	@Override
 	public void close() {
 
 		if(jobSubmitClient != null) {
@@ -445,50 +445,13 @@ public final class YarnJobClient {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	//@Override
-	protected void logInfo(final String msg) {
-		LOG.info(msg);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	//@Override
-	protected void logWarn(final String msg) {
-		LOG.warn(msg);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	//@Override
-	protected void logError(final String msg) {
-		LOG.error(msg);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	//@Override
-	protected void logDebug(final String msg) {
-		LOG.debug(msg);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	//@Override
+	
 	protected JobManagementProtocol getJobClient() {
 
 		return this.jobSubmitClient;
 	}
 
 	/**
-	 * Returns the {@link Configuration} object which can include special configuration settings for the job client.
-	 * 
 	 * @return the {@link Configuration} object which can include special configuration settings for the job client
 	 */
 	public Configuration getConfiguration() {
@@ -503,6 +466,7 @@ public final class YarnJobClient {
 	 * @throws IOException
 	 *         thrown in case of submission errors while transmitting the data to the job manager
 	 */
+	@Override
 	public JobSubmissionResult submitJob() throws IOException {
 
 		synchronized (this.jobSubmitClient) {
@@ -518,6 +482,7 @@ public final class YarnJobClient {
 	 * @throws IOException
 	 *         thrown if an error occurred while transmitting the request to the job manager
 	 */
+	@Override
 	public JobCancelResult cancelJob() throws IOException {
 
 		synchronized (this.jobSubmitClient) {
@@ -532,8 +497,8 @@ public final class YarnJobClient {
 	 * @throws IOException
 	 *         thrown if an error occurred while transmitting the request
 	 */
+	@Override
 	public JobProgressResult getJobProgress() throws IOException {
-
 		synchronized (this.jobSubmitClient) {
 			return this.jobSubmitClient.getJobProgress(this.jobGraph.getJobID());
 		}
@@ -549,6 +514,7 @@ public final class YarnJobClient {
 	 * @throws JobExecutionException
 	 *         thrown if the job has been aborted either by the user or as a result of an error
 	 */
+	@Override
 	public long submitJobAndWait() throws IOException, JobExecutionException {
 
 		synchronized (this.jobSubmitClient) {
@@ -659,6 +625,7 @@ public final class YarnJobClient {
 	 * @throws IOException
 	 *         thrown if an error occurred while transmitting the request
 	 */
+	@Override
 	public int getRecommendedPollingInterval() throws IOException {
 
 		synchronized (this.jobSubmitClient) {

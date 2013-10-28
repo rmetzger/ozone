@@ -17,7 +17,7 @@ package eu.stratosphere.pact.client.minicluster;
 
 import java.util.Map;
 
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
@@ -128,11 +128,11 @@ public class NepheleMiniCluster {
 	// Life cycle and Job Submission
 	// ------------------------------------------------------------------------
 	
-	public JobClient getJobClient(JobGraph jobGraph) throws Exception {
+	public JobClientImpl getJobClient(JobGraph jobGraph) throws Exception {
 		Configuration configuration = jobGraph.getJobConfiguration();
 		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, jobManagerRpcPort);
-		return new JobClient(jobGraph, configuration);
+		return new JobClientImpl(jobGraph, configuration);
 	}
 	
 	public void start() throws Exception {

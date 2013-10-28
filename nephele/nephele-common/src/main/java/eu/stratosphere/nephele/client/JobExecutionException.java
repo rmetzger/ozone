@@ -16,7 +16,7 @@
 package eu.stratosphere.nephele.client;
 
 /**
- * This exception is thrown by the {@link JobClient} if a Nephele job has been aborted either as a result of a user
+ * This exception is thrown by the {@link JobClientImpl} if a Nephele job has been aborted either as a result of a user
  * request or an error which occurred during the execution.
  * 
  * @author warneke

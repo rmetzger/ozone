@@ -23,6 +23,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import eu.stratosphere.nephele.client.AbstractJobResult.ReturnCode;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.client.JobExecutionException;
 import eu.stratosphere.nephele.client.JobSubmissionResult;
@@ -225,7 +226,7 @@ public class Client {
 	 * @throws ErrorInPlanAssemblerException Thrown, if the plan assembler function causes an exception.
 	 */
 	public long run(PlanWithJars prog) throws CompilerException, ProgramInvocationException, ErrorInPlanAssemblerException {
-		return run(prog, false);
+		return run(prog, false, false);
 	}
 	
 	/**
@@ -241,8 +242,8 @@ public class Client {
 	 *                                    on the nephele system failed.
 	 * @throws ErrorInPlanAssemblerException Thrown, if the plan assembler function causes an exception.
 	 */
-	public long run(PlanWithJars prog, boolean wait) throws CompilerException, ProgramInvocationException, ErrorInPlanAssemblerException {
-		return run(prog, getOptimizedPlan(prog), wait);
+	public long run(PlanWithJars prog, boolean wait, boolean submitToYarn) throws CompilerException, ProgramInvocationException, ErrorInPlanAssemblerException {
+		return run(prog, getOptimizedPlan(prog), wait, submitToYarn);
 	}
 	
 	/**
@@ -257,7 +258,7 @@ public class Client {
 	 *                                    on the nephele system failed.
 	 */
 	public long run(PlanWithJars prog, OptimizedPlan compiledPlan) throws ProgramInvocationException {
-		return run(prog, compiledPlan, false);
+		return run(prog, compiledPlan, false, false);
 	}
 	
 	/**
@@ -272,9 +273,9 @@ public class Client {
 	 *                                    i.e. the job-manager is unreachable, or due to the fact that the execution
 	 *                                    on the nephele system failed.
 	 */
-	public long run(PlanWithJars prog, OptimizedPlan compiledPlan, boolean wait) throws ProgramInvocationException {
+	public long run(PlanWithJars prog, OptimizedPlan compiledPlan, boolean wait, boolean submitToYarn) throws ProgramInvocationException {
 		JobGraph job = getJobGraph(prog, compiledPlan);
-		return run(prog, job, wait);
+		return run(prog, job, wait, submitToYarn);
 	}
 
 	/**
@@ -286,7 +287,7 @@ public class Client {
 	 *                                    on the nephele system failed.
 	 */
 	public long run(PlanWithJars program, JobGraph jobGraph) throws ProgramInvocationException {
-		return run(program, jobGraph, false);
+		return run(program, jobGraph, false, false);
 	}
 	/**
 	 * Submits the job-graph to the nephele job-manager for execution.
@@ -298,11 +299,15 @@ public class Client {
 	 *                                    i.e. the job-manager is unreachable, or due to the fact that the execution
 	 *                                    on the nephele system failed.
 	 */
-	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait) throws ProgramInvocationException
+	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait, boolean submitToYarn) throws ProgramInvocationException
 	{
 		JobClient client;
 		try {
-			client = new JobClient(jobGraph, nepheleConfig);
+			if(submitToYarn) {
+				client = 
+			} else {
+				client = new JobClientImpl(jobGraph, nepheleConfig);
+			}
 		}
 		catch (IOException e) {
 			throw new ProgramInvocationException("Could not open job manager: " + e.getMessage());

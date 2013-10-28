@@ -36,7 +36,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobExecutionException;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
@@ -229,7 +229,7 @@ public class JobManagerITCase {
 		File inputFile2 = null;
 		File outputFile = null;
 		File jarFile = null;
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 			// Get name of the forward class
@@ -279,7 +279,7 @@ public class JobManagerITCase {
 			jg.addJar(new Path(new File(ServerTestUtils.getTempDir() + File.separator + forwardClassName + ".jar").toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			jobClient.submitJobAndWait();
 
@@ -342,7 +342,7 @@ public class JobManagerITCase {
 		File inputFile = null;
 		File outputFile = null;
 		File jarFile = null;
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -379,7 +379,7 @@ public class JobManagerITCase {
 				.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			
 			// deactivate logging of expected test exceptions
@@ -439,7 +439,7 @@ public class JobManagerITCase {
 		File inputFile = null;
 		File outputFile = null;
 		File jarFile = null;
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -476,11 +476,11 @@ public class JobManagerITCase {
 				+ ".jar").toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			
 			// deactivate logging of expected test exceptions
-			Logger jcLogger = Logger.getLogger(JobClient.class);
+			Logger jcLogger = Logger.getLogger(JobClientImpl.class);
 			Level jcLevel = jcLogger.getEffectiveLevel();
 			jcLogger.setLevel(Level.OFF);
 			try {
@@ -534,7 +534,7 @@ public class JobManagerITCase {
 
 	private void testBroadcast(final int limit, final int receivers) {
 
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -574,7 +574,7 @@ public class JobManagerITCase {
 				.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			
 			try {
@@ -630,7 +630,7 @@ public class JobManagerITCase {
 	 */
 	private void test(final int limit) {
 
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -682,7 +682,7 @@ public class JobManagerITCase {
 				.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			
 			try {
@@ -729,7 +729,7 @@ public class JobManagerITCase {
 		File inputFile = null;
 		File outputFile = null;
 		File jarFile = new File(ServerTestUtils.getTempDir() + File.separator + "doubleConnection.jar");
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -771,7 +771,7 @@ public class JobManagerITCase {
 			jg.addJar(new Path(jarFile.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			jobClient.submitJobAndWait();
 
@@ -809,7 +809,7 @@ public class JobManagerITCase {
 		File inputFile = null;
 		File outputFile = null;
 		File jarFile = new File(ServerTestUtils.getTempDir() + File.separator + "emptyNames.jar");
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -844,7 +844,7 @@ public class JobManagerITCase {
 			jg.addJar(new Path(jarFile.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			jobClient.submitJobAndWait();
 
@@ -893,7 +893,7 @@ public class JobManagerITCase {
 		File inputFile2 = null;
 		File outputFile = null;
 		File jarFile = new File(ServerTestUtils.getTempDir() + File.separator + "unionWithEmptyInput.jar");
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -941,7 +941,7 @@ public class JobManagerITCase {
 			jg.addJar(new Path(jarFile.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 
 			try {
@@ -1037,7 +1037,7 @@ public class JobManagerITCase {
 		File inputFile2 = null;
 		File outputFile = null;
 		File jarFile = new File(ServerTestUtils.getTempDir() + File.separator + "largeDoP.jar");
-		JobClient jobClient = null;
+		JobClientImpl jobClient = null;
 
 		try {
 
@@ -1093,14 +1093,14 @@ public class JobManagerITCase {
 			jg.addJar(new Path(jarFile.toURI()));
 
 			// Create job client and launch job
-			jobClient = new JobClient(jg, configuration);
+			jobClient = new JobClientImpl(jg, configuration);
 			jobClient.setConsoleStreamForReporting(getNullPrintStream());
 			
 			// disable logging for the taskmanager and the client, as they will have many
 			// expected test errors they will log.
 			
 			Logger tmLogger = Logger.getLogger(TaskManager.class);
-			Logger jcLogger = Logger.getLogger(JobClient.class);
+			Logger jcLogger = Logger.getLogger(JobClientImpl.class);
 			Level tmLevel = tmLogger.getEffectiveLevel();
 			Level jcLevel = jcLogger.getEffectiveLevel();
 			

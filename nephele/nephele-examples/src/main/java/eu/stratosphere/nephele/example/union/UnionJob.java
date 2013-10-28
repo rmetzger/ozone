@@ -18,6 +18,7 @@ package eu.stratosphere.nephele.example.union;
 import java.io.File;
 import java.io.IOException;
 
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.fs.Path;
@@ -93,7 +94,7 @@ public class UnionJob {
 		conf.setString("jobmanager.rpc.address", "localhost");
 		
 		try {
-			final JobClient jobClient = new JobClient(unionGraph, conf);
+			final JobClient jobClient = new JobClientImpl(unionGraph, conf);
 			jobClient.submitJobAndWait();
 		} catch (Exception e) {
 			e.printStackTrace();

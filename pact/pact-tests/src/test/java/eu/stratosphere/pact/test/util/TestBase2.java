@@ -42,7 +42,7 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.pact.client.minicluster.NepheleMiniCluster;
@@ -132,7 +132,7 @@ public abstract class TestBase2 {
 		Assert.assertNotNull("Obtained null JobGraph", jobGraph);
 		
 		try {
-			JobClient client = this.executer.getJobClient(jobGraph);
+			JobClientImpl client = this.executer.getJobClient(jobGraph);
 			client.setConsoleStreamForReporting(getNullPrintStream());
 			client.submitJobAndWait();
 		} catch(Exception e) {

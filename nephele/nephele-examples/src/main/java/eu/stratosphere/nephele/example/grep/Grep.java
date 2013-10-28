@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.fs.Path;
@@ -94,7 +95,7 @@ public class Grep {
 		
 		
 		try {
-			final JobClient jobClient = new JobClient(jobGraph, conf, jobmanager);
+			final JobClient jobClient = new JobClientImpl(jobGraph, conf, jobmanager);
 			System.out.println("submitting");
 			jobClient.submitJobAndWait();
 			System.out.println("done.");

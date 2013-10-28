@@ -15,7 +15,7 @@
 
 package eu.stratosphere.pact.test.util.minicluster;
 
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.nephele.template.IllegalConfigurationException;
@@ -94,7 +94,7 @@ public class LocalClusterProvider extends ClusterProvider {
 	 * @see eu.stratosphere.pact.test.util.minicluster.ClusterProvider#getJobClient(eu.stratosphere.nephele.jobgraph.JobGraph, java.lang.String)
 	 */
 	@Override
-	public JobClient getJobClient(JobGraph jobGraph, String jarFilePath) throws Exception {
+	public JobClientImpl getJobClient(JobGraph jobGraph, String jarFilePath) throws Exception {
 		return this.nephele.getJobClient(jobGraph);
 	}
 }

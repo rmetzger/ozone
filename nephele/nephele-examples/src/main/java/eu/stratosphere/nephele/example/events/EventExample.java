@@ -31,6 +31,7 @@
  */
 package eu.stratosphere.nephele.example.events;
 
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
@@ -87,7 +88,7 @@ public class EventExample {
 		conf.setString(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, "6023");
 
 		try {
-			JobClient jobClient = new JobClient(jobGraph, conf);
+			JobClient jobClient = new JobClientImpl(jobGraph, conf);
 			JobSubmissionResult result = jobClient.submitJob();
 			System.out.println(result.getDescription());
 		} catch (IOException ioe) {

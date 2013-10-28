@@ -45,7 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.stratosphere.nephele.client.JobClient;
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.pact.test.util.filesystem.FilesystemProvider;
@@ -117,7 +117,7 @@ public abstract class TestBase {
 		}
 		
 		try {
-			final JobClient client = cluster.getJobClient(jobGraph, getJarFilePath());
+			final JobClientImpl client = cluster.getJobClient(jobGraph, getJarFilePath());
 			client.setConsoleStreamForReporting(TestBase2.getNullPrintStream());
 			client.submitJobAndWait();
 		} catch(Exception e) {

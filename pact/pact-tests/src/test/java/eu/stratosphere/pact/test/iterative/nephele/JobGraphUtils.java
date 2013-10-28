@@ -17,6 +17,7 @@ package eu.stratosphere.pact.test.iterative.nephele;
 
 import java.io.IOException;
 
+import eu.stratosphere.nephele.client.JobClientImpl;
 import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.client.JobExecutionException;
 import eu.stratosphere.nephele.configuration.Configuration;
@@ -48,7 +49,7 @@ public class JobGraphUtils {
 	}
 
 	public static void submit(JobGraph graph, Configuration nepheleConfig) throws IOException, JobExecutionException {
-		JobClient client = new JobClient(graph, nepheleConfig);
+		JobClient client = new JobClientImpl(graph, nepheleConfig);
 		client.submitJobAndWait();
 	}
 	
