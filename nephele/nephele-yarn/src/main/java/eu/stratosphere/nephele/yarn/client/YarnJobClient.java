@@ -212,10 +212,14 @@ public class YarnJobClient implements JobClient{
 		this.configuration = configuration;
 		this.jobCleanUp = new JobCleanUp(this);
 		
-		final String nepheleHome = configuration.getString(NEPHELE_HOME_KEY, null);
+		String nepheleHome = configuration.getString(NEPHELE_HOME_KEY, null);
 		if (nepheleHome == null) {
-			throw new YarnException("Please set " + NEPHELE_HOME_KEY
-				+ " to specify the location of your Stratosphere setup in the cluster");
+			nepheleHome = System.getenv("NEPHELE_ROOT_DIR");
+			if(nepheleHome == null) {
+				throw new YarnException("Please set " + NEPHELE_HOME_KEY
+					+ " or NEPHELE_ROOT_DIR environment variable to specify "
+					+ "the location of your Stratosphere setup in the cluster");
+			}
 		}
 
 		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(configuration.getString(

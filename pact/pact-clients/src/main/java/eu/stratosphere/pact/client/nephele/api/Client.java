@@ -31,6 +31,7 @@ import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.fs.Path;
+import eu.stratosphere.nephele.instance.InstanceTypeDescription;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.nephele.yarn.client.YarnJobClient;
 import eu.stratosphere.pact.common.plan.Plan;
@@ -302,6 +303,7 @@ public class Client {
 	 */
 	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait, boolean submitToYarn) throws ProgramInvocationException
 	{
+	 //	InstanceTypeDescription
 		JobClient client;
 		try {
 			if(submitToYarn) {
