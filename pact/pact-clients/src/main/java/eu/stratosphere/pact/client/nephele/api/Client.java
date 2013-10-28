@@ -32,6 +32,7 @@ import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.fs.Path;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
+import eu.stratosphere.nephele.yarn.client.YarnJobClient;
 import eu.stratosphere.pact.common.plan.Plan;
 import eu.stratosphere.pact.compiler.CompilerException;
 import eu.stratosphere.pact.compiler.DataStatistics;
@@ -304,7 +305,11 @@ public class Client {
 		JobClient client;
 		try {
 			if(submitToYarn) {
-				client = null;
+				try {
+					client = new YarnJobClient(jobGraph, this.nepheleConfig);
+				} catch (InterruptedException e) {
+					throw new ProgramInvocationException("Error starting YARN Job client", e);
+				}
 			} else {
 				client = new JobClientImpl(jobGraph, nepheleConfig);
 			}

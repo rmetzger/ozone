@@ -206,7 +206,7 @@ public class YarnJobClient implements JobClient{
 	 *-----------------------------------------------------------------------*/
 	
 	public YarnJobClient(final JobGraph jobGraph, final Configuration configuration) throws IOException,
-			InterruptedException, YarnException {
+			InterruptedException {
 
 		this.jobGraph = jobGraph;
 		this.configuration = configuration;

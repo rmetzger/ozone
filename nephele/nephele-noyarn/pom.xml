@@ -16,4 +16,12 @@
   <name>nephele-noyarn</name>
   <url>http://maven.apache.org</url>
 
+	<dependencies>
+		<dependency>
+			<groupId>eu.stratosphere</groupId>
+			<artifactId>nephele-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	
 </project>
