@@ -8,19 +8,26 @@ import eu.stratosphere.pact.client.nephele.api.Client;
 import eu.stratosphere.pact.client.nephele.api.PlanWithJars;
 import eu.stratosphere.pact.common.plan.Plan;
 
+/**
+ * Execute a Stratosphere Plan on a (remote) JobManager.
+ * This executor establishes a connection to the given JobManager
+ * to submit the job.
+ *
+ */
 public class RemoteExecutor implements PlanExecutor {
 	
 	private Client client;
 	private List<String> jarFiles;
 	
-	public RemoteExecutor(String hostname, int port, List<String> jarFiles) {
-		this.client = new Client(new InetSocketAddress(hostname, port));
+	public RemoteExecutor(String jobManagerHostname, int port, List<String> jarFiles) {
+		this.client = new Client(new InetSocketAddress(jobManagerHostname, port));
 		this.jarFiles = jarFiles;
 
 	}
 
-	public RemoteExecutor(String hostname, int port, String jarFile) {
-		this(hostname, port, Collections.singletonList(jarFile));
+	public RemoteExecutor(String jobManagerHostname, int port, String jarFile) {
+		this(jobManagerHostname, port, Collections.singletonList(jarFile));
+
 	}
 
 	@Override
