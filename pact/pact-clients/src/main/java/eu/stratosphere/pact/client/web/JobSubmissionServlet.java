@@ -88,7 +88,7 @@ public class JobSubmissionServlet extends HttpServlet {
 
 
 	public JobSubmissionServlet(Configuration nepheleConfig, File jobDir, File planDir) {
-		this.client = new Client(nepheleConfig);
+		this.client = new Client(nepheleConfig,false); // TODO implement yarn to webfrontend
 		this.jobStoreDirectory = jobDir;
 		this.planDumpDirectory = planDir;
 

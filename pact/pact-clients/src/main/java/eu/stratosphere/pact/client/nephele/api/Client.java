@@ -31,7 +31,12 @@ import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.fs.Path;
+import eu.stratosphere.nephele.instance.HardwareDescription;
+import eu.stratosphere.nephele.instance.HardwareDescriptionFactory;
+import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.instance.InstanceTypeDescription;
+import eu.stratosphere.nephele.instance.InstanceTypeDescriptionFactory;
+import eu.stratosphere.nephele.instance.InstanceTypeFactory;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.nephele.yarn.client.YarnJobClient;
 import eu.stratosphere.pact.common.plan.Plan;
@@ -52,6 +57,8 @@ public class Client {
 	private final Configuration nepheleConfig;	// the configuration describing the job manager address
 	
 	private final PactCompiler compiler;		// the compiler to compile the jobs
+	
+	private final boolean isYarnClient;
 
 	// ------------------------------------------------------------------------
 	//                            Construction
@@ -69,6 +76,7 @@ public class Client {
 		nepheleConfig.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, jobManagerAddress.getPort());
 		
 		this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), jobManagerAddress);
+		this.isYarnClient = false;
 	}
 
 	/**
@@ -76,25 +84,36 @@ public class Client {
 	 * configuration.
 	 * 
 	 * @param nepheleConfig The config used to obtain the job-manager's address.
+	 * @param yarnClient If true, the client is set up for submitting jobs to a configured YARN cluster.
 	 */
-	public Client(Configuration nepheleConfig) {
+	public Client(Configuration nepheleConfig, boolean yarnClient) {
 		this.nepheleConfig = nepheleConfig;
-		
-		// instantiate the address to the job manager
-		final String address = nepheleConfig.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
-		if (address == null) {
-			throw new CompilerException("Cannot find address to job manager's RPC service in the global configuration.");
+		this.isYarnClient = yarnClient;
+		if(this.isYarnClient) {
+			InstanceTypeDescription description = null;
+			try {
+				// query yarn
+				description = YarnJobClient.getInstanceTypeDescription(nepheleConfig);
+			} catch (IOException e) {
+				throw new Error("Error initalizing Yarn", e);
+			} 
+			this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), description); // TODO
+		} else {
+			// instantiate the address to the job manager
+			final String address = nepheleConfig.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
+			if (address == null) {
+				throw new CompilerException("Cannot find address to job manager's RPC service in the global configuration.");
+			}
+			
+			final int port = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
+			if (port < 0) {
+				throw new CompilerException("Cannot find port to job manager's RPC service in the global configuration.");
+			}
+	
+			final InetSocketAddress jobManagerAddress = new InetSocketAddress(address, port);
+			this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), jobManagerAddress);
 		}
-		
-		final int port = GlobalConfiguration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
-		if (port < 0) {
-			throw new CompilerException("Cannot find port to job manager's RPC service in the global configuration.");
-		}
-
-		final InetSocketAddress jobManagerAddress = new InetSocketAddress(address, port);
-		this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), jobManagerAddress);
 	}
-
 	
 	// ------------------------------------------------------------------------
 	//                      Compilation and Submission
@@ -228,7 +247,7 @@ public class Client {
 	 * @throws ErrorInPlanAssemblerException Thrown, if the plan assembler function causes an exception.
 	 */
 	public long run(PlanWithJars prog) throws CompilerException, ProgramInvocationException, ErrorInPlanAssemblerException {
-		return run(prog, false, false);
+		return run(prog, false);
 	}
 	
 	/**
@@ -244,8 +263,8 @@ public class Client {
 	 *                                    on the nephele system failed.
 	 * @throws ErrorInPlanAssemblerException Thrown, if the plan assembler function causes an exception.
 	 */
-	public long run(PlanWithJars prog, boolean wait, boolean submitToYarn) throws CompilerException, ProgramInvocationException, ErrorInPlanAssemblerException {
-		return run(prog, getOptimizedPlan(prog), wait, submitToYarn);
+	public long run(PlanWithJars prog, boolean wait) throws CompilerException, ProgramInvocationException, ErrorInPlanAssemblerException {
+		return run(prog, getOptimizedPlan(prog), wait);
 	}
 	
 	/**
@@ -260,7 +279,7 @@ public class Client {
 	 *                                    on the nephele system failed.
 	 */
 	public long run(PlanWithJars prog, OptimizedPlan compiledPlan) throws ProgramInvocationException {
-		return run(prog, compiledPlan, false, false);
+		return run(prog, compiledPlan, false);
 	}
 	
 	/**
@@ -275,9 +294,9 @@ public class Client {
 	 *                                    i.e. the job-manager is unreachable, or due to the fact that the execution
 	 *                                    on the nephele system failed.
 	 */
-	public long run(PlanWithJars prog, OptimizedPlan compiledPlan, boolean wait, boolean submitToYarn) throws ProgramInvocationException {
+	public long run(PlanWithJars prog, OptimizedPlan compiledPlan, boolean wait) throws ProgramInvocationException {
 		JobGraph job = getJobGraph(prog, compiledPlan);
-		return run(prog, job, wait, submitToYarn);
+		return run(prog, job, wait);
 	}
 
 	/**
@@ -289,7 +308,7 @@ public class Client {
 	 *                                    on the nephele system failed.
 	 */
 	public long run(PlanWithJars program, JobGraph jobGraph) throws ProgramInvocationException {
-		return run(program, jobGraph, false, false);
+		return run(program, jobGraph, false);
 	}
 	/**
 	 * Submits the job-graph to the nephele job-manager for execution.
@@ -301,12 +320,12 @@ public class Client {
 	 *                                    i.e. the job-manager is unreachable, or due to the fact that the execution
 	 *                                    on the nephele system failed.
 	 */
-	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait, boolean submitToYarn) throws ProgramInvocationException
+	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait) throws ProgramInvocationException
 	{
 	 //	InstanceTypeDescription
 		JobClient client;
 		try {
-			if(submitToYarn) {
+			if(this.isYarnClient) {
 				try {
 					client = new YarnJobClient(jobGraph, this.nepheleConfig);
 				} catch (InterruptedException e) {

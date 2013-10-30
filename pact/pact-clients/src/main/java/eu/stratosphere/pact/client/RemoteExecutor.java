@@ -17,7 +17,6 @@ import eu.stratosphere.pact.common.plan.Plan;
 public class RemoteExecutor implements PlanExecutor {
 	
 	private Client client;
-
 	private List<String> jarFiles;
 	
 	public RemoteExecutor(String jobManagerHostname, int port, List<String> jarFiles) {
