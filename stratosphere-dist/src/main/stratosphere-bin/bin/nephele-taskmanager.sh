@@ -62,6 +62,7 @@ if [ "$EXECUTIONMODE" = "yarn" ]; then
     rotateLogFile $out
     # blocking call!
     $JAVA_RUN $JVM_ARGS $NEPHELE_OPTS $log_setting -classpath $NEPHELE_TM_CLASSPATH eu.stratosphere.nephele.taskmanager.TaskManager -configDir $NEPHELE_CONF_DIR > "$out" 2>&1 < /dev/null
+    exit 0
 fi
 
 

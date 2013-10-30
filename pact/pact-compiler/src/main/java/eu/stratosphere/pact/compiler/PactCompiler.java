@@ -352,6 +352,12 @@ public class PactCompiler {
 	 */
 	private int maxIntraNodeParallelism;
 
+	/**
+	 * If the InstanceTypeDescription has been passed to the Compiler,
+	 * it will not establish a connection to the JobManager.
+	 */
+	private InstanceTypeDescription instanceDescription;
+
 	// ------------------------------------------------------------------------
 	// Constructor & Setup
 	// ------------------------------------------------------------------------
@@ -413,7 +419,7 @@ public class PactCompiler {
 	 *        The <tt>CostEstimator</tt> to use to cost the individual operations.
 	 */
 	public PactCompiler(DataStatistics stats, CostEstimator estimator) {
-		this(stats, estimator, null);
+		this(stats, estimator, (InetSocketAddress)null);
 	}
 
 	/**
@@ -437,24 +443,7 @@ public class PactCompiler {
 		this.costEstimator = estimator;
 
 		Configuration config = GlobalConfiguration.getConfiguration();
-
-		// determine the maximum number of instances to use
-		this.maxMachines = config.getInteger(PactConfigConstants.MAXIMUM_NUMBER_MACHINES_KEY,
-			PactConfigConstants.DEFAULT_MAX_NUMBER_MACHINES);
-
-		// determine the default parallelization degree
-		this.defaultDegreeOfParallelism = config.getInteger(PactConfigConstants.DEFAULT_PARALLELIZATION_DEGREE_KEY,
-			PactConfigConstants.DEFAULT_PARALLELIZATION_DEGREE);
-
-		// determine the default intra-node parallelism
-		int maxInNodePar = config.getInteger(PactConfigConstants.PARALLELIZATION_MAX_INTRA_NODE_DEGREE_KEY,
-			PactConfigConstants.DEFAULT_MAX_INTRA_NODE_PARALLELIZATION_DEGREE);
-		if (maxInNodePar == 0 || maxInNodePar < -1) {
-			LOG.error("Invalid maximum degree of intra-node parallelism: " + maxInNodePar +
-				". Ignoring parameter.");
-			maxInNodePar = PactConfigConstants.DEFAULT_MAX_INTRA_NODE_PARALLELIZATION_DEGREE;
-		}
-		this.maxIntraNodeParallelism = maxInNodePar;
+		initCompilerFromConfig(config);
 
 		// assign the connection to the job-manager
 		if (jobManagerConnection != null) {
@@ -476,6 +465,37 @@ public class PactCompiler {
 			this.jobManagerAddress = new InetSocketAddress(address, port);
 		}
 	}
+	
+	public PactCompiler(DataStatistics stats, CostEstimator estimator, InstanceTypeDescription description) {
+		this.statistics = stats;
+		this.costEstimator = estimator;
+		this.jobManagerAddress = null;
+		
+		Configuration config = GlobalConfiguration.getConfiguration();
+		initCompilerFromConfig(config);
+		this.instanceDescription = description;
+	}
+
+	private void initCompilerFromConfig(Configuration config) {
+		// determine the maximum number of instances to use
+		this.maxMachines = config.getInteger(PactConfigConstants.MAXIMUM_NUMBER_MACHINES_KEY,
+			PactConfigConstants.DEFAULT_MAX_NUMBER_MACHINES);
+
+		// determine the default parallelization degree
+		this.defaultDegreeOfParallelism = config.getInteger(PactConfigConstants.DEFAULT_PARALLELIZATION_DEGREE_KEY,
+			PactConfigConstants.DEFAULT_PARALLELIZATION_DEGREE);
+
+		// determine the default intra-node parallelism
+		int maxInNodePar = config.getInteger(PactConfigConstants.PARALLELIZATION_MAX_INTRA_NODE_DEGREE_KEY,
+			PactConfigConstants.DEFAULT_MAX_INTRA_NODE_PARALLELIZATION_DEGREE);
+		if (maxInNodePar == 0 || maxInNodePar < -1) {
+			LOG.error("Invalid maximum degree of intra-node parallelism: " + maxInNodePar +
+				". Ignoring parameter.");
+			maxInNodePar = PactConfigConstants.DEFAULT_MAX_INTRA_NODE_PARALLELIZATION_DEGREE;
+		}
+		this.maxIntraNodeParallelism = maxInNodePar;
+	}
+	
 	
 	// ------------------------------------------------------------------------
 	//                             Getters / Setters
@@ -1520,6 +1540,10 @@ public class PactCompiler {
 	}
 
 	private InstanceTypeDescription getInstanceTypeInfo() {
+		if(this.instanceDescription != null) {
+			return instanceDescription;
+		}
+		
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Connecting compiler to JobManager to dertermine instance information.");
 		}

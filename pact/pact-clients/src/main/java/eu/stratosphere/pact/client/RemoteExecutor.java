@@ -33,7 +33,7 @@ public class RemoteExecutor implements PlanExecutor {
 	@Override
 	public long executePlan(Plan plan) throws Exception {
 		PlanWithJars p = new PlanWithJars(plan, jarFiles);
-		client.run(p, true, false);
+		client.run(p, true);
 		return 0;
 	}
 }

@@ -29,7 +29,6 @@ import eu.stratosphere.nephele.io.IOReadableWritable;
  * <p>
  * This class is thread-safe.
  * 
- * @author warneke
  */
 public final class HardwareDescription implements IOReadableWritable {
 

@@ -36,6 +36,8 @@ import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationReportRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationReportResponse;
 import org.apache.hadoop.yarn.api.protocolrecords.GetClusterMetricsRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetClusterMetricsResponse;
+import org.apache.hadoop.yarn.api.protocolrecords.GetClusterNodesRequest;
+import org.apache.hadoop.yarn.api.protocolrecords.GetClusterNodesResponse;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationRequest;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
 import org.apache.hadoop.yarn.api.protocolrecords.SubmitApplicationRequest;
@@ -46,6 +48,7 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
+import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.api.records.YarnClusterMetrics;
@@ -54,6 +57,7 @@ import org.apache.hadoop.yarn.exceptions.YarnRemoteException;
 import org.apache.hadoop.yarn.ipc.YarnRPC;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.log4j.BasicConfigurator;
 
 import eu.stratosphere.nephele.client.AbstractJobResult;
 import eu.stratosphere.nephele.client.JobCancelResult;
@@ -65,6 +69,12 @@ import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.event.job.AbstractEvent;
 import eu.stratosphere.nephele.event.job.JobEvent;
+import eu.stratosphere.nephele.instance.HardwareDescription;
+import eu.stratosphere.nephele.instance.HardwareDescriptionFactory;
+import eu.stratosphere.nephele.instance.InstanceType;
+import eu.stratosphere.nephele.instance.InstanceTypeDescription;
+import eu.stratosphere.nephele.instance.InstanceTypeDescriptionFactory;
+import eu.stratosphere.nephele.instance.InstanceTypeFactory;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.nephele.jobgraph.JobStatus;
@@ -156,7 +166,7 @@ public class YarnJobClient implements JobClient{
 	/**
 	 * The job management server stub.
 	 */
-	protected final JobManagementProtocol jobSubmitClient;
+	protected JobManagementProtocol jobSubmitClient;
 
 	/**
 	 * The job graph assigned with this job client.
@@ -199,28 +209,18 @@ public class YarnJobClient implements JobClient{
 	/**
 	 * The ID of the application started by this client in the YARN cluster.
 	 */
-	private final ApplicationId applicationId;
+	private ApplicationId applicationId;
 
-	/*-----------------------------------------------------------------------
-	 * Constructor.
-	 *-----------------------------------------------------------------------*/
-	
-	public YarnJobClient(final JobGraph jobGraph, final Configuration configuration) throws IOException,
-			InterruptedException {
+	/**
+	 * Starting the YarnJobClient will establish a connection to the Yarn Resource Manager.
+	 */
+	public YarnJobClient(final JobGraph jobGraph, final Configuration configuration) throws IOException, InterruptedException  {
 
 		this.jobGraph = jobGraph;
 		this.configuration = configuration;
 		this.jobCleanUp = new JobCleanUp(this);
 		
-		String nepheleHome = configuration.getString(NEPHELE_HOME_KEY, null);
-		if (nepheleHome == null) {
-			nepheleHome = System.getenv("NEPHELE_ROOT_DIR");
-			if(nepheleHome == null) {
-				throw new YarnException("Please set " + NEPHELE_HOME_KEY
-					+ " or NEPHELE_ROOT_DIR environment variable to specify "
-					+ "the location of your Stratosphere setup in the cluster");
-			}
-		}
+		
 
 		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(configuration.getString(
 			YarnConfiguration.RM_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
@@ -234,20 +234,93 @@ public class YarnJobClient implements JobClient{
 
 		this.clientRMProtocol = (ClientRMProtocol) this.yarnRPC.getProxy(ClientRMProtocol.class, rmAddress,
 			this.yarnConf);
+		
+		prepare();
+	}
+	
+	
+	public static InstanceTypeDescription getInstanceTypeDescription(final Configuration configuration) throws IOException {
+		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(configuration.getString(
+				YarnConfiguration.RM_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
+		
+		// Convert Nephele configuration into Hadoop configuration object
+		org.apache.hadoop.conf.Configuration hadoopConf = toHadoopConfiguration(configuration);
+		LOG.info("Connecting to ResourceManager at " + rmAddress);
+		YarnRPC rpc = YarnRPC.create(hadoopConf);
 
+		try {
+			ClientRMProtocol rmProtocol = (ClientRMProtocol) rpc.getProxy(ClientRMProtocol.class, rmAddress,hadoopConf);
+			// instance type is "theoretical instance description"
+			// hardware description describes the concrete hardware of the TaskManager.
+			InstanceType yarnType = InstanceTypeFactory.construct("YarnCluster", 0, 0, 0, 0, 0);
+			int maxAvailableInstances = getNumNodeManagers(rmProtocol);
+			int sizeOfFreeMemory = Integer.MAX_VALUE; // default value. The size of free memory is set to the amount of memory
+			int cores = Integer.MAX_VALUE;
+			// seen at the smallest NodeManager.
+			List<NodeReport> nodes = getClusterNodes(rmProtocol);
+			for(NodeReport node : nodes) {
+				int mem = node.getCapability().getMemory();
+				int vCores = node.getCapability().getVirtualCores();
+				if(mem < sizeOfFreeMemory) {
+					sizeOfFreeMemory = mem;
+				}
+				if(vCores < cores) {
+					cores = vCores;
+				}
+			}
+			LOG.info("Determined sizeOfFreeMemory=" + sizeOfFreeMemory+" number of cores="+cores);
+			HardwareDescription yarnHardwareDescription = HardwareDescriptionFactory.construct(cores, sizeOfFreeMemory, sizeOfFreeMemory);
+			InstanceTypeDescription yarnTypeDescription = InstanceTypeDescriptionFactory.construct(yarnType, yarnHardwareDescription, maxAvailableInstances);
+			return yarnTypeDescription;
+		} catch (YarnRemoteException e) {
+			// wrap YarnExecption into IOException to minimize yarn dependencies
+			throw new IOException("Error querying the YARN Resource Manager", e);
+		}
+	}
+	
+	// testing
+	public static void main(String[] args) throws IOException {
+		BasicConfigurator.configure();
+		InstanceTypeDescription test = YarnJobClient.getInstanceTypeDescription(new Configuration());
+		// These are the methods accessed by the Compiler
+		System.err.println("id "+test.getInstanceType().getIdentifier());
+		System.err.println("free mem "+test.getHardwareDescription().getSizeOfFreeMemory());
+		System.err.println("cores "+test.getHardwareDescription().getNumberOfCPUCores());
+		System.err.println("inst ava "+test.getMaximumNumberOfAvailableInstances());
+		
+	}
+	
+	private static int getNumNodeManagers(final ClientRMProtocol rmp) throws YarnRemoteException {
+		final GetClusterMetricsRequest metricsRequest = Records.newRecord(GetClusterMetricsRequest.class);
+		final GetClusterMetricsResponse metricsResponse = rmp.getClusterMetrics(metricsRequest);
+		final YarnClusterMetrics clusterMetrics = metricsResponse.getClusterMetrics();
+		return clusterMetrics.getNumNodeManagers();
+	}
+	
+	private static List<NodeReport> getClusterNodes(final ClientRMProtocol rmp) throws YarnRemoteException {
+		final GetClusterNodesRequest nodesRequest = Records.newRecord(GetClusterNodesRequest.class);
+		final GetClusterNodesResponse nodesResponse = rmp.getClusterNodes(nodesRequest);
+		return nodesResponse.getNodeReports();
+	}
+	private void prepare() throws IOException, InterruptedException {
+		
+		String nepheleHome = configuration.getString(NEPHELE_HOME_KEY, null);
+		if (nepheleHome == null) {
+			nepheleHome = System.getenv("NEPHELE_ROOT_DIR");
+			if(nepheleHome == null) {
+				throw new YarnException("Please set " + NEPHELE_HOME_KEY
+					+ " or NEPHELE_ROOT_DIR environment variable to specify "
+					+ "the location of your Stratosphere setup in the cluster");
+			}
+		}
+		
 		// Retrieve a new application ID
 		int amMemory;
 		try {
 
 			// -----------------------------------------------------
-
-			final GetClusterMetricsRequest metricsRequest = Records.newRecord(GetClusterMetricsRequest.class);
-
-			final GetClusterMetricsResponse metricsResponse = this.clientRMProtocol.getClusterMetrics(metricsRequest);
-
-			final YarnClusterMetrics clusterMetrics = metricsResponse.getClusterMetrics();
-
-			LOG.info("YARN cluster metrics : number of node managers = " + clusterMetrics.getNumNodeManagers());
+			
+			LOG.info("YARN cluster metrics : number of node managers = " + getNumNodeManagers(this.clientRMProtocol));
 
 			// -----------------------------------------------------
 
@@ -478,7 +551,7 @@ public class YarnJobClient implements JobClient{
 	 */
 	@Override
 	public JobSubmissionResult submitJob() throws IOException {
-
+		
 		synchronized (this.jobSubmitClient) {
 
 			return this.jobSubmitClient.submitJob(this.jobGraph);

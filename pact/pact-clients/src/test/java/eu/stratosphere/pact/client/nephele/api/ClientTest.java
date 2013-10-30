@@ -111,7 +111,7 @@ public class ClientTest {
 	{
 		when(jobSubmissionResultMock.getReturnCode()).thenReturn(ReturnCode.SUCCESS);
 		
-		Client out = new Client(configMock);
+		Client out = new Client(configMock, false);
 		out.run(program.getPlanWithJars());
 		program.deleteExtractedLibraries();
 		
@@ -128,7 +128,7 @@ public class ClientTest {
 	{
 		when(jobSubmissionResultMock.getReturnCode()).thenReturn(ReturnCode.ERROR);
 		
-		Client out = new Client(configMock);
+		Client out = new Client(configMock, false);
 		out.run(program.getPlanWithJars());
 		program.deleteExtractedLibraries();
 		

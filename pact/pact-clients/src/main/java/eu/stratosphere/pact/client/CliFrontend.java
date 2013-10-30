@@ -287,9 +287,9 @@ public class CliFrontend {
 		}
 
 		Configuration configuration = getConfiguration();
-		Client client = new Client(configuration);
+		Client client = new Client(configuration, submitToYarn);
 		try {
-			client.run(program.getPlanWithJars(), wait, submitToYarn);
+			client.run(program.getPlanWithJars(), wait);
 		} catch (ProgramInvocationException e) {
 			handleError(e);
 		} catch (ErrorInPlanAssemblerException e) {
@@ -400,7 +400,7 @@ public class CliFrontend {
 			String jsonPlan = null;
 			
 			Configuration configuration = getConfiguration();
-			Client client = new Client(configuration);
+			Client client = new Client(configuration, false); // TODO This might fail if the user assumes a Yarn cluster.
 			try {
 				jsonPlan = client.getOptimizerPlanAsJSON(program.getPlanWithJars());
 			} catch (ProgramInvocationException e) {
@@ -668,7 +668,7 @@ public class CliFrontend {
 	 * 
 	 * @return Nephele's configuration
 	 */
-	private Configuration getConfiguration() {
+	public static Configuration getConfiguration() {
 		String location = null;
 		if (System.getenv(ENV_CONFIG_DIRECTORY) != null) {
 			location = System.getenv(ENV_CONFIG_DIRECTORY);
