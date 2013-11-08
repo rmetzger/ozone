@@ -46,12 +46,10 @@ import eu.stratosphere.pact.compiler.PactCompiler;
 import eu.stratosphere.pact.compiler.plan.candidate.OptimizedPlan;
 import eu.stratosphere.pact.compiler.plantranslate.NepheleJobGraphGenerator;
 import eu.stratosphere.pact.test.util.TestBase;
+import eu.stratosphere.pact.test.util.TestBase2;
 
-/**
- * @author Fabian Hueske
- */
 @RunWith(Parameterized.class)
-public class CoGroupITCase extends TestBase {
+public class CoGroupITCase extends TestBase2 {
 	private static final Log LOG = LogFactory.getLog(CoGroupITCase.class);
 
 	public CoGroupITCase(String clusterConfig, Configuration testConfig) {

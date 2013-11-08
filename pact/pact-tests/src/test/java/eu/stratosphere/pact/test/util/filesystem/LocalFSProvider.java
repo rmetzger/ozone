@@ -101,7 +101,7 @@ public class LocalFSProvider implements FilesystemProvider {
 	}
 
 	public String getTempDirPath() {
-		return System.getProperty("java.io.tmpdir");
+		return "file://"+System.getProperty("java.io.tmpdir");
 	}
 	
 	
