@@ -15,13 +15,17 @@
 
 package eu.stratosphere.pact.test.util;
 
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +56,20 @@ import eu.stratosphere.pact.test.util.minicluster.ClusterProviderPool;
 
 
 public abstract class TestBase {
+	
+	private static final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+	private static  final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+	private static PrintStream oldOut;
+	private static PrintStream oldErr;
+		
+	
+	static {
+		// log stdout/stderr to ByteArrayOutStream
+		oldOut = System.out;
+		oldErr = System.err;
+		System.setOut(new PrintStream(outContent));
+		System.setErr(new PrintStream(errContent));
+	}
 	
 	private static final int MINIMUM_HEAP_SIZE_MB = 192;
 
@@ -94,6 +112,22 @@ public abstract class TestBase {
 		System.gc();
 	}
 
+	
+	@After
+	public void testOutput() {
+		// reset to regular out stream
+		System.setOut(oldOut);
+	    System.setErr(oldErr);
+	    String err = errContent.toString();
+	    String out = outContent.toString();
+	    // print outputs
+	    System.err.println("BEGIN ERR"+err+"END ERR");
+	    System.out.println("BEGIN OUT"+out+"END OUT");
+	    if(err.contains("Exception") || out.contains("Exception")) {
+	    	Assert.fail("Stderr or stdout contains an exception");
+	    }
+	}
+	
 	@Test
 	public void testJob() throws Exception {
 		// pre-submit
@@ -120,6 +154,7 @@ public abstract class TestBase {
 		
 		// post-submit
 		postSubmit();
+		
 	}
 
 	/**
