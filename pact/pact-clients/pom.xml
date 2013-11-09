@@ -28,12 +28,24 @@
 			<groupId>eu.stratosphere</groupId>
 			<artifactId>pact-compiler</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hadoop-core</artifactId>
+					<groupId>org.apache.hadoop</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
 			<groupId>eu.stratosphere</groupId>
 			<artifactId>nephele-hdfs</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hadoop-core</artifactId>
+					<groupId>org.apache.hadoop</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -138,7 +150,39 @@
 				<artifactId>nephele-yarn</artifactId>
 				<version>${project.version}</version>
 				</dependency>
+			
+			
+			
+			
+			
+			
+			
+			
+			<!-- TMP TESTING -->
+			   <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-yarn-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-yarn-client</artifactId>
+    </dependency>
+  
+  
+  
+  
+  
+  
+  
+			
+			
+			
 			</dependencies>
+			
 		</profile>
 	</profiles>
 	
