@@ -21,6 +21,7 @@ import java.util.List;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.services.memorymanager.MemoryManager;
 import eu.stratosphere.nephele.services.memorymanager.MemorySegment;
+import eu.stratosphere.nephele.services.memorymanager.spi.DefaultMemoryManager;
 import eu.stratosphere.nephele.template.AbstractInvokable;
 import eu.stratosphere.pact.common.stubs.Collector;
 import eu.stratosphere.pact.common.stubs.Stub;
@@ -113,7 +114,8 @@ public class SynchronousChainedCombineDriver<T> extends ChainedDriver<T, T> {
 		final TypeComparatorFactory<T> comparatorFactory = this.config.getDriverComparator(0, this.userCodeClassLoader);
 		this.serializer = serializerFactory.getSerializer();
 		this.comparator = comparatorFactory.createComparator();
-
+		System.err.println("ava mem "+availableMemory+" page size "+memManager.getPageSize()+" "+((DefaultMemoryManager)memManager));
+		
 		final List<MemorySegment> memory = this.memManager.allocatePages(this.parent, availableMemory);
 		
 		// instantiate a fix-length in-place sorter, if possible, otherwise the out-of-place sorter

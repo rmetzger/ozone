@@ -927,9 +927,6 @@ public class ClusterManager implements InstanceManager {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public NetworkTopology getNetworkTopology(final JobID jobID) {
 

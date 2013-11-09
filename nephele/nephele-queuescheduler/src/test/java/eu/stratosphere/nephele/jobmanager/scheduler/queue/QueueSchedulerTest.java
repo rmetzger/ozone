@@ -154,7 +154,7 @@ public class QueueSchedulerTest {
 
 		try {
 			try {
-				scheduler.schedulJob(executionGraph);
+				scheduler.scheduleJob(executionGraph);
 			} catch (SchedulingException e) {
 				fail(StringUtils.stringifyException(e));
 			}

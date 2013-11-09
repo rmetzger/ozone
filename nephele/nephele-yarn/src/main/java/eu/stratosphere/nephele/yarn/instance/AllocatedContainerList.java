@@ -32,7 +32,6 @@ import eu.stratosphere.nephele.instance.HardwareDescription;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.topology.NetworkTopology;
-//import eu.stratosphere.nephele.rpc.RPCService;
 
 final class AllocatedContainerList {
 
@@ -45,22 +44,18 @@ final class AllocatedContainerList {
 	private final Map<AllocationID, YarnInstance> instancesByAllocationID = new HashMap<AllocationID, YarnInstance>();
 
 	AllocatedContainerList() {
-
 		this.networkTopology = NetworkTopology.createEmptyTopology();
 	}
 
 	NetworkTopology getNetworkTopology() {
-
 		return this.networkTopology;
 	}
 
 	YarnInstance getInstanceByContainerID(final String containerID) {
-
 		return this.instancesByContainerID.get(containerID);
 	}
 
 	YarnInstance removeInstanceByAllocationID(final AllocationID allocationID) {
-
 		final YarnInstance instance = this.instancesByAllocationID.remove(allocationID);
 
 		if (instance == null) {
@@ -94,14 +89,18 @@ final class AllocatedContainerList {
 
 		return instance;
 	}
-
+	public Collection<YarnInstance> getAllInstances() {
+		if(instancesByAllocationID.size() != instancesByContainerID.size()) {
+			throw new IllegalStateException("Instance maps are not consistent");
+		}
+		return instancesByContainerID.values();
+	}
+	
 	boolean isEmpty() {
-
 		return this.instancesByContainerID.isEmpty();
 	}
 
 	List<YarnInstance> removeStaleInstances(final long earliestCreationTime) {
-
 		List<YarnInstance> staleInstances = null;
 		final Iterator<YarnInstance> it = this.instancesByContainerID.values().iterator();
 
@@ -124,7 +123,6 @@ final class AllocatedContainerList {
 	}
 
 	YarnInstance getInstanceByName(final String name) {
-
 		final Iterator<YarnInstance> it = this.instancesByContainerID.values().iterator();
 
 		while (it.hasNext()) {

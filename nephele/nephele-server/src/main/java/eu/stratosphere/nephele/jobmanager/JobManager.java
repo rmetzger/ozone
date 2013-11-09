@@ -533,7 +533,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		if (!job.isInstanceDependencyChainAcyclic()) {
 			JobSubmissionResult result = new JobSubmissionResult(AbstractJobResult.ReturnCode.ERROR,
 				"The dependency chain for instance sharing contains a cycle");
-
 			return result;
 		}
 
@@ -584,7 +583,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		}
 
 		try {
-			this.scheduler.schedulJob(eg);
+			this.scheduler.scheduleJob(eg);
 		} catch (SchedulingException e) {
 			unregisterJob(eg);
 			JobSubmissionResult result = new JobSubmissionResult(AbstractJobResult.ReturnCode.ERROR, e.getMessage());

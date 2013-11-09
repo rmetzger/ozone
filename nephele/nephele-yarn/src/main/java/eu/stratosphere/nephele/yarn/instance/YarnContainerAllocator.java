@@ -44,17 +44,13 @@ import eu.stratosphere.nephele.util.StringUtils;
 final class YarnContainerAllocator extends Thread {
 
 	public final class BootstrapParameter {
-	
-		public BootstrapParameter(InstanceType instanceType, Container container) {
-			
-			this.instanceType = instanceType;
+		public final InstanceType instanceType;
+		public final Container container;
 		
+		public BootstrapParameter(InstanceType instanceType, Container container) {
+			this.instanceType = instanceType;
 			this.container = container;
 		}
-		
-		public final InstanceType instanceType;
-		
-		public final Container container;
 	}
 
 	/**
@@ -103,9 +99,6 @@ final class YarnContainerAllocator extends Thread {
 		this.applicationAttemptID = applicationAttemptID;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void run() {
 
@@ -220,8 +213,9 @@ final class YarnContainerAllocator extends Thread {
 					// Fit received container to InstanceType.
 					InstanceType fittedInstanceType = null;
 					for (InstanceType it : pendingContainers.keySet()) {
-						if (it.getMemorySize() == newContainer.getResource().getMemory()
-							&& it.getNumberOfCores() == newContainer.getResource().getVirtualCores()) {
+						if (it.getMemorySize() == newContainer.getResource().getMemory()) {
+							// ignoring the CPU here, this information is irrelevant anyways.
+							// && it.getNumberOfCores() == newContainer.getResource().getVirtualCores()
 							fittedInstanceType = it;
 							break;
 						}

@@ -273,6 +273,9 @@ public class CliFrontend {
 		
 		// check for yarn flag
 		submitToYarn = line.hasOption(YARN_OPTION.getOpt());
+		if(submitToYarn) {
+			wait = true; // this is currently required for yarn.
+		}
 		
 		// Try to get load plan
 		PactProgram program = null;

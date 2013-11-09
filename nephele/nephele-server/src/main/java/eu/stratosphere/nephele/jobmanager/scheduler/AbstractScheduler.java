@@ -108,7 +108,7 @@ public abstract class AbstractScheduler implements InstanceListener {
 	 * @throws SchedulingException
 	 *         thrown if an error occurs and the scheduler does not accept the new job
 	 */
-	public abstract void schedulJob(ExecutionGraph executionGraph) throws SchedulingException;
+	public abstract void scheduleJob(ExecutionGraph executionGraph) throws SchedulingException;
 
 	/**
 	 * Returns the execution graph which is associated with the given job ID.

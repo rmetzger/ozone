@@ -610,6 +610,8 @@ public class PactCompiler {
 		final long memoryPerInstance = (long) (type.getHardwareDescription().getSizeOfFreeMemory() * 0.96f);
 		final int numInstances = type.getMaximumNumberOfAvailableInstances();
 		
+		System.err.println("instance type info "+type+" tells me memPerInst "+memoryPerInstance+" instances "+numInstances );
+		
 		// determine the maximum number of machines to use
 		int maxMachinesJob = pactPlan.getMaxNumberMachines();
 
