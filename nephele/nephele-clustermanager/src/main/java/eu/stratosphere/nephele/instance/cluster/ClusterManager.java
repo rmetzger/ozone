@@ -937,17 +937,11 @@ public class ClusterManager implements InstanceManager {
 		return this.networkTopology;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void setInstanceListener(final InstanceListener instanceListener) {
 		this.instanceListener = instanceListener;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized Map<InstanceType, InstanceTypeDescription> getMapOfAvailableInstanceTypes() {
 

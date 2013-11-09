@@ -1,10 +1,11 @@
 package eu.stratosphere.nephele.client;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+
+import eu.stratosphere.nephele.jobgraph.JobGraph;
 
 public interface JobClient {
-
-	
 
 	/**
 	 * Returns the recommended interval in seconds in which a client
@@ -60,6 +61,10 @@ public interface JobClient {
 	 * Closes the <code>JobClient</code> by destroying the RPC stub object.
 	 */
 	public abstract void close();
+	
+	
+	public abstract InetSocketAddress getJobManagerConnection();
 
+	public abstract void setJobGraph(JobGraph jg);
 
 }

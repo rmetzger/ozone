@@ -1,6 +1,7 @@
 package eu.stratosphere.nephele.yarn.client;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import eu.stratosphere.nephele.client.JobCancelResult;
 import eu.stratosphere.nephele.client.JobClient;
@@ -50,5 +51,12 @@ public class YarnJobClient implements JobClient {
 	public void close() {
 		throw new NonYarnPackageException();
 	}
-	
+	@Override
+	public InetSocketAddress getJobManagerConnection() {
+		throw new NonYarnPackageException();
+	}
+	@Override
+	public void setJobGraph(JobGraph jg) {
+		throw new NonYarnPackageException();
+	}
 }

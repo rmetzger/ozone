@@ -755,7 +755,7 @@ public class CliFrontend {
 	 * Submits the job based on the arguments
 	 */
 	public static void main(String[] args) throws ParseException {
-
+		System.err.println("CP: "+System.getProperty("java.class.path"));
 		CliFrontend cli = new CliFrontend();
 		cli.parseParameters(args);
 		

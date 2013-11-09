@@ -59,6 +59,8 @@ public class Client {
 	private final PactCompiler compiler;		// the compiler to compile the jobs
 	
 	private final boolean isYarnClient;
+	
+	private JobClient client;
 
 	// ------------------------------------------------------------------------
 	//                            Construction
@@ -89,15 +91,14 @@ public class Client {
 	public Client(Configuration nepheleConfig, boolean yarnClient) {
 		this.nepheleConfig = nepheleConfig;
 		this.isYarnClient = yarnClient;
+		InetSocketAddress jobManagerAddress = null;
 		if(this.isYarnClient) {
-			InstanceTypeDescription description = null;
 			try {
-				// query yarn
-				description = YarnJobClient.getInstanceTypeDescription(nepheleConfig);
-			} catch (IOException e) {
+				this.client = new YarnJobClient(nepheleConfig);
+			} catch (Exception e) {
 				throw new Error("Error initalizing Yarn", e);
 			} 
-			this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), description); // TODO
+			jobManagerAddress = client.getJobManagerConnection();
 		} else {
 			// instantiate the address to the job manager
 			final String address = nepheleConfig.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
@@ -109,10 +110,9 @@ public class Client {
 			if (port < 0) {
 				throw new CompilerException("Cannot find port to job manager's RPC service in the global configuration.");
 			}
-	
-			final InetSocketAddress jobManagerAddress = new InetSocketAddress(address, port);
-			this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), jobManagerAddress);
+			jobManagerAddress = new InetSocketAddress(address, port);
 		}
+		this.compiler = new PactCompiler(new DataStatistics(), new DefaultCostEstimator(), jobManagerAddress);
 	}
 	
 	// ------------------------------------------------------------------------
@@ -320,25 +320,16 @@ public class Client {
 	 *                                    i.e. the job-manager is unreachable, or due to the fact that the execution
 	 *                                    on the nephele system failed.
 	 */
-	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait) throws ProgramInvocationException
-	{
-	 //	InstanceTypeDescription
-		JobClient client;
-		try {
-			if(this.isYarnClient) {
-				try {
-					client = new YarnJobClient(jobGraph, this.nepheleConfig);
-				} catch (InterruptedException e) {
-					throw new ProgramInvocationException("Error starting YARN Job client", e);
-				}
-			} else {
+	public long run(PlanWithJars program, JobGraph jobGraph, boolean wait) throws ProgramInvocationException {
+		if(this.isYarnClient) {
+			this.client.setJobGraph(jobGraph);
+		} else {
+			try {
 				client = new JobClientImpl(jobGraph, nepheleConfig);
+			} catch (IOException e) {
+				throw new ProgramInvocationException("Error opening JobClient: " + e.getMessage());
 			}
 		}
-		catch (IOException e) {
-			throw new ProgramInvocationException("Could not open job manager: " + e.getMessage());
-		}
-
 		try {
 			if (wait) {
 				return client.submitJobAndWait();

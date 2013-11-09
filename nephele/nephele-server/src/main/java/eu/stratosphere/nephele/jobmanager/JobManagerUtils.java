@@ -181,7 +181,7 @@ public class JobManagerUtils {
 		case CLUSTER:
 			return "eu.stratosphere.nephele.instance.cluster.ClusterManager";			
 		case YARN:
-			return "eu.stratosphere.nephele.instance.yarn.YarnInstanceManager";
+			return "eu.stratosphere.nephele.yarn.instance.YarnInstanceManager";
 		default:
 			throw new RuntimeException("Unrecognized Execution Mode.");
 		}

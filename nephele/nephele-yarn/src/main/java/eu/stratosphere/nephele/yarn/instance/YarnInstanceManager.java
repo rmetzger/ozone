@@ -63,6 +63,7 @@ import eu.stratosphere.nephele.instance.InstanceTypeFactory;
 import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.jobmanager.JobManager;
 import eu.stratosphere.nephele.topology.NetworkTopology;
+import eu.stratosphere.nephele.util.SerializableHashMap;
 import eu.stratosphere.nephele.util.StringUtils;
 import eu.stratosphere.nephele.yarn.client.YarnJobClient;
 
@@ -76,30 +77,21 @@ public final class YarnInstanceManager implements InstanceManager {
 	/**
 	 * The HeartbeatTask sends in a configured interval vital signs to the ResourceManager component.
 	 * 
-	 * @author Tobias Herb
 	 */
 	private final class HeartbeatTask extends TimerTask {
-
-		/**
-		 * {@inheritDoc}
-		 */
+		
 		@Override
 		public void run() {
-
 			try {
-
 				synchronized (YarnInstanceManager.this) {
-
 					// Do not send heartbeat if other allocators are running.
 					if (!runningAllocators.isEmpty()) {
 						return;
 					}
-
 					// Construct and send heartbeat.
 					final AllocateRequest request = Records.newRecord(AllocateRequest.class);
 					request.setApplicationAttemptId(containerId.getApplicationAttemptId());
 					request.setResponseId(generateRequestID());
-
 					resourceManager.allocate(request);
 				}
 			} catch (YarnRemoteException e) {
@@ -111,13 +103,8 @@ public final class YarnInstanceManager implements InstanceManager {
 	/**
 	 * The PeriodicCleanupTask is responsible for detecting stale containers.
 	 * 
-	 * @author warneke
 	 */
 	private final class PeriodicCleanupTask extends TimerTask {
-
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public void run() {
 
@@ -279,11 +266,6 @@ public final class YarnInstanceManager implements InstanceManager {
 	 * Constructor.
 	 *-----------------------------------------------------------------------*/
 
-	/**
-	 * Constructor.
-	 * 
-	 * @throws YarnRemoteException
-	 */
 	public YarnInstanceManager() throws YarnRemoteException {
 		
 		LOG.info("Starting YARN instance manager");
@@ -408,9 +390,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void requestInstance(final JobID jobID, final Configuration conf,
 			final InstanceRequestMap instanceRequestMap, final List<String> splitAffinityList) throws InstanceException {
@@ -440,25 +419,19 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	synchronized void markAllocatorAsFinished(final JobID jobID) {
-
 		this.runningAllocators.remove(jobID);
 	}
 
 	synchronized void bootstrapContainer(final JobID jobID, final Container container, final InstanceType instanceType) {
-
 		LOG.info("Bootstrap containers:");
-
 		this.containerToJobIDMap.put(container.getId().toString(), jobID);
 		PendingContainerList pendingContainerList = this.pendingContainerMap.get(jobID);
 		if (pendingContainerList == null) {
 			pendingContainerList = new PendingContainerList();
 			this.pendingContainerMap.put(jobID, pendingContainerList);
 		}
-
 		// Add to list of pending containers
 		pendingContainerList.add(container, instanceType);
-		
-
 		// Start bootstrap thread
 		YarnContainerBootstrapper ycb = new YarnContainerBootstrapper(container, this.nepheleHome, JobManager.jobManagerIPCPort, this.yarnRPC,
 			this.yarnConf, instanceType );		
@@ -466,12 +439,10 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	private void releaseContainers(final List<ContainerId> containerIDs) {
-
 		final AllocateRequest allocationRequest = Records.newRecord(AllocateRequest.class);
 		allocationRequest.setResponseId(generateRequestID());
 		allocationRequest.setApplicationAttemptId(this.containerId.getApplicationAttemptId());
 		allocationRequest.addAllReleases(containerIDs);
-
 		try {
 			this.resourceManager.allocate(allocationRequest);
 		} catch (YarnRemoteException e) {
@@ -484,24 +455,17 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	synchronized void releaseContainer(final ContainerId containerID) {
-
 		LOG.info("Releasing container " + containerID.toString());
-
 		final List<ContainerId> containerIDs = new ArrayList<ContainerId>(1);
 		containerIDs.add(containerID);
-
 		releaseContainers(containerIDs);
 	}
 
 	synchronized void abortJob(final JobID jobID) {
-
 		LOG.info("abortJob called");
 		// TODO: Implement me
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void releaseAllocatedResource(final JobID jobID, final Configuration conf,
 			final AllocatedResource allocatedResource) throws InstanceException {
@@ -535,9 +499,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		releaseContainer(instance.getContainer().getId());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public InstanceType getSuitableInstanceType(final int minNumComputeUnits, final int minNumCPUCores,
 			final int minMemorySize, final int minDiskCapacity, final int maxPricePerHour) {
@@ -567,9 +528,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		return suitableInstanceType;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void reportHeartBeat(final InstanceConnectionInfo instanceConnectionInfo,
 			final HardwareDescription hardwareDescription, final String taskManagerID) {
@@ -647,12 +605,8 @@ public final class YarnInstanceManager implements InstanceManager {
 		new YarnInstanceNotifier(this.instanceListener, jobID, allocatedResources).start();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public InstanceType getInstanceTypeByName(final String instanceTypeName) {
-
 		// No synchronization is needed as availableInstanceTypes is immutable and final.
 
 		// Sanity check
@@ -663,9 +617,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		return this.availableInstanceTypes.get(instanceTypeName);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public InstanceType getDefaultInstanceType() {
 
@@ -673,9 +624,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		return this.defaultInstanceType;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized NetworkTopology getNetworkTopology(final JobID jobID) {
 
@@ -687,23 +635,17 @@ public final class YarnInstanceManager implements InstanceManager {
 		return NetworkTopology.createEmptyTopology();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void setInstanceListener(final InstanceListener instanceListener) {
 
 		this.instanceListener = instanceListener;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized Map<InstanceType, InstanceTypeDescription> getMapOfAvailableInstanceTypes() {
 
 		// Compute number of available instances on the fly
-		final Map<InstanceType, InstanceTypeDescription> map = new HashMap<InstanceType, InstanceTypeDescription>();
+		final Map<InstanceType, InstanceTypeDescription> map = new SerializableHashMap<InstanceType, InstanceTypeDescription>();
 
 		final AllocateRequest request = Records.newRecord(AllocateRequest.class);
 		request.setApplicationAttemptId(this.containerId.getApplicationAttemptId());
@@ -738,9 +680,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		return map;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized AbstractInstance getInstanceByName(final String name) {
 
@@ -762,9 +701,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void cancelPendingRequests(final JobID jobID) {
 
@@ -780,9 +716,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void shutdown() {
 
@@ -840,11 +773,6 @@ public final class YarnInstanceManager implements InstanceManager {
 		return (int) (Math.random() * (double) Integer.MAX_VALUE);
 	}
 
-	/**
-	 * @param minCapability
-	 * @param maxCapability
-	 * @return
-	 */
 	private static Map<String, InstanceType> constructAvailableInstanceTypes(final Resource minCapability,
 			final Resource maxCapability) {
 
@@ -908,7 +836,6 @@ public final class YarnInstanceManager implements InstanceManager {
 				smallestInstanceType = i;
 			}
 		}
-
 		return smallestInstanceType;
 	}
 }

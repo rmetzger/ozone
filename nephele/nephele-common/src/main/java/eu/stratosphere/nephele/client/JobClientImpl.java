@@ -56,7 +56,7 @@ public class JobClientImpl implements JobClient {
 	/**
 	 * The job graph assigned with this job client.
 	 */
-	private final JobGraph jobGraph;
+	private JobGraph jobGraph;
 
 	/**
 	 * The configuration assigned with this job client.
@@ -75,12 +75,13 @@ public class JobClientImpl implements JobClient {
 	
 	
 	private PrintStream console = System.out;
+	
+	private InetSocketAddress jobManagerAddress;
 
 	/**
 	 * Inner class used to perform clean up tasks when the
 	 * job client is terminated.
 	 * 
-	 * @author warneke
 	 */
 	public static class JobCleanUp extends Thread {
 
@@ -100,9 +101,6 @@ public class JobClientImpl implements JobClient {
 			this.jobClient = jobClient;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public void run() {
 
@@ -158,8 +156,8 @@ public class JobClientImpl implements JobClient {
 		final int port = configuration.getInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY,
 			ConfigConstants.DEFAULT_JOB_MANAGER_IPC_PORT);
 
-		final InetSocketAddress inetaddr = new InetSocketAddress(address, port);
-		this.jobSubmitClient = RPC.getProxy(JobManagementProtocol.class, inetaddr, NetUtils.getSocketFactory());
+		jobManagerAddress = new InetSocketAddress(address, port);
+		this.jobSubmitClient = RPC.getProxy(JobManagementProtocol.class, jobManagerAddress, NetUtils.getSocketFactory());
 		this.jobGraph = jobGraph;
 		this.configuration = configuration;
 		this.jobCleanUp = new JobCleanUp(this);
@@ -188,9 +186,6 @@ public class JobClientImpl implements JobClient {
 		this.jobCleanUp = new JobCleanUp(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.client.JobClientI#close()
-	 */
 	@Override
 	public void close() {
 
@@ -209,9 +204,6 @@ public class JobClientImpl implements JobClient {
 		return this.configuration;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.client.JobClientI#submitJob()
-	 */
 	@Override
 	public JobSubmissionResult submitJob() throws IOException {
 
@@ -221,9 +213,6 @@ public class JobClientImpl implements JobClient {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.client.JobClientI#cancelJob()
-	 */
 	@Override
 	public JobCancelResult cancelJob() throws IOException {
 
@@ -232,9 +221,6 @@ public class JobClientImpl implements JobClient {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.client.JobClientI#getJobProgress()
-	 */
 	@Override
 	public JobProgressResult getJobProgress() throws IOException {
 
@@ -243,9 +229,6 @@ public class JobClientImpl implements JobClient {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.client.JobClientI#submitJobAndWait()
-	 */
 	@Override
 	public long submitJobAndWait() throws IOException, JobExecutionException {
 
@@ -383,5 +366,15 @@ public class JobClientImpl implements JobClient {
 		}
 		
 		this.console = stream;
+	}
+
+	@Override
+	public InetSocketAddress getJobManagerConnection() {
+		return jobManagerAddress;
+	}
+
+	@Override
+	public void setJobGraph(JobGraph jg) {
+		this.jobGraph = jg;
 	}
 }
