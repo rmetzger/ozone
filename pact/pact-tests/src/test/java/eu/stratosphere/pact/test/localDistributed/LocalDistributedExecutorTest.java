@@ -21,8 +21,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import eu.stratosphere.pact.client.localDistributed.LocalDistributedExecutor;
-import eu.stratosphere.pact.clients.examples.LocalExecutorTest;
 import eu.stratosphere.pact.example.wordcount.WordCount;
+import eu.stratosphere.pact.test.pactPrograms.WordCountITCase;
 
 
 public class LocalDistributedExecutorTest {
@@ -37,7 +37,7 @@ public class LocalDistributedExecutorTest {
 			outFile.deleteOnExit();
 			
 			FileWriter fw = new FileWriter(inFile);
-			fw.write(LocalExecutorTest.TEXT);
+			fw.write(WordCountITCase.TEXT);
 			fw.close();
 			
 			// run WordCount
@@ -49,6 +49,5 @@ public class LocalDistributedExecutorTest {
 			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
-		
 	}
 }

@@ -37,7 +37,7 @@ public class LocalExecutorTest {
 			outFile.deleteOnExit();
 			
 			FileWriter fw = new FileWriter(inFile);
-			fw.write(TEXT);
+			fw.write(WordCountITCase.TEXT);
 			fw.close();
 			
 			// run WordCount
@@ -49,6 +49,4 @@ public class LocalExecutorTest {
 		}
 		
 	}
-	
-	private static final String TEXT = WordCountITCase.TEXT;
 }
