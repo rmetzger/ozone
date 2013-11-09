@@ -17,7 +17,9 @@ package eu.stratosphere.pact.test.localDistributed;
 import java.io.File;
 import java.io.FileWriter;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import eu.stratosphere.pact.client.localDistributed.LocalDistributedExecutor;
@@ -45,9 +47,28 @@ public class LocalDistributedExecutorTest {
 			LocalDistributedExecutor lde = new LocalDistributedExecutor();
 			lde.startNephele(2);
 			lde.run( wc.getPlan("4", "file://" + inFile.getAbsolutePath(), "file://" + outFile.getAbsolutePath()));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail(e.getMessage());
 		}
+	}
+	
+	@Before
+	public void cool() {
+		System.err.println("Cooling");
+		try {
+			Thread.sleep(1000);
+			System.gc();
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@After
+	public void coolDownGC() {
+		cool();
+		System.exit(0);
 	}
 }
