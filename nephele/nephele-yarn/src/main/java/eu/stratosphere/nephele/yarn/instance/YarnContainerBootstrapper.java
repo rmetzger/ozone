@@ -45,8 +45,6 @@ import eu.stratosphere.nephele.util.StringUtils;
 
 /**
  * Each allocated container is bootstrapped in a separated thread.
- * 
- * @author Tobias Herb
  */
 final class YarnContainerBootstrapper extends Thread {
 
@@ -84,7 +82,6 @@ final class YarnContainerBootstrapper extends Thread {
 	 * The characteristics of the container the TM is bootstrapped inside.
 	 */
 	private final InstanceType instanceType;
-	
 
 	YarnContainerBootstrapper(final Container container, final String nepheleHome, final int rpcPort,
 			final YarnRPC yarnRPC, final YarnConfiguration yarnConf, final InstanceType instanceType) {
@@ -121,9 +118,6 @@ final class YarnContainerBootstrapper extends Thread {
 		this.instanceType = instanceType;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void run() {
 

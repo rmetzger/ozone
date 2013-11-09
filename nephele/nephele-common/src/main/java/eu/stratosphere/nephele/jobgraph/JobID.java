@@ -21,8 +21,6 @@ import eu.stratosphere.nephele.io.AbstractID;
  * A class for statistically unique job IDs.
  * <p>
  * This class is thread-safe.
- * 
- * @author warneke
  */
 public final class JobID extends AbstractID {
 
@@ -41,7 +39,7 @@ public final class JobID extends AbstractID {
 	 * @param upperPart
 	 *        the higher bytes of the ID
 	 */
-	private JobID(final long lowerPart, final long upperPart) {
+	public JobID(final long lowerPart, final long upperPart) {
 		super(lowerPart, upperPart);
 	}
 

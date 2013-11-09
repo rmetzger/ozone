@@ -15,7 +15,6 @@ import eu.stratosphere.nephele.jobgraph.JobID;
  * for a vertex and switching to the state ASSINING could not be guaranteed.
  * This class is thread-safe.
  * 
- * @author warneke
  */
 public final class YarnInstanceNotifier extends Thread {
 
@@ -51,12 +50,8 @@ public final class YarnInstanceNotifier extends Thread {
 		this.allocatedResources = allocatedResources;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void run() {
-
 		this.instanceListener.resourcesAllocated(this.jobID, this.allocatedResources);
 	}
 }

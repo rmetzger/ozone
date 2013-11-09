@@ -26,8 +26,6 @@ import eu.stratosphere.nephele.util.StringUtils;
  * Every component that requires these kinds of IDs provides its own concrete type.
  * <p>
  * This class is thread-safe.
- * 
- * @author warneke
  */
 public abstract class AbstractID implements IOReadableWritable {
 
