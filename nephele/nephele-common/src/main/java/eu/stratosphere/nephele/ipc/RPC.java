@@ -415,7 +415,7 @@ public class RPC {
 				method.setAccessible(true);
 
 				final Object value = method.invoke((Object) instance, (Object[]) call.getParameters());
-
+				System.err.println("RPC debug. method "+method+" call "+call+" value" + value+" instance "+instance);
 				return (IOReadableWritable) value;
 
 			} catch (InvocationTargetException e) {

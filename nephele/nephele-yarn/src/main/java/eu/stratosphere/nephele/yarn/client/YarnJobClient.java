@@ -85,15 +85,10 @@ import eu.stratosphere.nephele.util.StringUtils;
 
 public class YarnJobClient implements JobClient{
 
-	/*-----------------------------------------------------------------------
-	 * Inner Classes.
-	 *-----------------------------------------------------------------------*/
-
 	/**
 	 * Inner class used to perform clean up tasks when the
 	 * job client is terminated.
 	 * 
-	 * @author warneke
 	 */
 	public static class JobCleanUp extends Thread {
 
@@ -113,9 +108,6 @@ public class YarnJobClient implements JobClient{
 			this.jobClient = jobClient;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public void run() {
 			try {
@@ -171,7 +163,7 @@ public class YarnJobClient implements JobClient{
 	/**
 	 * The job graph assigned with this job client.
 	 */
-	private final JobGraph jobGraph;
+	private JobGraph jobGraph;
 
 	/**
 	 * The configuration assigned with this job client.
@@ -210,17 +202,20 @@ public class YarnJobClient implements JobClient{
 	 * The ID of the application started by this client in the YARN cluster.
 	 */
 	private ApplicationId applicationId;
+	
+	/**
+	 * JobManager address.
+	 * Used by pact components (such as compiler).
+	 */
+	private InetSocketAddress jobManagerRPCAddress = null;
+	
 
 	/**
 	 * Starting the YarnJobClient will establish a connection to the Yarn Resource Manager.
 	 */
-	public YarnJobClient(final JobGraph jobGraph, final Configuration configuration) throws IOException, InterruptedException  {
-
-		this.jobGraph = jobGraph;
+	public YarnJobClient(final Configuration configuration) throws IOException, InterruptedException  {
 		this.configuration = configuration;
 		this.jobCleanUp = new JobCleanUp(this);
-		
-		
 
 		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(configuration.getString(
 			YarnConfiguration.RM_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
@@ -237,59 +232,61 @@ public class YarnJobClient implements JobClient{
 		
 		prepare();
 	}
-	
-	
-	public static InstanceTypeDescription getInstanceTypeDescription(final Configuration configuration) throws IOException {
-		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(configuration.getString(
-				YarnConfiguration.RM_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
-		
-		// Convert Nephele configuration into Hadoop configuration object
-		org.apache.hadoop.conf.Configuration hadoopConf = toHadoopConfiguration(configuration);
-		LOG.info("Connecting to ResourceManager at " + rmAddress);
-		YarnRPC rpc = YarnRPC.create(hadoopConf);
 
-		try {
-			ClientRMProtocol rmProtocol = (ClientRMProtocol) rpc.getProxy(ClientRMProtocol.class, rmAddress,hadoopConf);
-			// instance type is "theoretical instance description"
-			// hardware description describes the concrete hardware of the TaskManager.
-			InstanceType yarnType = InstanceTypeFactory.construct("YarnCluster", 0, 0, 0, 0, 0);
-			int maxAvailableInstances = getNumNodeManagers(rmProtocol);
-			int sizeOfFreeMemory = Integer.MAX_VALUE; // default value. The size of free memory is set to the amount of memory
-			int cores = Integer.MAX_VALUE;
-			// seen at the smallest NodeManager.
-			List<NodeReport> nodes = getClusterNodes(rmProtocol);
-			for(NodeReport node : nodes) {
-				int mem = node.getCapability().getMemory();
-				int vCores = node.getCapability().getVirtualCores();
-				if(mem < sizeOfFreeMemory) {
-					sizeOfFreeMemory = mem;
-				}
-				if(vCores < cores) {
-					cores = vCores;
-				}
-			}
-			LOG.info("Determined sizeOfFreeMemory=" + sizeOfFreeMemory+" number of cores="+cores);
-			HardwareDescription yarnHardwareDescription = HardwareDescriptionFactory.construct(cores, sizeOfFreeMemory, sizeOfFreeMemory);
-			InstanceTypeDescription yarnTypeDescription = InstanceTypeDescriptionFactory.construct(yarnType, yarnHardwareDescription, maxAvailableInstances);
-			return yarnTypeDescription;
-		} catch (YarnRemoteException e) {
-			// wrap YarnExecption into IOException to minimize yarn dependencies
-			throw new IOException("Error querying the YARN Resource Manager", e);
-		}
-	}
 	
-	// testing
-	public static void main(String[] args) throws IOException {
-		BasicConfigurator.configure();
-		InstanceTypeDescription test = YarnJobClient.getInstanceTypeDescription(new Configuration());
-		// These are the methods accessed by the Compiler
-		System.err.println("id "+test.getInstanceType().getIdentifier());
-		System.err.println("free mem "+test.getHardwareDescription().getSizeOfFreeMemory());
-		System.err.println("cores "+test.getHardwareDescription().getNumberOfCPUCores());
-		System.err.println("inst ava "+test.getMaximumNumberOfAvailableInstances());
-		
-	}
+//	public static InstanceTypeDescription getInstanceTypeDescription(final Configuration configuration) throws IOException {
+//		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(configuration.getString(
+//				YarnConfiguration.RM_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
+//		
+//		// Convert Nephele configuration into Hadoop configuration object
+//		org.apache.hadoop.conf.Configuration hadoopConf = toHadoopConfiguration(configuration);
+//		LOG.info("Connecting to ResourceManager at " + rmAddress);
+//		YarnRPC rpc = YarnRPC.create(hadoopConf);
+//
+//		try {
+//			ClientRMProtocol rmProtocol = (ClientRMProtocol) rpc.getProxy(ClientRMProtocol.class, rmAddress,hadoopConf);
+//			// instance type is "theoretical instance description"
+//			// hardware description describes the concrete hardware of the TaskManager.
+//			InstanceType yarnType = InstanceTypeFactory.construct("YarnCluster", 0, 0, 0, 0, 0);
+//			int maxAvailableInstances = getNumNodeManagers(rmProtocol);
+//			int sizeOfFreeMemory = Integer.MAX_VALUE; // default value. The size of free memory is set to the amount of memory
+//			int cores = Integer.MAX_VALUE;
+//			// seen at the smallest NodeManager.
+//			List<NodeReport> nodes = getClusterNodes(rmProtocol);
+//			for(NodeReport node : nodes) {
+//				int mem = node.getCapability().getMemory();
+//				int vCores = node.getCapability().getVirtualCores();
+//				if(mem < sizeOfFreeMemory) {
+//					sizeOfFreeMemory = mem;
+//				}
+//				if(vCores < cores) {
+//					cores = vCores;
+//				}
+//			}
+//			LOG.info("Determined sizeOfFreeMemory=" + sizeOfFreeMemory+" number of cores="+cores);
+//			HardwareDescription yarnHardwareDescription = HardwareDescriptionFactory.construct(cores, sizeOfFreeMemory, sizeOfFreeMemory);
+//			InstanceTypeDescription yarnTypeDescription = InstanceTypeDescriptionFactory.construct(yarnType, yarnHardwareDescription, maxAvailableInstances);
+//			return yarnTypeDescription;
+//		} catch (YarnRemoteException e) {
+//			// wrap YarnExecption into IOException to minimize yarn dependencies
+//			throw new IOException("Error querying the YARN Resource Manager", e);
+//		}
+//	}
 	
+//	// testing
+//	public static void main(String[] args) throws IOException {
+//		BasicConfigurator.configure();
+//		InstanceTypeDescription test = YarnJobClient.getInstanceTypeDescription(new Configuration());
+//		// These are the methods accessed by the Compiler
+//		System.err.println("id "+test.getInstanceType().getIdentifier());
+//		System.err.println("free mem "+test.getHardwareDescription().getSizeOfFreeMemory());
+//		System.err.println("cores "+test.getHardwareDescription().getNumberOfCPUCores());
+//		System.err.println("inst ava "+test.getMaximumNumberOfAvailableInstances());
+//		
+//	}
+	
+
+
 	private static int getNumNodeManagers(final ClientRMProtocol rmp) throws YarnRemoteException {
 		final GetClusterMetricsRequest metricsRequest = Records.newRecord(GetClusterMetricsRequest.class);
 		final GetClusterMetricsResponse metricsResponse = rmp.getClusterMetrics(metricsRequest);
@@ -302,6 +299,7 @@ public class YarnJobClient implements JobClient{
 		final GetClusterNodesResponse nodesResponse = rmp.getClusterNodes(nodesRequest);
 		return nodesResponse.getNodeReports();
 	}
+	
 	private void prepare() throws IOException, InterruptedException {
 		
 		String nepheleHome = configuration.getString(NEPHELE_HOME_KEY, null);
@@ -412,9 +410,7 @@ public class YarnJobClient implements JobClient{
 		final GetApplicationReportRequest garRequest = Records.newRecord(GetApplicationReportRequest.class);
 		garRequest.setApplicationId(this.applicationId);
 
-		InetSocketAddress jobManagerRPCAddress = null;
 		while (true) {
-
 			GetApplicationReportResponse reportResponse;
 			try {
 				reportResponse = this.clientRMProtocol.getApplicationReport(garRequest);
@@ -540,6 +536,11 @@ public class YarnJobClient implements JobClient{
 	public Configuration getConfiguration() {
 
 		return this.configuration;
+	}
+	
+	@Override
+	public InetSocketAddress getJobManagerConnection() {
+		return jobManagerRPCAddress;
 	}
 
 	/**
@@ -735,5 +736,10 @@ public class YarnJobClient implements JobClient{
 		}
 		
 		this.console = stream;
+	}
+
+	@Override
+	public void setJobGraph(JobGraph jg) {
+		this.jobGraph = jg;
 	}
 }

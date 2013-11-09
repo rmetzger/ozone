@@ -57,6 +57,6 @@ PACT_CC_CLASSPATH=`manglePathList $(constructPactCLIClientClassPath)`
 log=$NEPHELE_LOG_DIR/nephele-$NEPHELE_IDENT_STRING-pact-run-$HOSTNAME.log
 log_setting="-Dlog.file="$log" -Dlog4j.configuration=file:"$NEPHELE_CONF_DIR"/log4j.properties"
 
-export NEPHELE_CONF_DIR
+export NEPHELE_ROOT_DIR=${NEPHELE_ROOT_DIR}
 
 $JAVA_RUN $JVM_ARGS $log_setting -classpath $PACT_CC_CLASSPATH eu.stratosphere.pact.client.CliFrontend $*

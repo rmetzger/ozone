@@ -17,6 +17,7 @@ package eu.stratosphere.nephele.yarn.example;
 
 import org.mortbay.log.Log;
 
+import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.io.DistributionPattern;
 import eu.stratosphere.nephele.io.channels.ChannelType;
@@ -75,7 +76,7 @@ public final class YarnTestJob {
 		conf.setString("jobmanager.rpc.address", "localhost");
 
 		// Create job client and launch job
-		final YarnJobClient jobClient = new YarnJobClient(jobGraph, conf);
+		final JobClient jobClient = new YarnJobClient(conf);
 		try {
 			jobClient.submitJobAndWait();
 		} catch( Exception ex ) {			

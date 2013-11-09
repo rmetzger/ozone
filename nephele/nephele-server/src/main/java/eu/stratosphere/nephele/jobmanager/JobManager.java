@@ -991,9 +991,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		return this.isShutDown;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public Map<InstanceType, InstanceTypeDescription> getMapOfAvailableInstanceTypes() {
 
 		// Delegate call to the instance manager

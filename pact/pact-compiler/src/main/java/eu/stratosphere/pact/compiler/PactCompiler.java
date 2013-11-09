@@ -1685,9 +1685,6 @@ public class PactCompiler {
 			throw new IOException("Connection timed out.");
 		}
 		
-		/* (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
 		@Override
 		public void run() {
 			ExtendedManagementProtocol jobManagerConnection = null;
