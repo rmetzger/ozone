@@ -31,7 +31,6 @@ import java.util.Map;
  * <p>
  * This class is not thread-safe.
  * 
- * @author warneke
  */
 public final class InstanceRequestMap {
 
@@ -162,8 +161,6 @@ public final class InstanceRequestMap {
 
 	/**
 	 * Returns the number of different instance types stored in this request map.
-	 * 
-	 * @return the number of different instance types stored in this request map
 	 */
 	public int size() {
 
@@ -180,7 +177,6 @@ public final class InstanceRequestMap {
 	 * Clears the instance request map.
 	 */
 	public void clear() {
-
 		this.maximumMap.clear();
 		this.minimumMap.clear();
 	}

@@ -54,20 +54,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<!-- we need to execute tests in target/test-classes so that the config 
-						files are found -->
-					<workingDirectory>${project.build.testOutputDirectory}</workingDirectory>
-					<excludes>
-						<!-- Start failing Unit Tests - Remove exclusion when fixed! -->
-						<exclude>**/*DiscoveryService*</exclude>
-						<!-- End failing Unit Tests -->
-					</excludes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<configuration>
 					<workingDirectory>${project.build.testOutputDirectory}</workingDirectory>

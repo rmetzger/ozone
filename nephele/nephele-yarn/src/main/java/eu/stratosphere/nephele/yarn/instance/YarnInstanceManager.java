@@ -170,6 +170,7 @@ public final class YarnInstanceManager implements InstanceManager {
 	 * The environment variable for the job manager heap size.
 	 */
 	public static final String JM_HEAP_SIZE_ENV_KEY = "NEPHELE_JM_HEAP";
+	
 
 	/**
 	 * The interval in which the periodic cleanup task is triggered in milliseconds.
@@ -346,7 +347,6 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	private void checkSufficientClusterResources(final InstanceRequestMap instanceRequestMap) throws InstanceException {
-
 		final AllocateRequest clusterUtilizationRequest = Records.newRecord(AllocateRequest.class);
 		clusterUtilizationRequest.setApplicationAttemptId(this.containerId.getApplicationAttemptId());
 		clusterUtilizationRequest.setResponseId(generateRequestID());
@@ -392,7 +392,17 @@ public final class YarnInstanceManager implements InstanceManager {
 	@Override
 	public synchronized void requestInstance(final JobID jobID, final Configuration conf,
 			final InstanceRequestMap instanceRequestMap, final List<String> splitAffinityList) throws InstanceException {
-
+		if( allocatedContainerMap.size() > 0 && instanceRequestMap.size() >= allocatedContainerMap.size() ) {
+			LOG.info("Request for "+instanceRequestMap.size()+" intances ignored, "+allocatedContainerMap.size() +" instances"
+					+ " available");
+			AllocatedContainerList first = allocatedContainerMap.get(JobManager.YARN_EARLY_CONTAINER_JOB_ID);
+			allocatedContainerMap.remove(JobManager.YARN_EARLY_CONTAINER_JOB_ID);
+			allocatedContainerMap.put(jobID, first);
+			System.err.println("replaced jobid of first container");
+			return;
+		}
+		System.err.println("Pending requests "+pendingContainerMap.size());
+				
 		// -----------------------------------------------------
 		// Determine Containers Request.
 		// -----------------------------------------------------

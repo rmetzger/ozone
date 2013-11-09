@@ -66,6 +66,7 @@ import eu.stratosphere.nephele.client.JobCancelResult;
 import eu.stratosphere.nephele.client.JobProgressResult;
 import eu.stratosphere.nephele.client.JobSubmissionResult;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
+import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.deployment.TaskDeploymentDescriptor;
 import eu.stratosphere.nephele.discovery.DiscoveryException;
@@ -86,7 +87,9 @@ import eu.stratosphere.nephele.instance.AbstractInstance;
 import eu.stratosphere.nephele.instance.DummyInstance;
 import eu.stratosphere.nephele.instance.HardwareDescription;
 import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
+import eu.stratosphere.nephele.instance.InstanceException;
 import eu.stratosphere.nephele.instance.InstanceManager;
+import eu.stratosphere.nephele.instance.InstanceRequestMap;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.instance.InstanceTypeDescription;
 import eu.stratosphere.nephele.instance.local.LocalInstanceManager;
@@ -131,7 +134,6 @@ import eu.stratosphere.nephele.util.StringUtils;
  * Task managers can discover the job manager by means of an UDP broadcast and afterwards advertise
  * themselves as new workers for tasks.
  * 
- * @author warneke
  */
 public class JobManager implements DeploymentManager, ExtendedManagementProtocol, InputSplitProviderProtocol,
 		JobManagerProtocol, ChannelLookupProtocol, JobStatusListener {
@@ -171,6 +173,12 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	public static int jobManagerIPCPort = -1; 
 	
 	private final ExecutionMode executionMode;
+	
+	/**
+	 * The internal jobId for the container that is being allocated by the JobManager to determine
+	 * the free memory
+	 */
+	public static final JobID YARN_EARLY_CONTAINER_JOB_ID = new JobID(0,1);
 	
 	public JobManager(ExecutionMode executionMode) {
 
@@ -280,7 +288,23 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			this.profiler = null;
 			LOG.debug("Profiler disabled");
 		}
-
+		// Request first container from YARN, so that at least one TaskManager is up
+		// to determine the amount of available memory
+		if(executionMode == ExecutionMode.YARN) {
+			InstanceRequestMap instanceRequestMap = new InstanceRequestMap(); // empty request map
+			
+			try {
+				System.err.println("requesting instance");
+				// affinityList is null (not implemented anyways), configuration null (not used in the yarn case)
+				this.instanceManager.requestInstance(YARN_EARLY_CONTAINER_JOB_ID, null, instanceRequestMap, null);
+				
+				// TODO: WAIT UNTIL one TM came up!
+				// then, change the piece where the compiler gets the information about available memory
+			} catch (InstanceException e) {
+				throw new RuntimeException("Yarn Failed to allocate the first instance",e);
+			}
+		}
+		
 		// Add shutdown hook for clean up tasks
 		Runtime.getRuntime().addShutdownHook(new JobManagerCleanUp(this));
 
@@ -468,9 +492,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		// Clean up task are triggered through a shutdown hook
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JobSubmissionResult submitJob(JobGraph job) throws IOException {
 		// First check if job is null

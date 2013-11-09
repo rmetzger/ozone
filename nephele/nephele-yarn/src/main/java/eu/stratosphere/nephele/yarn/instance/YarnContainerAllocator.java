@@ -150,19 +150,14 @@ final class YarnContainerAllocator extends Thread {
 		allocationRequest.addAllAsks(resourcesToRequest);
 
 		int allocatedContainers = 0;
-
 		long timestampOfLastAllocation = System.currentTimeMillis();
-	
 		final List<BootstrapParameter> bootstrapParams = new ArrayList<BootstrapParameter>();
 		
 		try {
-
 			while (allocatedContainers < totalNumberOfContainersToRequest) {
-
 				try {
 					Thread.sleep(POLLING_INTERVAL);
-				} catch (InterruptedException e) {
-				}
+				} catch (InterruptedException e) { }
 
 				if (this.abortRequested) {
 					return;
@@ -198,7 +193,6 @@ final class YarnContainerAllocator extends Thread {
 				}
 
 				for (Container newContainer : newAllocatedContainers) {
-
 					LOG.info("new container" + "\n containerId = "
 						+ newContainer.getId() + ",\n containerNode = "
 						+ newContainer.getNodeId().getHost() + ":"
