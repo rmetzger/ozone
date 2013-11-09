@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -76,7 +77,6 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	/**
 	 * The HeartbeatTask sends in a configured interval vital signs to the ResourceManager component.
-	 * 
 	 */
 	private final class HeartbeatTask extends TimerTask {
 		
@@ -102,7 +102,6 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	/**
 	 * The PeriodicCleanupTask is responsible for detecting stale containers.
-	 * 
 	 */
 	private final class PeriodicCleanupTask extends TimerTask {
 		@Override
@@ -463,7 +462,7 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	synchronized void abortJob(final JobID jobID) {
 		LOG.info("abortJob called");
-		// TODO: Implement me
+		throw new RuntimeException("Implement me");
 	}
 
 	@Override
@@ -619,14 +618,12 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	@Override
 	public InstanceType getDefaultInstanceType() {
-
 		// No synchronization is needed as defaultInstanceType is immutable and final.
 		return this.defaultInstanceType;
 	}
 
 	@Override
 	public synchronized NetworkTopology getNetworkTopology(final JobID jobID) {
-
 		final AllocatedContainerList allocatedContainerList = this.allocatedContainerMap.get(jobID);
 		if (allocatedContainerList != null) {
 			return allocatedContainerList.getNetworkTopology();
@@ -637,16 +634,65 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	@Override
 	public synchronized void setInstanceListener(final InstanceListener instanceListener) {
-
 		this.instanceListener = instanceListener;
 	}
 
+	/**
+	 * This method does not fulfill what nephele expects such a method to do
+	 * Expected: A list of available instances types. Imagine you have a cluster
+	 * with a set of large machines (10GB main mem) and some small ones (1GB mem).
+	 * Then, this method returns two instances types. Nephele assumes that all machines
+	 * within a set are equal to each other (also for the amount of free memory!)
+	 * 
+	 * This this method is only used by the pact compiler to determine the amount of free memory
+	 * on the tasktracker (assuming each tasktracker has the same amount of free memory!)
+	 * The pact compiler selects the largest available instance type and extracts its free memory.
+	 * Therefore, this method will only return one instance type with the taskmanager with the smallest
+	 * available memory
+	 * 
+	 */
 	@Override
 	public synchronized Map<InstanceType, InstanceTypeDescription> getMapOfAvailableInstanceTypes() {
-
-		// Compute number of available instances on the fly
 		final Map<InstanceType, InstanceTypeDescription> map = new SerializableHashMap<InstanceType, InstanceTypeDescription>();
-
+//		if(allocatedContainerMap.size() > 1 ) {
+//			throw new IllegalStateException("It is not expected to have multiple yarn jobs"
+//					+ " running at the same time");
+//		}
+//		if(allocatedContainerMap.size() == 0 ) {
+//			System.err.println("container map 0");
+//			return map; // compiler will throw exception that no instances are registered.
+//		}
+//		Entry<JobID, AllocatedContainerList> entry = allocatedContainerMap.entrySet().iterator().next();
+//		
+//		Collection<YarnInstance> instances = entry.getValue().getAllInstances();
+//		
+//		System.err.println("inst coll "+instances+" size "+instances.size());
+//		
+//		long freeMem = Long.MAX_VALUE;
+//		HardwareDescription smallest = null;
+//		for(YarnInstance instance : instances) {
+//			long instMem = instance.getHardwareDescription().getSizeOfFreeMemory();
+//			if(instMem < freeMem) {
+//				freeMem = instMem;
+//				smallest = instance.getHardwareDescription();
+//			}
+//		}
+//		System.err.println("smallest "+smallest+" free mem "+freeMem);
+//		
+//		InstanceType instanceType = (InstanceType) new Object(); // this is how you prove that a system is badly designed.
+//		map.put(instanceType, InstanceTypeDescriptionFactory.construct(instanceType, smallest, instances.size()));
+//		return map;
+		
+		new Throwable().getStackTrace();
+		
+		System.err.println("Allocated container map size "+allocatedContainerMap.size());
+		if(allocatedContainerMap.size() == 1) {
+			System.err.println("is one ");
+			Entry<JobID, AllocatedContainerList> entry = allocatedContainerMap.entrySet().iterator().next();
+			Collection<YarnInstance> instances = entry.getValue().getAllInstances();
+			System.err.println("inst coll "+instances+" size "+instances.size());
+		}
+		
 		final AllocateRequest request = Records.newRecord(AllocateRequest.class);
 		request.setApplicationAttemptId(this.containerId.getApplicationAttemptId());
 		request.setResponseId(generateRequestID());
@@ -665,15 +711,13 @@ public final class YarnInstanceManager implements InstanceManager {
 			+ " MB of memory");
 
 		final Iterator<InstanceType> it = this.availableInstanceTypes.values().iterator();
-
+		
 		while (it.hasNext()) {
-
 			final InstanceType instanceType = it.next();
 
 			// TODO: Also include CPU here
-			final int numberOfAvailableInstances = ar.getMemory() / instanceType.getMemorySize();
-			map.put(
-				instanceType, InstanceTypeDescriptionFactory.construct(instanceType,
+			final int numberOfAvailableInstances = ar.getMemory() / instanceType.getMemorySize(); //FIXME
+			map.put(instanceType, InstanceTypeDescriptionFactory.construct(instanceType, 
 					constructHardwareDescription(instanceType), numberOfAvailableInstances));
 		}
 
@@ -682,7 +726,6 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	@Override
 	public synchronized AbstractInstance getInstanceByName(final String name) {
-
 		// Sanity check
 		if (name == null) {
 			throw new IllegalArgumentException("Argument name must not be null");
@@ -703,7 +746,6 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	@Override
 	public synchronized void cancelPendingRequests(final JobID jobID) {
-
 		final YarnContainerAllocator allocator = this.runningAllocators.remove(jobID);
 		if (allocator != null) {
 			allocator.abort();
@@ -718,7 +760,6 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	@Override
 	public synchronized void shutdown() {
-
 		LOG.info("Shutdown initiated");
 
 		// Cancel the timer tasks.
@@ -775,7 +816,6 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	private static Map<String, InstanceType> constructAvailableInstanceTypes(final Resource minCapability,
 			final Resource maxCapability) {
-
 		final Map<String, InstanceType> instanceTypes = new HashMap<String, InstanceType>();
 		int cores = minCapability.getVirtualCores();
 		int memory = minCapability.getMemory();
@@ -797,13 +837,7 @@ public final class YarnInstanceManager implements InstanceManager {
 		return Collections.unmodifiableMap(instanceTypes);
 	}
 
-	/**
-	 * @param numberOfCPUCores
-	 * @param sizeOfMemory
-	 * @return
-	 */
 	private static InstanceType constructInstanceType(final int numberOfCPUCores, final int sizeOfMemory) {
-
 		final String identifier = "yarn_" + numberOfCPUCores + "_" + sizeOfMemory;
 		final int diskCapacity = 100; // TODO: Find something smarter here
 		final int pricePerHour = numberOfCPUCores; // TODO: Find something smarter here
@@ -813,17 +847,11 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	private static HardwareDescription constructHardwareDescription(final InstanceType instanceType) {
-
 		final long memoryInBytes = instanceType.getMemorySize() * 1024L * 1024L;
 		return HardwareDescriptionFactory.construct(instanceType.getNumberOfCores(), memoryInBytes, memoryInBytes);
 	}
 
-	/**
-	 * @param availableInstances
-	 * @return
-	 */
 	private static InstanceType findInstanceTypeWithSmallestMemory(final Collection<InstanceType> availableInstanceTypes) {
-
 		InstanceType smallestInstanceType = null;
 		int smallestMemory = Integer.MAX_VALUE;
 		final Iterator<InstanceType> it = availableInstanceTypes.iterator();

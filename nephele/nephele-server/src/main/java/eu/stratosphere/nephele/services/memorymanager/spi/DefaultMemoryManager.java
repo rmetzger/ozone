@@ -49,8 +49,6 @@ import eu.stratosphere.nephele.template.AbstractInvokable;
  * access methods in the {@link DefaultMemorySegment} fast and simple, the actual allocated memory segments must not
  * exceed 2GB and must be contained in a single memory chunk.
  * 
- * @author Alexander Alexandrov
- * @author Stephan Ewen
  */
 public class DefaultMemoryManager implements MemoryManager
 {
@@ -223,7 +221,7 @@ public class DefaultMemoryManager implements MemoryManager
 			
 			if (numPages > this.freeSegments.size()) {
 				throw new MemoryAllocationException("Could not allocate " + numPages + " pages. Only " + 
-					this.freeSegments.size() + " pages are remaining.");
+					this.freeSegments.size() + " pages are remaining. Page size "+pageSize+" bytes.");
 			}
 			
 			Set<DefaultMemorySegment> segmentsForOwner = this.allocatedSegments.get(owner);
@@ -307,9 +305,6 @@ public class DefaultMemoryManager implements MemoryManager
 		// -------------------- END CRITICAL SECTION -------------------
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.services.memorymanager.MemoryManager#release(java.util.Collection)
-	 */
 	@Override
 	public <T extends MemorySegment> void release(Collection<T> segments) {
 		
@@ -372,9 +367,6 @@ public class DefaultMemoryManager implements MemoryManager
 		// -------------------- END CRITICAL SECTION -------------------
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.services.memorymanager.MemoryManager#releaseAll(eu.stratosphere.nephele.template.AbstractInvokable)
-	 */
 	@Override
 	public void releaseAll(AbstractInvokable owner)
 	{
@@ -406,25 +398,16 @@ public class DefaultMemoryManager implements MemoryManager
 	
 	// ------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.services.memorymanager.MemoryManager#getPageSize()
-	 */
 	@Override
 	public int getPageSize() {
 		return this.pageSize;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.services.memorymanager.MemoryManager#computeNumberOfPages(long)
-	 */
 	@Override
 	public int computeNumberOfPages(long numBytes) {
 		return getNumPages(numBytes);
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.services.memorymanager.MemoryManager#roundDownToPageSizeMultiple(long)
-	 */
 	@Override
 	public long roundDownToPageSizeMultiple(long numBytes) {
 		return numBytes & this.roundingMask;

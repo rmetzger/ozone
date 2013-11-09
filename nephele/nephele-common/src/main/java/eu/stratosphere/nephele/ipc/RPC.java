@@ -406,18 +406,14 @@ public class RPC {
 
 		public IOReadableWritable call(Class<?> protocol, IOReadableWritable param, long receivedTime)
 				throws IOException {
-			
 			try {
-				
 				final Invocation call = (Invocation) param;
 				
 				final Method method = protocol.getMethod(call.getMethodName(), call.getParameterClasses());
 				method.setAccessible(true);
 
 				final Object value = method.invoke((Object) instance, (Object[]) call.getParameters());
-				System.err.println("RPC debug. method "+method+" call "+call+" value" + value+" instance "+instance);
 				return (IOReadableWritable) value;
-
 			} catch (InvocationTargetException e) {
 				
 				final Throwable target = e.getTargetException();

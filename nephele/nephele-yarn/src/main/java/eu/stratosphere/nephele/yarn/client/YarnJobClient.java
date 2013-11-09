@@ -552,9 +552,7 @@ public class YarnJobClient implements JobClient{
 	 */
 	@Override
 	public JobSubmissionResult submitJob() throws IOException {
-		
 		synchronized (this.jobSubmitClient) {
-
 			return this.jobSubmitClient.submitJob(this.jobGraph);
 		}
 	}

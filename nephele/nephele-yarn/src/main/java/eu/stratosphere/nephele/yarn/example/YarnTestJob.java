@@ -78,6 +78,7 @@ public final class YarnTestJob {
 		// Create job client and launch job
 		final JobClient jobClient = new YarnJobClient(conf);
 		try {
+			jobClient.setJobGraph(jobGraph);
 			jobClient.submitJobAndWait();
 		} catch( Exception ex ) {			
 			System.out.println( StringUtils.stringifyException( ex ) );			

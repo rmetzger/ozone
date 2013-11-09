@@ -90,7 +90,7 @@ public class LocalScheduler extends AbstractScheduler implements JobStatusListen
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void schedulJob(final ExecutionGraph executionGraph) throws SchedulingException {
+	public void scheduleJob(final ExecutionGraph executionGraph) throws SchedulingException {
 
 		// Get Map of all available Instance types
 		final Map<InstanceType, InstanceTypeDescription> availableInstances = getInstanceManager()
