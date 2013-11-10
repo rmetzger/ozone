@@ -140,7 +140,7 @@ public class LocalInstanceManager implements InstanceManager {
 
 		this.instanceTypeDescriptionMap = new SerializableHashMap<InstanceType, InstanceTypeDescription>();
 
-		this.localTaskManagerThread = new LocalTaskManagerThread("Local Taskmanager IO Loop");
+		this.localTaskManagerThread = new LocalTaskManagerThread("Local Taskmanager IO Loop",1);
 		this.localTaskManagerThread.start();
 	}
 
@@ -297,7 +297,6 @@ public class LocalInstanceManager implements InstanceManager {
 	 * @return the default instance type used for the local machine
 	 */
 	public static final InstanceType createDefaultInstanceType() {
-
 		final HardwareDescription hardwareDescription = HardwareDescriptionFactory.extractFromSystem();
 
 		int diskCapacityInGB = 0;

@@ -29,6 +29,7 @@ public class LocalDistributedExecutor  {
 	private static int JOBMANAGER_RPC_PORT = 6498;
 	private boolean running = false;
 	
+	
 	public static class JobManagerThread extends Thread {
 		JobManager jm;
 		
@@ -74,7 +75,7 @@ public class LocalDistributedExecutor  {
 						ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT + tm + numTaskMgr);
 			tmConf.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT+tm); // taskmanager.data.port
 			GlobalConfiguration.includeConfiguration(tmConf);
-			LocalTaskManagerThread t = new LocalTaskManagerThread("LocalDistributedExecutor: LocalTaskManagerThread-#"+tm);
+			LocalTaskManagerThread t = new LocalTaskManagerThread("LocalDistributedExecutor: LocalTaskManagerThread-#"+tm,numTaskMgr);
 			t.start();
 			tms.add(t);
 		}
