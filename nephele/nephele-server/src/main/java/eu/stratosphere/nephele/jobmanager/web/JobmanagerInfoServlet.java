@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,6 +16,7 @@ import org.eclipse.jetty.io.EofException;
 
 import eu.stratosphere.nephele.event.job.RecentJobEvent;
 import eu.stratosphere.nephele.execution.ExecutionState;
+import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.jobgraph.JobStatus;
 import eu.stratosphere.nephele.jobmanager.JobManager;
 import eu.stratosphere.nephele.managementgraph.ManagementGraph;
@@ -52,7 +54,14 @@ public class JobmanagerInfoServlet extends HttpServlet {
 				}
 				else if("job".equals(req.getParameter("get"))) {
 					String jobId = req.getParameter("job");
-					writeJsonForArchivedJob(resp.getWriter(), jobmanager.getArchive().getJob(jobId));
+					writeJsonForArchivedJob(resp.getWriter(), jobmanager.getArchive().getJob(JobID.fromHexString(jobId)));
+				}
+				else if("taskmanagers".equals(req.getParameter("get"))) {
+					resp.getWriter().write("{\"taskmanagers\": " + jobmanager.getNumberOfTaskTrackers() +"}");
+				}
+				else if("cancel".equals(req.getParameter("get"))) {
+					String jobId = req.getParameter("job");
+					jobmanager.cancelJob(JobID.fromHexString(jobId));
 				}
 				else{
 					writeJsonForJobs(resp.getWriter(), jobmanager.getRecentJobs());
@@ -226,9 +235,9 @@ public class JobmanagerInfoServlet extends HttpServlet {
 				for(int j = 0; j < groupVertex.getNumberOfGroupMembers(); j++) {
 					ManagementVertex vertex = groupVertex.getGroupMember(j);
 					
-					long starting = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.STARTING);
-					if(starting != 0 && starting < started) {
-						started = starting;
+					long running = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.RUNNING);
+					if(running != 0 && running < started) {
+						started = running;
 					}
 					
 					long finished = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FINISHED);

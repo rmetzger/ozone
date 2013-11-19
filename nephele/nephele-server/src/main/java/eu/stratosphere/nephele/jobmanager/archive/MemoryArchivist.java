@@ -76,13 +76,16 @@ public class MemoryArchivist implements ArchiveListener {
 		return new ArrayList<RecentJobEvent>(oldJobs.values());
 	}
 	
-	public RecentJobEvent getJob(String JobId) {
+	public RecentJobEvent getJob(JobID jobId) {
 
+		/*
 		for(JobID id : oldJobs.keySet()) {
 			if(JobId.equals(id.toString()))
 				return oldJobs.get(id);
 		}
 		return null;
+		*/
+		return oldJobs.get(jobId);
 	}
 	
 	public ManagementGraph getManagementGraph(final JobID jobID) {

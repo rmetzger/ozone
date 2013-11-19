@@ -23,5 +23,5 @@ public interface ArchiveListener {
 	List<AbstractEvent> getEvents(JobID jobID);
 	long getTime(JobID jobID, JobStatus jobStatus);
 	long getVertexTime(JobID jobID, ManagementVertexID jobVertexID, ExecutionState executionState);
-	RecentJobEvent getJob(String JobId);
+	RecentJobEvent getJob(JobID JobId);
 }
