@@ -156,11 +156,11 @@ public class JobmanagerInfoServlet extends HttpServlet {
 			wrt.write("\"jobid\": \"" + jobEvent.getJobID() + "\",");
 			wrt.write("\"jobname\": \"" + jobEvent.getJobName()+"\",");
 			wrt.write("\"status\": \""+ jobEvent.getJobStatus() + "\",");
-			wrt.write("\"FINISHED\": \""+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.FINISHED) + "\",");
-			wrt.write("\"SCHEDULED\": \""+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.SCHEDULED) + "\",");
-			wrt.write("\"RUNNING\": \""+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.RUNNING) + "\",");
-			wrt.write("\"FAILED\": \""+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.FAILED) + "\",");
-			wrt.write("\"CANCELED\": \""+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.CANCELED) + "\",");
+			wrt.write("\"SCHEDULED\": "+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.SCHEDULED) + ",");
+			wrt.write("\"RUNNING\": "+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.RUNNING) + ",");
+			wrt.write("\"FINISHED\": "+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.FINISHED) + ",");
+			wrt.write("\"FAILED\": "+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.FAILED) + ",");
+			wrt.write("\"CANCELED\": "+ jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.CANCELED) + ",");
 			wrt.write("\"CREATED\": " + jobmanager.getArchive().getTime(jobEvent.getJobID(), JobStatus.CREATED)+",");
 			
 			// Serialize ManagementGraph to json
@@ -190,23 +190,71 @@ public class JobmanagerInfoServlet extends HttpServlet {
 					} else {
 						wrt.write(","); }
 					
-					wrt.write(vertex.getID()+": {");
+					wrt.write("\""+vertex.getID()+"\": {");
 					wrt.write("\"vertexid\": \"" + vertex.getID() + "\",");
 					wrt.write("\"vertexname\": \"" + vertex + "\",");
-					wrt.write("\"CREATED\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CREATED) + "\",");
-					wrt.write("\"SCHEDULED\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.SCHEDULED) + "\",");
-					wrt.write("\"SCHEDULED\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.ASSIGNED) + "\",");
-					wrt.write("\"READY\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.READY) + "\",");
-					wrt.write("\"STARTING\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.STARTING) + "\",");
-					wrt.write("\"RUNNING\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.RUNNING) + "\",");
-					wrt.write("\"FINISHING\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FINISHING) + "\",");
-					wrt.write("\"FINISHED\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FINISHED) + "\",");
-					wrt.write("\"CANCELING\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CANCELING) + "\",");
-					wrt.write("\"CANCELED\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CANCELED) + "\",");
-					wrt.write("\"FAILED\": \""+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FAILED) + "\"");
+					wrt.write("\"CREATED\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CREATED) + ",");
+					wrt.write("\"SCHEDULED\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.SCHEDULED) + ",");
+					wrt.write("\"ASSIGNED\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.ASSIGNED) + ",");
+					wrt.write("\"READY\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.READY) + ",");
+					wrt.write("\"STARTING\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.STARTING) + ",");
+					wrt.write("\"RUNNING\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.RUNNING) + ",");
+					wrt.write("\"FINISHING\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FINISHING) + ",");
+					wrt.write("\"FINISHED\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FINISHED) + ",");
+					wrt.write("\"CANCELING\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CANCELING) + ",");
+					wrt.write("\"CANCELED\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CANCELED) + ",");
+					wrt.write("\"FAILED\": "+ jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FAILED) + "");
 					wrt.write("}");
-					wrt.write(",");
 				}
+				
+			}
+			wrt.write("},");
+			
+			
+			wrt.write("\"groupverticetimes\": {");
+			first = true;
+			for(ManagementGroupVertex groupVertex : jobManagementGraph.getGroupVerticesInTopologicalOrder()) {
+				
+				if(first) {
+					first = false;
+				} else {
+					wrt.write(","); }
+				
+				long started = Long.MAX_VALUE;
+				long ended = 0;
+				
+				for(int j = 0; j < groupVertex.getNumberOfGroupMembers(); j++) {
+					ManagementVertex vertex = groupVertex.getGroupMember(j);
+					
+					long starting = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.STARTING);
+					if(starting != 0 && starting < started) {
+						started = starting;
+					}
+					
+					long finished = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FINISHED);
+					long canceled = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.CANCELED);
+					long failed = jobmanager.getArchive().getVertexTime(jobEvent.getJobID(), vertex.getID(), ExecutionState.FAILED);
+					
+					if(finished != 0 && finished > ended) {
+						ended = finished;
+					}
+					
+					if(canceled != 0 && canceled > ended) {
+						ended = canceled;
+					}
+					
+					if(failed != 0 && failed > ended) {
+						ended = failed;
+					}
+
+				}
+				
+				wrt.write("\""+groupVertex.getID()+"\": {");
+				wrt.write("\"groupvertexid\": \"" + groupVertex.getID() + "\",");
+				wrt.write("\"groupvertexname\": \"" + groupVertex + "\",");
+				wrt.write("\"STARTED\": "+ started + ",");
+				wrt.write("\"ENDED\": "+ ended);
+				wrt.write("}");
 				
 			}
 			wrt.write("}");

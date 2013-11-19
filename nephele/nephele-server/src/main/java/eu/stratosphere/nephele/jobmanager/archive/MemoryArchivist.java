@@ -20,6 +20,7 @@ import eu.stratosphere.nephele.jobgraph.JobID;
 import eu.stratosphere.nephele.jobgraph.JobStatus;
 import eu.stratosphere.nephele.jobgraph.JobVertexID;
 import eu.stratosphere.nephele.managementgraph.ManagementGraph;
+import eu.stratosphere.nephele.managementgraph.ManagementGroupVertex;
 import eu.stratosphere.nephele.managementgraph.ManagementGroupVertexID;
 import eu.stratosphere.nephele.managementgraph.ManagementVertexID;
 import eu.stratosphere.nephele.topology.NetworkTopology;
@@ -111,9 +112,8 @@ public class MemoryArchivist implements ArchiveListener {
 		for(AbstractEvent event : this.getEvents(jobID)) {
 			if(event instanceof ExecutionStateChangeEvent)
 			{
-				System.out.println("1  "+((ExecutionStateChangeEvent) event).getVertexID() + " "+((ExecutionStateChangeEvent) event).getNewExecutionState() +" "+event.getTimestamp());
-				System.out.println("2  "+jobVertexID + " "+executionState);
-				if(((ExecutionStateChangeEvent) event).getVertexID() == jobVertexID && ((ExecutionStateChangeEvent) event).getNewExecutionState() == executionState) {
+				if(((ExecutionStateChangeEvent) event).getVertexID().equals(jobVertexID) && ((ExecutionStateChangeEvent) event).getNewExecutionState().equals(executionState)) {
+					System.out.println("hit "+event.getTimestamp());
 					return event.getTimestamp();
 				}
 			}
