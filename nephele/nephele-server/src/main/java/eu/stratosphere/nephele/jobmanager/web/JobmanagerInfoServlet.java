@@ -2,6 +2,8 @@ package eu.stratosphere.nephele.jobmanager.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -127,6 +129,18 @@ public class JobmanagerInfoServlet extends HttpServlet {
 	private void writeJsonForArchive(PrintWriter wrt, List<RecentJobEvent> jobs) {
 		
 		wrt.write("[");
+		
+		// sort jobs by time
+		Collections.sort(jobs,  new Comparator<RecentJobEvent>() {
+			@Override
+			public int compare(RecentJobEvent o1, RecentJobEvent o2) {
+				if(o1.getTimestamp() > o2.getTimestamp())
+					return 1;
+				else
+					return -1;
+			}
+			
+		});
 		
 		// Loop Jobs
 		for (int i = 0; i < jobs.size(); i++) {

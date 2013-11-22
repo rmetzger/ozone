@@ -72,7 +72,7 @@
 		$(".cancel").live("click", function() {
 			var id = $(this).attr("job");
 			$.ajax({
-		        url: "/jobsInfo?get=cancel&job="+id,
+		        url: "/jobsInfo?get=cancel&job="id,
 		        type: "GET",
 		        success: function(json) {
 		        	

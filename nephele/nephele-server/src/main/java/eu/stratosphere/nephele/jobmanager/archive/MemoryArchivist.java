@@ -116,7 +116,6 @@ public class MemoryArchivist implements ArchiveListener {
 			if(event instanceof ExecutionStateChangeEvent)
 			{
 				if(((ExecutionStateChangeEvent) event).getVertexID().equals(jobVertexID) && ((ExecutionStateChangeEvent) event).getNewExecutionState().equals(executionState)) {
-					System.out.println("hit "+event.getTimestamp());
 					return event.getTimestamp();
 				}
 			}
