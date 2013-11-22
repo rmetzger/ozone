@@ -29,6 +29,7 @@ h1 img {
 
 h2
 {
+	float: left;
 	text-transform: uppercase;
 	color: #57697E;
 	font-size: 18px;
