@@ -7,6 +7,24 @@ body {
 	padding-top: 52px;
 }
 
+/*****************************************************************************/
+/* Overview
+/*****************************************************************************/
+
+.features {
+    color: #000;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
+    padding: 2ex 0 4ex 0;
+}
+
+.features h3 {
+	position: relative;
+}
+
+.features h3 span {
+	position: absolute;
+	left: 1.5em;
+}
 
 /*****************************************************************************/
 /* Teasers
@@ -35,10 +53,6 @@ body {
 .jumbotron-teaser .text {
 	position: absolute;
 	top: 30px;
-}
-
-.features {
-    color: #000;
 }
 
 .summit {
