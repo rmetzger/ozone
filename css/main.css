@@ -37,6 +37,40 @@ body {
 }
 
 /*****************************************************************************/
+/* Features Carousel 
+/*****************************************************************************/
+
+#features-carousel {
+	
+}
+
+#features-carousel .carousel-control.left,
+#features-carousel .carousel-control.right {
+	background-image: none;
+}
+
+#features-carousel .carousel-indicators li {
+  background-color: #999;
+  background-color: rgba(70,70,70,.25);
+}
+
+#features-carousel .carousel-indicators .active {
+  background-color: #444;
+}
+
+#features-carousel .carousel-caption {
+  text-shadow: none;
+}
+
+#features-carousel .carousel-control .glyphicon {
+	color: #2D2D2D;
+}
+
+#features-carousel .item {
+	height: 40ex;
+}
+
+/*****************************************************************************/
 /* Teasers
 /*****************************************************************************/
 

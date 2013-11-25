@@ -22,6 +22,10 @@ $( document ).ready(function() {
     });
   });
 
+  $("features-carousel").carousel({
+    "interval": 0 //15000
+  });
+  
 });
 </script>
 
@@ -75,37 +79,157 @@ $( document ).ready(function() {
 </div>
 </div> <!-- features -->
 
-<div class="container features-detail" style="padding-top:40px;padding-bottom:40px;">
-  <div class="row">
-    <div class="col-md-12">
-      <h3>Beyond MapReduce</h3>
+<div id="features-carousel" class="carousel slide" data-ride="carousel">
+  <div class="container features-detail" style="margin-top: 4ex;">
+    <!-- Indicators -->
+    <ol class="carousel-indicators">
+      <li data-target="#features-carousel" data-slide-to="0" class="active"></li>
+      <li data-target="#features-carousel" data-slide-to="1"></li>
+      <li data-target="#features-carousel" data-slide-to="2"></li>
+      <li data-target="#features-carousel" data-slide-to="3"></li>
+      <li data-target="#features-carousel" data-slide-to="4"></li>
+      <li data-target="#features-carousel" data-slide-to="5"></li>
+    </ol>
+  
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner">
+      <div class="item active">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Beyond MapReduce</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              Stratosphere extends the MapReduce programming model with <em>additonal operators</em> such as <em>Join</em>, <em>Cross</em> and <em>CoGroup</em> that are a natural fit for a lot of common data analysis tasks.
+            </p>
+          </div>
+          <div class="col-md-6">
+            <img src="/img/Stratosphere_Operators_extended.svg" onerror="this.onerror=null; this.src='/img/Stratosphere_Operators_extended.svg'" class="img-rounded img-responsive">
+          </div>
+        </div>
+      </div>
+  
+      <div class="item">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Advanced Data Flows</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              Hadoop MapReduce supports only one data flow type: a map followed by a reduce, forcing users to
+              <a id="see-how-hadoop-link">chain jobs</a>
+              . Data flows in Stratosphere are <em>graphs</em> where data can be <em>pipelined</em> between operators. This reduces disk and network I/O and leads to substantial performance improvements.
+            </p>
+          </div>
+          <div class="col-md-6">
+            <img src="/img/Stratosphere_DAG.svg" onerror="this.onerror=null; this.src='/img/Stratosphere_DAG.svg'" class="img-rounded img-responsive">
+          </div>
+        </div>
+      </div>
+  
+      <div class="item">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Powerful APIs</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              You can write parallel, distributed applications on Stratosphere with <a href="{{ site.baseurl }}/quickstart/java.html">Java</a> or <a href="{{ site.baseurl }}/quickstart/scala.html">Scala</a>. 
+              The Java API is a more powerful variant of Hadoop MapReduce.
+              Scala's built-in functional programming features enable more compact and intuitive way of programming. 
+              <!-- 
+              Scala is a functional object-oriented programming language that is very efficient for both programming and execution. 
+              Scala programs are much more compact than their Java counterparts.
+              -->
+            </p>
+          </div>
+          <div class="col-md-6">
+  {% highlight scala %}
+  val input  = TextFile(textInput)
+  val words  = input flatMap { line => line.split(" ") }
+  val counts = words groupBy { word => word } count()
+  val output = counts write(wordsOutput, CsvOutputFormat())
+  val plan   = new ScalaPlan(output)
+  {% endhighlight %}
+            <p class="text-center"><em>Word count</em> in Stratosphere using the Scala API</p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="item">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Iterations Out of the Box</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              Data Mining, Machine Learning and Graph Processing algorithms often require multiple passes over the data.
+              Iterative algorithms with Hadoop are <a class="text-small" id="see-how-hadoop-iterations-link">implemented with the help of an external driver</a>
+              Stratosphere is <em>the only runtime</em> with native support for iterations.
+            </p>
+          </div>
+          <div class="col-md-6">
+            <img src="{{ site.baseurl }}/img/Stratosphere_Iteration.svg" onerror="this.onerror=null; this.src='{{ site.baseurl }}/img/Stratosphere_Iteration.svg'" class="img-rounded img-responsive">
+          </div>
+        </div>
+      </div>
+  
+      <div class="item">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Buili-In Optimizer</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              Stratosphere's built-in optimizer will automatically choose the right operator implementations and data shipping strategies before running your program,
+              allowing you to focus on application logic rather than on the technical details of an efficient, distributed execution.
+            </p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="item">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>System Stack</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              Stratosphere <em>integrates seamlessly</em> into existing Hadoop setups<!--  and runs side-by-side with Hadoop's TaskTracker and DataNodes -->. 
+              Developers can use the <em>local execution mode</em> to debug and analyze application code directly from their favorite IDE, without having Stratosphere installed.
+            </p>
+          </div>
+          <div class="col-md-6">
+            <img src="{{ site.baseurl }}/img/Stratosphere_Stack.svg" onerror="this.onerror=null; this.src='{{ site.baseurl }}/img/Stratosphere_Stack.svg'" class="img-rounded img-responsive">
+          </div>
+        </div>
+      </div>
+  
     </div>
-    <div class="col-md-6">
-      <p>Stratosphere extends the MapReduce programming model with <em>additonal operators</em> such as <em>Join</em>, <em>Cross</em> and <em>CoGroup</em> that are a natural fit for a lot of common data analysis tasks.</p>
-    </div>
-    <div class="col-md-6">
-        <img src="{{ site.baseurl }}/img/Stratosphere_Operators_extended.svg" onerror="this.onerror=null; this.src='{{ site.baseurl }}/img/Stratosphere_Operators_extended.svg'" class="img-rounded img-responsive">
-    </div>
+  
+    <!-- Controls -->
+    <a class="left carousel-control" href="#features-carousel" data-slide="prev">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </a>
+    <a class="right carousel-control" href="#features-carousel" data-slide="next">
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
   </div>
+</div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <h3>Advanced Data Flows</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-        <p>
-          Hadoop MapReduce supports only one data flow type: a map followed by a reduce, forcing users to <a id="see-how-hadoop-link">chain jobs</a>. 
-          Data flows in Stratosphere are <em>graphs</em> where data can be <em>pipelined</em> between operators. 
-          This reduces disk and network I/O and leads to substantial performance improvements.
-        </p>
-    </div>
-    <div class="col-md-6">
-      <img src="{{ site.baseurl }}/img/Stratosphere_DAG.svg" onerror="this.onerror=null; this.src='{{ site.baseurl }}/img/Stratosphere_DAG.svg'" class="img-rounded img-responsive">
-    </div>
-  </div>
-
+<div class="container features-detail">
   <div class="row" id="see-how-hadoop">
     <div class="col-md-12 bs-callout-info bs-callout">
       <h4>Complex Data Flows in Hadoop</h4>
@@ -113,53 +237,6 @@ $( document ).ready(function() {
       <p>Executing the plan shown on the left using MapReduce leads to a composition of multiple MapReduce jobs. Intermediate results are stored in HDFS after each job. This causes <b>a lot of network and disk I/O</b>. Remember also that a MapReduce job spends around 30 seconds just for job setup.
       This example shows that most real world applications do not fit the MapReduce model. The implementation of complex data flows using MapReduce is very time-consuming.</p>
       <p>Stratosphere is able to natively execute the job. Everything is processed in-memory. Only if the data does not fit into the memory anymore, it starts using the local hard disks.</p>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <h3>Powerful APIs</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <p>
-        You can write parallel, distributed applications on Stratosphere with <a href="{{ site.baseurl }}/quickstart/java.html">Java</a> or <a href="{{ site.baseurl }}/quickstart/scala.html">Scala</a>. 
-        The Java API is a more powerful variant of Hadoop MapReduce.
-        Scala's built-in functional programming features enable more compact and intuitive way of programming. 
-        <!-- 
-        Scala is a functional object-oriented programming language that is very efficient for both programming and execution. 
-        Scala programs are much more compact than their Java counterparts.
-        -->
-      </p>
-    </div>
-    <div class="col-md-6">
-{% highlight scala %}
-val input  = TextFile(textInput)
-val words  = input flatMap { line => line.split(" ") }
-val counts = words groupBy { word => word } count()
-val output = counts write(wordsOutput, CsvOutputFormat())
-val plan   = new ScalaPlan(output)
-{% endhighlight %}
-      <p class="text-center"><em>Word count</em> in Stratosphere using the Scala API</p>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-        <h3>Iterations Out of the Box</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-        <p>
-          Data Mining, Machine Learning and Graph Processing algorithms often require multiple passes over the data.
-          Iterative algorithms with Hadoop are <a class="text-small" id="see-how-hadoop-iterations-link">implemented with the help of an external driver</a>
-          Stratosphere is <em>the only runtime</em> with native support for iterations.
-        </p>
-    </div>
-    <div class="col-md-6">
-      <img src="{{ site.baseurl }}/img/Stratosphere_Iteration.svg" onerror="this.onerror=null; this.src='{{ site.baseurl }}/img/Stratosphere_Iteration.svg'" class="img-rounded img-responsive">
     </div>
   </div>
 
@@ -175,55 +252,6 @@ val plan   = new ScalaPlan(output)
         <li>Very time consuming to implement</li>
       </ul>
       <p>Stratosphere <b>natively executes iterative algorithms</b>. The result of the last operator is fed back to the input of the first operator (in-memory). It is not required to start a new job on each iteration. Stratosphere detects which parts of the data need processing for further iterations. Only those are loaded.</p>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <h3>Buili-In Optimizer</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <p>
-        Stratosphere's built-in optimizer will automatically choose the right operator implementations and data shipping strategies before running your program,
-      <!-- 
-      </p>
-      <ul style="padding-top:0;margin-top:0">
-        <li>Cost-based choice of higher-order operator implementations and data shipping strategies.</li>
-        <li>Reducing network and disk I/O.</li>
-        <li>In-memory pipelining of operators.</li>
-        <li>Global memory distribution.</li>
-        <li>Input sampling for cardinality estimation.</li>
-      </ul>
-      <p>
-      -->
-        allowing you to focus on application logic rather than on the technical details of an efficient, distributed execution.
-      </p>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <h3>System Stack</h3>
-    </div>
-    <div class="col-md-6">
-      <p>
-        Stratosphere <em>integrates seamlessly</em> into existing Hadoop setups<!--  and runs side-by-side with Hadoop's TaskTracker and DataNodes -->. 
-        <!-- Stratosphere is not another system that runs on top of MapReduce - we have our own runtime!  --> 
-        <!-- Similar to Hadoop, Stratosphere scales by adding more machines to the cluster. -->
-      <!-- 
-      </p>
-      <p>
-        Support for Hadoop 2.2 (<em>YARN</em>) is currently under development, so you can run Stratosphere without changing your infrastructure.
-      </p> 
-      <p>
-      -->
-        Developers can use the <em>local execution mode</em> to debug and analyze application code directly from their favorite IDE, without having Stratosphere installed.
-      </p>
-    </div>
-    <div class="col-md-6">
-      <img src="{{ site.baseurl }}/img/Stratosphere_Stack.svg" onerror="this.onerror=null; this.src='{{ site.baseurl }}/img/Stratosphere_Stack.svg'" class="img-rounded img-responsive">
     </div>
   </div>
 
