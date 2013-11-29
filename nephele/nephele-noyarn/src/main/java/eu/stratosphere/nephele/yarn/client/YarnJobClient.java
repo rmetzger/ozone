@@ -19,7 +19,7 @@ import eu.stratosphere.nephele.jobgraph.JobGraph;
  */
 public class YarnJobClient implements JobClient {
 
-	public YarnJobClient(final JobGraph jobGraph, final Configuration configuration) throws InterruptedException{
+	public YarnJobClient(final Configuration configuration) throws InterruptedException{
 		throw new NonYarnPackageException();
 	}
 	@Override
