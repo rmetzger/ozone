@@ -500,6 +500,15 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		// Create a new job manager object
 		JobManager jobManager = new JobManager(executionMode);
 
+		// Set base dir for info server
+		Configuration infoserverConfig = GlobalConfiguration.getConfiguration();
+		if (configDir != null) {
+		   infoserverConfig.setString(ConfigConstants.STRATOSPHERE_BASE_DIR_PATH_KEY, configDir+"/..");
+		}
+		    
+		// Start info server for jobmanager
+		jobManager.startInfoServer(infoserverConfig);
+		 
 		// Run the main task loop
 		jobManager.runTaskLoop();
 
