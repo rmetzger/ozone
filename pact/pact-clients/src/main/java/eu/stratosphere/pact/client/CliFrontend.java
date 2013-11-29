@@ -36,6 +36,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
@@ -711,6 +715,16 @@ public class CliFrontend {
 		// check verbosity flag
 		this.verbose = line.hasOption(VERBOSE_OPTION.getOpt());
 		
+		// verbose logging.
+		if (this.verbose && System.getProperty("log4j.configuration") == null) {
+			Logger root = Logger.getRootLogger();
+			root.removeAllAppenders();
+			PatternLayout layout = new PatternLayout("%d{HH:mm:ss,SSS} %-5p %-60c %x - %m%n");
+			ConsoleAppender appender = new ConsoleAppender(layout, "System.err");
+			root.addAppender(appender);
+			root.setLevel(Level.DEBUG);
+		}
+		
 		return line.getArgs();
 	}
 	
@@ -758,7 +772,6 @@ public class CliFrontend {
 	 * Submits the job based on the arguments
 	 */
 	public static void main(String[] args) throws ParseException {
-		System.err.println("CP: "+System.getProperty("java.class.path"));
 		CliFrontend cli = new CliFrontend();
 		cli.parseParameters(args);
 		

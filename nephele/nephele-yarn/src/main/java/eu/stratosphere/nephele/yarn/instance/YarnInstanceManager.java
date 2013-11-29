@@ -396,12 +396,24 @@ public final class YarnInstanceManager implements InstanceManager {
 			LOG.info("Request for "+instanceRequestMap.size()+" intances ignored, "+allocatedContainerMap.size() +" instances"
 					+ " available");
 			AllocatedContainerList first = allocatedContainerMap.get(JobManager.YARN_EARLY_CONTAINER_JOB_ID);
+			
 			allocatedContainerMap.remove(JobManager.YARN_EARLY_CONTAINER_JOB_ID);
 			allocatedContainerMap.put(jobID, first);
 			System.err.println("replaced jobid of first container");
+			
+			if(first.getAllInstances().size() != 1) {
+				throw new RuntimeException("Expect exactly one instance here");
+			}
+			final YarnInstance instance = first.getAllInstances().iterator().next();
+		
+			// Notify the scheduler about the new instance. (with the correct jobID)
+			final List<AllocatedResource> allocatedResources = new ArrayList<AllocatedResource>(1);
+			allocatedResources.add(instance.getAllocatedResource());
+			new YarnInstanceNotifier(this.instanceListener, jobID, allocatedResources).start();
+				
 			return;
 		}
-		System.err.println("Pending requests "+pendingContainerMap.size());
+		LOG.info("Pending requests "+pendingContainerMap.size());
 				
 		// -----------------------------------------------------
 		// Determine Containers Request.
@@ -432,7 +444,7 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	synchronized void bootstrapContainer(final JobID jobID, final Container container, final InstanceType instanceType) {
-		LOG.info("Bootstrap containers:");
+		LOG.info("Bootstrap containers: (container: "+container.getId().toString()+" jobId: "+jobID+")");
 		this.containerToJobIDMap.put(container.getId().toString(), jobID);
 		PendingContainerList pendingContainerList = this.pendingContainerMap.get(jobID);
 		if (pendingContainerList == null) {
@@ -464,7 +476,11 @@ public final class YarnInstanceManager implements InstanceManager {
 	}
 
 	synchronized void releaseContainer(final ContainerId containerID) {
-		LOG.info("Releasing container " + containerID.toString());
+		LOG.info("Releasing container " + containerID.toString()+" \n Trace:");
+		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+		for(int i = 0 ; i < stackTraceElements.length; i++) {
+			LOG.info("\t"+stackTraceElements[i]);
+		}
 		final List<ContainerId> containerIDs = new ArrayList<ContainerId>(1);
 		containerIDs.add(containerID);
 		releaseContainers(containerIDs);
@@ -551,14 +567,18 @@ public final class YarnInstanceManager implements InstanceManager {
 			LOG.error("Unable to determine job for container ID " + taskManagerID);
 			return;
 		}
-
+		
+		LOG.debug("allocatedContainerMap size "+allocatedContainerMap.size()+" query with jobID="+jobID );
 		// Update time stamp of heartbeat if we now the instance already
 		AllocatedContainerList allocatedContainerList = this.allocatedContainerMap.get(jobID);
 		if (allocatedContainerList != null) {
+			LOG.debug("found container list. taskManagerId "+taskManagerID );
 			final YarnInstance yarnInstance = allocatedContainerList.getInstanceByContainerID(taskManagerID);
 			if (yarnInstance != null) {
 				yarnInstance.updateHeartbeatTimestamp();
 				return;
+			} else {
+				LOG.debug("yarnInstance was null.");
 			}
 		}
 
@@ -601,17 +621,20 @@ public final class YarnInstanceManager implements InstanceManager {
 		LOG.info("Creating new instance for container " + taskManagerID + ", " + instanceConnectionInfo);
 
 		if (allocatedContainerList == null) {
+			LOG.debug("Creating new allocatedContainerMap. Adding JobID="+jobID );
 			allocatedContainerList = new AllocatedContainerList();
 			this.allocatedContainerMap.put(jobID, allocatedContainerList);
 		}
-
 		final YarnInstance instance = allocatedContainerList.createAndAddNewInstance(container, instanceConnectionInfo,
-			hardwareDescription, instanceType);
-
-		// Notify the scheduler about the new instance.
-		final List<AllocatedResource> allocatedResources = new ArrayList<AllocatedResource>(1);
-		allocatedResources.add(instance.getAllocatedResource());
-		new YarnInstanceNotifier(this.instanceListener, jobID, allocatedResources).start();
+				hardwareDescription, instanceType);
+		
+		// only notify scheduler with the valid jobID.
+		if(jobID != JobManager.YARN_EARLY_CONTAINER_JOB_ID) {
+			// Notify the scheduler about the new instance.
+			final List<AllocatedResource> allocatedResources = new ArrayList<AllocatedResource>(1);
+			allocatedResources.add(instance.getAllocatedResource());
+			new YarnInstanceNotifier(this.instanceListener, jobID, allocatedResources).start();
+		}
 	}
 
 	@Override
@@ -693,7 +716,7 @@ public final class YarnInstanceManager implements InstanceManager {
 //		map.put(instanceType, InstanceTypeDescriptionFactory.construct(instanceType, smallest, instances.size()));
 //		return map;
 		
-		new Throwable().getStackTrace();
+		// new Throwable().getStackTrace();
 		
 		System.err.println("Allocated container map size "+allocatedContainerMap.size());
 		if(allocatedContainerMap.size() == 1) {
@@ -701,37 +724,46 @@ public final class YarnInstanceManager implements InstanceManager {
 			Entry<JobID, AllocatedContainerList> entry = allocatedContainerMap.entrySet().iterator().next();
 			Collection<YarnInstance> instances = entry.getValue().getAllInstances();
 			System.err.println("inst coll "+instances+" size "+instances.size());
+			for(YarnInstance inst : instances) {
+				map.put(inst.getType(), InstanceTypeDescriptionFactory.construct(inst.getType(), 
+						inst.getHardwareDescription(), instances.size()));
+				break; // only get the first instance (assuming all are the same).
+			}
+		} else {
+			LOG.warn("Can not return available instance types since not container is registered yet");
+			//throw new RuntimeException("Yarn instance manager currently expects only one running job");
 		}
-		
-		final AllocateRequest request = Records.newRecord(AllocateRequest.class);
-		request.setApplicationAttemptId(this.containerId.getApplicationAttemptId());
-		request.setResponseId(generateRequestID());
-
-		final AllocateResponse response;
-		try {
-			response = this.resourceManager.allocate(request);
-		} catch (YarnRemoteException e) {
-			LOG.error(StringUtils.stringifyException(e));
-			// Return the map in the current state
-			return map;
-		}
-
-		final Resource ar = response.getAMResponse().getAvailableResources();
-		LOG.info("Available resources are " + ar.getVirtualCores() + " CPU cores and " + ar.getMemory()
-			+ " MB of memory");
-
-		final Iterator<InstanceType> it = this.availableInstanceTypes.values().iterator();
-		
-		while (it.hasNext()) {
-			final InstanceType instanceType = it.next();
-
-			// TODO: Also include CPU here
-			final int numberOfAvailableInstances = ar.getMemory() / instanceType.getMemorySize(); //FIXME
-			map.put(instanceType, InstanceTypeDescriptionFactory.construct(instanceType, 
-					constructHardwareDescription(instanceType), numberOfAvailableInstances));
-		}
-
 		return map;
+		
+//		final AllocateRequest request = Records.newRecord(AllocateRequest.class);
+//		request.setApplicationAttemptId(this.containerId.getApplicationAttemptId());
+//		request.setResponseId(generateRequestID());
+//
+//		final AllocateResponse response;
+//		try {
+//			response = this.resourceManager.allocate(request);
+//		} catch (YarnRemoteException e) {
+//			LOG.error(StringUtils.stringifyException(e));
+//			// Return the map in the current state
+//			return map;
+//		}
+//
+//		final Resource ar = response.getAMResponse().getAvailableResources();
+//		LOG.info("Available resources are " + ar.getVirtualCores() + " CPU cores and " + ar.getMemory()
+//			+ " MB of memory");
+//
+//		final Iterator<InstanceType> it = this.availableInstanceTypes.values().iterator();
+//		
+//		while (it.hasNext()) {
+//			final InstanceType instanceType = it.next();
+//
+//			// TODO: Also include CPU here
+//			final int numberOfAvailableInstances = ar.getMemory() / instanceType.getMemorySize(); //FIXME
+//			map.put(instanceType, InstanceTypeDescriptionFactory.construct(instanceType, 
+//					constructHardwareDescription(instanceType), numberOfAvailableInstances));
+//		}
+
+		
 	}
 
 	@Override
@@ -847,7 +879,7 @@ public final class YarnInstanceManager implements InstanceManager {
 		return Collections.unmodifiableMap(instanceTypes);
 	}
 
-	private static InstanceType constructInstanceType(final int numberOfCPUCores, final int sizeOfMemory) {
+	public static InstanceType constructInstanceType(final int numberOfCPUCores, final int sizeOfMemory) {
 		final String identifier = "yarn_" + numberOfCPUCores + "_" + sizeOfMemory;
 		final int diskCapacity = 100; // TODO: Find something smarter here
 		final int pricePerHour = numberOfCPUCores; // TODO: Find something smarter here
@@ -875,5 +907,18 @@ public final class YarnInstanceManager implements InstanceManager {
 			}
 		}
 		return smallestInstanceType;
+	}
+
+	@Override
+	public int getNumberOfTaskTrackers() {
+		if(allocatedContainerMap.size() > 1) {
+			throw new RuntimeException("(Parallel running Jobs with Yarn not tested yet!)");
+		}
+		if(allocatedContainerMap.size() == 0 && !allocatedContainerMap.values().iterator().hasNext()) {
+			return 0;
+		}
+		
+		AllocatedContainerList cntList = allocatedContainerMap.values().iterator().next();
+		return cntList.getAllInstances().size();
 	}
 }

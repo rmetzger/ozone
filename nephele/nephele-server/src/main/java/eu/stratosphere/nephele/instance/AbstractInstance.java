@@ -40,7 +40,6 @@ import eu.stratosphere.nephele.topology.NetworkTopology;
 /**
  * An abstract instance represents a resource a {@link eu.stratosphere.nephele.taskmanager.TaskManager} runs on.
  * 
- * @author warneke
  */
 public abstract class AbstractInstance extends NetworkNode {
 

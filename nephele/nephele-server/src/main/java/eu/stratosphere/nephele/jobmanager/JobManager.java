@@ -33,15 +33,17 @@
 
 package eu.stratosphere.nephele.jobmanager;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,6 +61,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import eu.stratosphere.nephele.client.AbstractJobResult;
 import eu.stratosphere.nephele.client.AbstractJobResult.ReturnCode;
@@ -69,8 +75,6 @@ import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.deployment.TaskDeploymentDescriptor;
-import eu.stratosphere.nephele.discovery.DiscoveryException;
-import eu.stratosphere.nephele.discovery.DiscoveryService;
 import eu.stratosphere.nephele.event.job.AbstractEvent;
 import eu.stratosphere.nephele.event.job.RecentJobEvent;
 import eu.stratosphere.nephele.execution.ExecutionState;
@@ -92,8 +96,8 @@ import eu.stratosphere.nephele.instance.InstanceManager;
 import eu.stratosphere.nephele.instance.InstanceRequestMap;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.instance.InstanceTypeDescription;
+import eu.stratosphere.nephele.instance.InstanceTypeFactory;
 import eu.stratosphere.nephele.instance.local.LocalInstanceManager;
-import eu.stratosphere.nephele.io.IOReadableWritable;
 import eu.stratosphere.nephele.io.channels.ChannelID;
 import eu.stratosphere.nephele.ipc.RPC;
 import eu.stratosphere.nephele.ipc.Server;
@@ -104,11 +108,11 @@ import eu.stratosphere.nephele.jobmanager.scheduler.AbstractScheduler;
 import eu.stratosphere.nephele.jobmanager.scheduler.SchedulingException;
 import eu.stratosphere.nephele.jobmanager.splitassigner.InputSplitManager;
 import eu.stratosphere.nephele.jobmanager.splitassigner.InputSplitWrapper;
+import eu.stratosphere.nephele.jobmanager.web.WebInfoServer;
 import eu.stratosphere.nephele.managementgraph.ManagementGraph;
 import eu.stratosphere.nephele.managementgraph.ManagementVertexID;
 import eu.stratosphere.nephele.multicast.MulticastManager;
 import eu.stratosphere.nephele.profiling.JobManagerProfiler;
-import eu.stratosphere.nephele.profiling.ProfilingListener;
 import eu.stratosphere.nephele.profiling.ProfilingUtils;
 import eu.stratosphere.nephele.protocols.ChannelLookupProtocol;
 import eu.stratosphere.nephele.protocols.ExtendedManagementProtocol;
@@ -173,6 +177,8 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	public static int jobManagerIPCPort = -1; 
 	
 	private final ExecutionMode executionMode;
+	
+	private WebInfoServer server;
 	
 	/**
 	 * The internal jobId for the container that is being allocated by the JobManager to determine
@@ -295,10 +301,18 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			
 			try {
 				System.err.println("requesting instance");
+				
+				instanceRequestMap.setMinimumNumberOfInstances(this.instanceManager.getDefaultInstanceType(), 1);
+				instanceRequestMap.setMaximumNumberOfInstances(this.instanceManager.getDefaultInstanceType(), 1);
 				// affinityList is null (not implemented anyways), configuration null (not used in the yarn case)
 				this.instanceManager.requestInstance(YARN_EARLY_CONTAINER_JOB_ID, null, instanceRequestMap, null);
 				
-				// TODO: WAIT UNTIL one TM came up!
+				System.err.println("Requested Yarn container. TaskTrackers: "+this.getNumberOfTaskTrackers());
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				// then, change the piece where the compiler gets the information about available memory
 			} catch (InstanceException e) {
 				throw new RuntimeException("Yarn Failed to allocate the first instance",e);

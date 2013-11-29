@@ -19,8 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +50,6 @@ import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.deployment.TaskDeploymentDescriptor;
-import eu.stratosphere.nephele.discovery.DiscoveryException;
-import eu.stratosphere.nephele.discovery.DiscoveryService;
 import eu.stratosphere.nephele.execution.Environment;
 import eu.stratosphere.nephele.execution.ExecutionState;
 import eu.stratosphere.nephele.execution.RuntimeEnvironment;
@@ -142,14 +144,6 @@ public class TaskManager implements TaskOperationProtocol {
 	 * The flag indicates if the TaskManager is bootstrapped in YARN mode.
 	 */
 	private Boolean isYarnMode = false;
-	/**
-	 * Constructs a new task manager, starts its IPC service and attempts to discover the job manager to
-	 * receive an initial configuration. All parameters are obtained from the 
-	 * {@link GlobalConfiguration}, which must be loaded prior to instantiating the task manager.
-	 */
-	public TaskManager() throws Exception {
-		this(null);
-	}
 	
 	/**
 	 * Constructs a new task manager, starts its IPC service and attempts to discover the job manager to
@@ -169,7 +163,7 @@ public class TaskManager implements TaskOperationProtocol {
 		LOG.info("Determined address of job manager to be " + jobManagerAddress);
 
 		// Determine interface address that is announced to the job manager
-		final int ipcPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
+		int ipcPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY,
 			ConfigConstants.DEFAULT_TASK_MANAGER_IPC_PORT);
 		final int dataPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY,
 			ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT);
@@ -213,7 +207,7 @@ public class TaskManager implements TaskOperationProtocol {
 		this.lookupService = lookupService;
 
 		// Start local RPC server		
-		int ipcPort = -1;
+		// int ipcPort = -1;
 		if(isYarnMode) {
 			ipcPort = findFreePort();
 			// write ipc-port to err-log, only for debugging purposes.
@@ -233,15 +227,6 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 		this.taskManagerServer = taskManagerServer;
 
-		int dataPort = -1; 
-		if( isYarnMode ) {
-			dataPort = findFreePort();
-			// write data-port to err-log, only for debugging purposes.
-			System.err.println( "taskmanager dataport = " + dataPort );			
-		} else {
-			dataPort = GlobalConfiguration.getInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY,
-					ConfigConstants.DEFAULT_TASK_MANAGER_DATA_PORT);		
-		}
 
 		this.localInstanceConnectionInfo = new InstanceConnectionInfo(taskManagerAddress, ipcPort, dataPort);		
 		LOG.info("Announcing connection information " + this.localInstanceConnectionInfo + " to job manager");	
@@ -534,7 +519,6 @@ public class TaskManager implements TaskOperationProtocol {
 
 			// Send heartbeat
 			try {
-				
 				this.jobManager.sendHeartbeat(this.localInstanceConnectionInfo, this.hardwareDescription,
 						new StringRecord( taskManagerID ) );
 			} catch (IOException e) {

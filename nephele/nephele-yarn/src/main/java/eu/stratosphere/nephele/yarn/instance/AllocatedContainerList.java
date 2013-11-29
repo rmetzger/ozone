@@ -89,6 +89,7 @@ final class AllocatedContainerList {
 
 		return instance;
 	}
+	
 	public Collection<YarnInstance> getAllInstances() {
 		if(instancesByAllocationID.size() != instancesByContainerID.size()) {
 			throw new IllegalStateException("Instance maps are not consistent");

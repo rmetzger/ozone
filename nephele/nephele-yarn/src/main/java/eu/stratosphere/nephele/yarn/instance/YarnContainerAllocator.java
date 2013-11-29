@@ -107,11 +107,13 @@ final class YarnContainerAllocator extends Thread {
 
 		int totalNumberOfContainersToRequest = 0;
 
-		LOG.info("instance allocation:");
+		LOG.info("instance allocation: (reqMap size "+this.instanceRequestMap.size()+")");
 
 		for (final Iterator<Map.Entry<InstanceType, Integer>> it = this.instanceRequestMap.getMaximumIterator(); it
 			.hasNext();) {
 
+			LOG.info("request loop");
+			
 			final Map.Entry<InstanceType, Integer> entry = it.next();
 			final InstanceType instanceType = entry.getKey();
 			final int numberOfInstances = entry.getValue().intValue();
@@ -143,6 +145,8 @@ final class YarnContainerAllocator extends Thread {
 			LOG.info("instance type: " + instanceType + " | " + "instance quantity: " + numberOfInstances);
 		}
 
+		LOG.info("after loop");
+		
 		// Construct an AllocateRequest and deliver it to the resource manager.
 		final AllocateRequest allocationRequest = Records.newRecord(AllocateRequest.class);
 		allocationRequest.setResponseId(this.requestID);
@@ -155,6 +159,7 @@ final class YarnContainerAllocator extends Thread {
 		
 		try {
 			while (allocatedContainers < totalNumberOfContainersToRequest) {
+				LOG.info("while loop");
 				try {
 					Thread.sleep(POLLING_INTERVAL);
 				} catch (InterruptedException e) { }
@@ -206,6 +211,7 @@ final class YarnContainerAllocator extends Thread {
 
 					// Fit received container to InstanceType.
 					InstanceType fittedInstanceType = null;
+					
 					for (InstanceType it : pendingContainers.keySet()) {
 						if (it.getMemorySize() == newContainer.getResource().getMemory()) {
 							// ignoring the CPU here, this information is irrelevant anyways.
@@ -214,7 +220,10 @@ final class YarnContainerAllocator extends Thread {
 							break;
 						}
 					}
-
+					if(fittedInstanceType == null && pendingContainers.size() == 1) {
+						LOG.warn("Unable to fit new container requested (pending) containers. using fallback");
+						fittedInstanceType = pendingContainers.keySet().iterator().next();
+					}
 					if (fittedInstanceType == null) {
 						// If no instance type fits to the allocated container, we abort.
 						this.instanceManager.releaseContainer(newContainer.getId());

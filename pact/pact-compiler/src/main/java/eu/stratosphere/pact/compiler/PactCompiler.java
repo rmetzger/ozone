@@ -1572,7 +1572,6 @@ public class PactCompiler {
 				t.getMessage(), t);
 		}
 
-		// determine which type to run on
 		return getType(instances);
 	}
 	
@@ -1639,7 +1638,7 @@ public class PactCompiler {
 	 */
 	private static final class JobManagerConnector implements Runnable {
 		
-		private static final long MAX_MILLIS_TO_WAIT = 10000;
+		private static final long MAX_MILLIS_TO_WAIT = 100000;
 		
 		private final InetSocketAddress jobManagerAddress;
 		
@@ -1694,10 +1693,16 @@ public class PactCompiler {
 			try {
 				jobManagerConnection = RPC.getProxy(ExtendedManagementProtocol.class,
 					this.jobManagerAddress, NetUtils.getSocketFactory());
-
-				this.instances = jobManagerConnection.getMapOfAvailableInstanceTypes();
-				if (this.instances == null) {
-					throw new IOException("Returned instance map was <null>");
+				while(true) {
+					this.instances = jobManagerConnection.getMapOfAvailableInstanceTypes();
+					if (this.instances == null) {
+						throw new IOException("Returned instance map was <null>");
+					}
+					Thread.sleep(500);
+					System.err.println("PactCompiler connected to JobManager. Now, wait for instance availabiltiy.");
+					if(this.instances.size() > 0) {
+						break;
+					}
 				}
 			} catch (Throwable t) {
 				this.error = t;

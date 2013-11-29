@@ -25,7 +25,6 @@ import eu.stratosphere.nephele.instance.InstanceConnectionInfo;
 import eu.stratosphere.nephele.instance.InstanceType;
 import eu.stratosphere.nephele.topology.NetworkNode;
 import eu.stratosphere.nephele.topology.NetworkTopology;
-//import eu.stratosphere.nephele.rpc.RPCService;
 
 /**
  * Nephele representation of a YARN container. A YARN instance represents exactly one YARN container. Moreover, since
@@ -34,7 +33,6 @@ import eu.stratosphere.nephele.topology.NetworkTopology;
  * <p>
  * This class is thread-safe.
  * 
- * @author Tobias Herb
  */
 public final class YarnInstance extends AbstractInstance {
 
