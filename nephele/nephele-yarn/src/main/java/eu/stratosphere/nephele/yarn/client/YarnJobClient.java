@@ -362,17 +362,6 @@ public class YarnJobClient implements JobClient{
 		final ContainerLaunchContext clc = Records.newRecord(ContainerLaunchContext.class);
 		clc.setUser(amUser);
 
-		final LocalResource dlr;
-		try {
-			dlr = createDummyLocalResource(this.yarnConf);
-		} catch (IOException ioe) {
-			close();
-			throw ioe;
-		}
-
-		final Map<String, LocalResource> localResources = new HashMap<String, LocalResource>();
-		localResources.put("dummy", dlr);
-		clc.setLocalResources(localResources);
 		final Map<String, String> userEnvs = new HashMap<String, String>();
 		userEnvs.put(JM_HEAP_SIZE_ENV_KEY, Integer.toString(amMemory));
 		userEnvs.put(NEPHELE_HOME_ENV_KEY, nepheleHome);
