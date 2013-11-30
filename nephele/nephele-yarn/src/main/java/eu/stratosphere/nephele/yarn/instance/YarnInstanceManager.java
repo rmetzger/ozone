@@ -295,9 +295,9 @@ public final class YarnInstanceManager implements InstanceManager {
 		
 		// Setup a connection to the resource manager.
 		org.apache.hadoop.conf.Configuration hConf = new org.apache.hadoop.conf.Configuration();
-		LOG.debug("loading config from YARN_CONF_DIR="+envs.get("YARN_CONF_DIR"));
+		System.err.println("loading config from YARN_CONF_DIR="+envs.get("YARN_CONF_DIR"));
 		hConf.addResource(envs.get("YARN_CONF_DIR"));
-		this.yarnConf = new YarnConfiguration();
+		this.yarnConf = new YarnConfiguration(hconf);
 		System.err.println("Yarn conf: "+yarnConf);
 		System.err.println("Environment "+envs);
 		System.err.println("yarn.resourcemanager.scheduler.address = "+yarnConf.get("yarn.resourcemanager.scheduler.address"));
