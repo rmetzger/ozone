@@ -505,9 +505,13 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		if (configDir != null) {
 		   infoserverConfig.setString(ConfigConstants.STRATOSPHERE_BASE_DIR_PATH_KEY, configDir+"/..");
 		}
-		    
-		// Start info server for jobmanager
-		jobManager.startInfoServer(infoserverConfig);
+		
+		if(executionMode != ExecutionMode.YARN) { // disabled for now with yarn, we.
+			// we need a nice yarn-compatible solution.
+			
+			// Start info server for jobmanager
+			jobManager.startInfoServer(infoserverConfig);
+		}
 		 
 		// Run the main task loop
 		jobManager.runTaskLoop();

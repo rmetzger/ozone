@@ -296,13 +296,13 @@ public final class YarnInstanceManager implements InstanceManager {
 		// Setup a connection to the resource manager.
 		org.apache.hadoop.conf.Configuration hConf = new org.apache.hadoop.conf.Configuration();
 		System.err.println("loading config from YARN_CONF_DIR="+envs.get("YARN_CONF_DIR"));
-		hConf.addResource(envs.get("YARN_CONF_DIR"));
+		hConf.addResource(envs.get("YARN_CONF_DIR")+"/yarn-site.xml");
 		this.yarnConf = new YarnConfiguration(hConf);
 		System.err.println("Yarn conf: "+yarnConf);
 		System.err.println("Environment "+envs);
 		System.err.println("(hConf) yarn.resourcemanager.scheduler.address = "+hConf.get("yarn.resourcemanager.scheduler.address"));
 		System.err.println("(yarnConf) yarn.resourcemanager.scheduler.address = "+yarnConf.get("yarn.resourcemanager.scheduler.address"));
-		yarnConf.set("yarn.resourcemanager.scheduler.address","130.149.21.15:8030");
+		//yarnConf.set("yarn.resourcemanager.scheduler.address","130.149.21.15:8030");
 		System.err.println("(yarnConf)  yarn.resourcemanager.scheduler.address = "+yarnConf.get("yarn.resourcemanager.scheduler.address"));
 		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(this.yarnConf.get(
 			YarnConfiguration.RM_SCHEDULER_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
