@@ -365,7 +365,9 @@ public class YarnJobClient implements JobClient{
 		final Map<String, String> userEnvs = new HashMap<String, String>();
 		userEnvs.put(JM_HEAP_SIZE_ENV_KEY, Integer.toString(amMemory));
 		userEnvs.put(NEPHELE_HOME_ENV_KEY, nepheleHome);
-		userEnvs.put("GANGSTA_TEST", "Muharharh");
+		// this is definitively a hack. (But I'm unable to read the yarn-site configuration at the Application Master's
+		// side (YarnInstanceManager).
+		userEnvs.put(YarnConfiguration.RM_SCHEDULER_ADDRESS, configuration.getString(YarnConfiguration.RM_SCHEDULER_ADDRESS, null));
 
 		clc.setEnvironment(userEnvs);
 
