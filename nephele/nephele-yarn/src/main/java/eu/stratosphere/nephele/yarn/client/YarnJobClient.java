@@ -365,6 +365,7 @@ public class YarnJobClient implements JobClient{
 		final Map<String, String> userEnvs = new HashMap<String, String>();
 		userEnvs.put(JM_HEAP_SIZE_ENV_KEY, Integer.toString(amMemory));
 		userEnvs.put(NEPHELE_HOME_ENV_KEY, nepheleHome);
+		userEnvs.put("GANGSTA_TEST", "Muharharh");
 
 		clc.setEnvironment(userEnvs);
 
@@ -460,7 +461,7 @@ public class YarnJobClient implements JobClient{
 	 * @return the Hadoop configuration object containing all the key-value pairs of the original Nephele configuration
 	 *         object
 	 */
-	private static org.apache.hadoop.conf.Configuration toHadoopConfiguration(final Configuration configuration) {
+	public static org.apache.hadoop.conf.Configuration toHadoopConfiguration(final Configuration configuration) {
 
 		if (configuration == null) {
 			throw new IllegalArgumentException("Argument configuration must not be null");

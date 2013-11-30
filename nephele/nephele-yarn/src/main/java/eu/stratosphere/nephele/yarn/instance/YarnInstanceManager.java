@@ -295,9 +295,12 @@ public final class YarnInstanceManager implements InstanceManager {
 		
 		// Setup a connection to the resource manager.
 		this.yarnConf = new YarnConfiguration();
+		System.err.println("Yarn conf: "+yarnConf);
+		System.err.println("Environment "+envs);
 		final InetSocketAddress rmAddress = NetUtils.createSocketAddr(this.yarnConf.get(
 			YarnConfiguration.RM_SCHEDULER_ADDRESS, YarnConfiguration.DEFAULT_RM_ADDRESS));
-
+		LOG.debug("Using Resource Manager address "+rmAddress);
+		
 		// Initialize RPC implementation.
 		this.yarnRPC = YarnRPC.create(this.yarnConf);
 
