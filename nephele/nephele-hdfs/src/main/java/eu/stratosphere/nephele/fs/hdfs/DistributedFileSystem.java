@@ -127,8 +127,12 @@ public final class DistributedFileSystem extends FileSystem {
 			String configEntry = this.conf.get("fs.default.name", null);
 			
 			if (configEntry == null) {
-				throw new IOException(getMissingAuthorityErrorPrefix(path) + "Either no default hdfs configuration was registered, " +
+				// see http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/DeprecatedProperties.html
+				configEntry = this.conf.get("fs.defaultFS", null);
+				if (configEntry == null) {
+					throw new IOException(getMissingAuthorityErrorPrefix(path) + "Either no default hdfs configuration was registered, " +
 						"or that configuration did not contain an entry for the default hdfs.");
+				}
 			} else {
 				try {
 					URI initURI = URI.create(configEntry);
