@@ -377,7 +377,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	 * @param args
 	 *        arguments from the command line
 	 */
-	@SuppressWarnings("static-access")
+	
 	public static void main(final String[] args) {
 		
 		// determine if a valid log4j config exists and initialize a default logger if not
@@ -390,6 +390,11 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			root.setLevel(Level.INFO);
 		}
 		
+		initialize(args);
+	}
+	
+	@SuppressWarnings("static-access")
+	public static JobManager initialize(final String[] args) {
 		// output the version and revision information to the log
 		logVersionInformation();
 		
@@ -415,7 +420,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		final String configDir = line.getOptionValue(configDirOpt.getOpt(), null);
 		final String executionModeName = line.getOptionValue(executionModeOpt.getOpt(), "local");
 		
-		final ExecutionMode executionMode;
+		ExecutionMode executionMode = null;
 		if ("local".equals(executionModeName)) {
 			executionMode = ExecutionMode.LOCAL;
 		} else if ("cluster".equals(executionModeName)) {
@@ -423,7 +428,6 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		} else {
 			System.err.println("Unrecognized execution mode: " + executionModeName);
 			System.exit(FAILURERETURNCODE);
-			return;
 		}
 		
 		// First, try to load global configuration
@@ -445,6 +449,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		jobManager.runTaskLoop();
 
 		// Clean up task are triggered through a shutdown hook
+		return jobManager;
 	}
 
 	/**

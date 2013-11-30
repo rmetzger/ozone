@@ -1,14 +1,19 @@
 package eu.stratosphere.yarn;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
+import org.apache.hadoop.yarn.api.ApplicationConstants.Environment;
 import org.apache.hadoop.yarn.api.protocolrecords.AllocateResponse;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
@@ -20,16 +25,31 @@ import eu.stratosphere.nephele.jobmanager.JobManager;
 
 public class ApplicationMaster {
 
-	public static class JobManagerRunner implements Runnable {
+	public static class JobManagerRunner extends Thread {
+		private String pathToNepheleConfig = "";
+		private JobManager jm;
 		
+		public JobManagerRunner(String pathToNepheleConfig) {
+			super("Job manager runner");
+			this.pathToNepheleConfig = pathToNepheleConfig;
+		}
+
 		public void run() {
-			JobManager jm;
+			String[] args = {"-executionMode","cluster", "-configDir", pathToNepheleConfig};
+			this.jm = JobManager.initialize( args );
+		}
+		public void shutdown() {
+			this.jm.shutdown();
 		}
 	}
 	public static void main(String[] args) throws Exception {
-
 		final int n = Integer.valueOf(args[0]);
-
+		
+		JobManagerRunner jmr = new JobManagerRunner("stratosphere-conf.yaml");
+		
+		System.err.println("Starting JobManager");
+		jmr.start();
+		
 		// Initialize clients to ResourceManager and NodeManagers
 		Configuration conf = Utils.initializeYarnConfiguration();
 
@@ -63,6 +83,11 @@ public class ApplicationMaster {
 			rmClient.addContainerRequest(containerAsk);
 		}
 
+		LocalResource stratosphereJar = Records.newRecord(LocalResource.class);
+		LocalResource stratosphereConf = Records.newRecord(LocalResource.class);
+		Utils.setupLocalResource(conf, new Path("./stratosphere.jar"), stratosphereJar);
+		Utils.setupLocalResource(conf, new Path("./stratosphere.jar"), stratosphereConf);
+		
 		// Obtain allocated containers and launch
 		int allocatedContainers = 0;
 		while (allocatedContainers < n) {
@@ -73,13 +98,31 @@ public class ApplicationMaster {
 				// Launch container by create ContainerLaunchContext
 				ContainerLaunchContext ctx = Records
 						.newRecord(ContainerLaunchContext.class);
-				ctx.setCommands(Collections.singletonList("$JAVA_HOME/bin/java" + " 1>"
+				String tmCommand = "$JAVA_HOME/bin/java " 
+						+ "eu.stratosphere.nephele.taskmanager.TaskManager -configDir . "
+						+ " 1>"
 						+ ApplicationConstants.LOG_DIR_EXPANSION_VAR
-						+ "/stdout" + " 2>"
+						+ "/stdout" 
+						+ " 2>"
 						+ ApplicationConstants.LOG_DIR_EXPANSION_VAR
-						+ "/stderr"));
-				System.out
-						.println("Launching container " + allocatedContainers);
+						+ "/stderr";
+				ctx.setCommands(Collections.singletonList(tmCommand));
+				
+				System.err.println("TM command="+tmCommand);
+				
+				// copy resources to the TaskManagers.
+				Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
+				localResources.put("stratosphere.jar", stratosphereJar);
+				localResources.put("stratosphere-conf.yaml", stratosphereConf);
+				
+				ctx.setLocalResources(localResources);
+				
+				// Setup CLASSPATH for Container (=TaskTracker)
+				Map<String, String> containerEnv = new HashMap<String, String>();
+				Utils.setupEnv(conf, containerEnv);
+				ctx.setEnvironment(containerEnv);
+				
+				System.out.println("Launching container " + allocatedContainers);
 				nmClient.startContainer(container, ctx);
 			}
 			Thread.sleep(100);
@@ -90,17 +133,17 @@ public class ApplicationMaster {
 		while (completedContainers < n) {
 			AllocateResponse response = rmClient.allocate(completedContainers
 					/ n);
-			for (ContainerStatus status : response
-					.getCompletedContainersStatuses()) {
+			for (ContainerStatus status : response.getCompletedContainersStatuses()) {
 				++completedContainers;
-				System.out
-						.println("Completed container " + completedContainers);
+				System.out.println("Completed container " + completedContainers);
 			}
 			Thread.sleep(100);
 		}
 
+		jmr.shutdown();
+		jmr.join(2000L);
+		
 		// Un-register with ResourceManager
-		rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED,
-				"", "");
+		rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, "", "");
 	}
 }

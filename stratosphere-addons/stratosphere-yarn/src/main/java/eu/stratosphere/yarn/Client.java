@@ -38,8 +38,9 @@ public class Client {
 
 	public void run(String[] args) throws Exception {
 		if (args.length < 1) {
-			System.err.println("stratosphere-yarn.jar <NumberOfContainers>");
+			System.err.println("stratosphere-yarn.jar <pathToStratosphere.yaml> <NumberOfContainers>");
 		}
+		
 		if (args.length == 2) {
 			if (System.getProperty("log4j.configuration") == null) {
 				Logger root = Logger.getRootLogger();
@@ -53,8 +54,9 @@ public class Client {
 			}
 		}
 		final int n = Integer.valueOf(args[0]);
-		final Path jarPath = new Path(Client.class.getProtectionDomain()
-				.getCodeSource().getLocation().getPath());
+		final Path jarPath = new Path(Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		final Path confPath = new Path("/home/robert/Projekte/ozone/ozone/stratosphere-dist/src/main/stratosphere-bin/conf/stratosphere-conf.yaml");
+		
 		System.err.println("jarPath = " + jarPath);
 
 		// Create yarnClient
@@ -70,22 +72,31 @@ public class Client {
 		// Set up the container launch context for the application master
 		ContainerLaunchContext amContainer = Records
 				.newRecord(ContainerLaunchContext.class);
-		amContainer.setCommands(Collections.singletonList("$JAVA_HOME/bin/java"
+		final String amCommand = "$JAVA_HOME/bin/java"
 				+ " -Xmx256M" + " eu.stratosphere.yarn.ApplicationMaster" + " "
 				+ String.valueOf(n) + " 1>"
 				+ ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stdout"
 				+ " 2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
-				+ "/stderr"));
+				+ "/stderr";
+		amContainer.setCommands(Collections.singletonList(amCommand));
 
+		System.err.println("amCommand="+amCommand);
+		
 		// Setup jar for ApplicationMaster
 		LocalResource appMasterJar = Records.newRecord(LocalResource.class);
-		setupAppMasterJar(jarPath, appMasterJar);
-		amContainer.setLocalResources(Collections.singletonMap("stratosphere.jar",
-				appMasterJar));
+		LocalResource stratosphereConf = Records.newRecord(LocalResource.class);
+		Utils.setupLocalResource(conf, jarPath, appMasterJar);
+		Utils.setupLocalResource(conf, confPath, stratosphereConf);
+		
+		Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
+		localResources.put("stratosphere.jar", appMasterJar);
+		localResources.put("stratosphere-conf.yaml", stratosphereConf);
+		
+		amContainer.setLocalResources(localResources);
 
 		// Setup CLASSPATH for ApplicationMaster
 		Map<String, String> appMasterEnv = new HashMap<String, String>();
-		setupAppMasterEnv(appMasterEnv);
+		Utils.setupEnv(conf, appMasterEnv);
 		amContainer.setEnvironment(appMasterEnv);
 
 		// Set up resource type requirements for ApplicationMaster
@@ -121,26 +132,6 @@ public class Client {
 
 	}
 
-	private void setupAppMasterJar(Path jarPath, LocalResource appMasterJar)
-			throws IOException {
-		FileStatus jarStat = FileSystem.get(conf).getFileStatus(jarPath);
-		appMasterJar.setResource(ConverterUtils.getYarnUrlFromPath(jarPath));
-		appMasterJar.setSize(jarStat.getLen());
-		appMasterJar.setTimestamp(jarStat.getModificationTime());
-		appMasterJar.setType(LocalResourceType.FILE);
-		appMasterJar.setVisibility(LocalResourceVisibility.APPLICATION);
-	}
-
-	private void setupAppMasterEnv(Map<String, String> appMasterEnv) {
-		for (String c : conf.getStrings(
-				YarnConfiguration.YARN_APPLICATION_CLASSPATH,
-				YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH)) {
-			Apps.addToEnvironment(appMasterEnv, Environment.CLASSPATH.name(),
-					c.trim());
-		}
-		Apps.addToEnvironment(appMasterEnv, Environment.CLASSPATH.name(),
-				Environment.PWD.$() + File.separator + "*");
-	}
 
 	public static void main(String[] args) throws Exception {
 		Client c = new Client();
