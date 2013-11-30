@@ -358,7 +358,8 @@ public final class YarnInstanceManager implements InstanceManager {
 		// Finally, launch the timer tasks.
 		new Timer(true).schedule(this.heartbeatTask, this.resourceManagerHeartbeatInterval,
 			this.resourceManagerHeartbeatInterval);
-		new Timer(true).schedule(this.periodicCleanupTask, PERIODIC_CLEANUP_INTERVAL, PERIODIC_CLEANUP_INTERVAL);
+		
+	// no cleanup	new Timer(true).schedule(this.periodicCleanupTask, PERIODIC_CLEANUP_INTERVAL, PERIODIC_CLEANUP_INTERVAL);
 
 	}
 
@@ -504,6 +505,10 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	synchronized void abortJob(final JobID jobID) {
 		LOG.info("abortJob called");
+		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+		for(int i = 0 ; i < stackTraceElements.length; i++) {
+			LOG.info("\t"+stackTraceElements[i]);
+		}
 		throw new RuntimeException("Implement me");
 	}
 

@@ -70,7 +70,7 @@ if [[ "$*" == *\-y* ]]; then
 		echo "HADOOP_CONF_DIR is set to '$HADOOP_CONF_DIR' Everything looks good."
 	fi
 	export HADOOP_CONF_DIR
-	PACT_CC_CLASSPATH=%PACT_CC_CLASSPATH:$HADOOP_CONF_DIR
+	PACT_CC_CLASSPATH=$PACT_CC_CLASSPATH:$HADOOP_CONF_DIR
 fi
 
 $JAVA_RUN $JVM_ARGS $log_setting -classpath $PACT_CC_CLASSPATH eu.stratosphere.pact.client.CliFrontend $*
