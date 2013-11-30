@@ -214,6 +214,9 @@ public class YarnJobClient implements JobClient{
 	 * Starting the YarnJobClient will establish a connection to the Yarn Resource Manager.
 	 */
 	public YarnJobClient(final Configuration configuration) throws IOException, InterruptedException  {
+		
+		System.err.println("Current classpath "+System.getProperty("java.class.path"));
+		
 		this.configuration = configuration;
 		this.jobCleanUp = new JobCleanUp(this);
 
@@ -222,7 +225,18 @@ public class YarnJobClient implements JobClient{
 
 		// Convert Nephele configuration into Hadoop configuration object
 		this.yarnConf = toHadoopConfiguration(configuration);
-
+		
+		
+		
+//		YarnConfiguration conf = new YarnConfiguration();
+//		conf.addResource("/home/robert/Projekte/ozone/work/hadoop-2.0.5-alpha/etc/hadoop/yarn-site.xml");
+//		conf.reloadConfiguration();
+//		System.err.println(YarnConfiguration.RM_SCHEDULER_ADDRESS+" ==> "+yarnConf.get(YarnConfiguration.RM_SCHEDULER_ADDRESS));
+//		System.err.println(YarnConfiguration.RM_SCHEDULER_ADDRESS+" ==> "+yarnConf.get(YarnConfiguration.RM_ADDRESS));
+//		
+//		System.err.println(YarnConfiguration.RM_SCHEDULER_ADDRESS+" ==> "+conf.get(YarnConfiguration.RM_SCHEDULER_ADDRESS));
+//		System.err.println(YarnConfiguration.RM_SCHEDULER_ADDRESS+" ==> "+conf.get(YarnConfiguration.RM_ADDRESS));
+		
 		LOG.info("Connecting to ResourceManager at " + rmAddress);
 
 		this.yarnRPC = YarnRPC.create(this.yarnConf);
@@ -367,7 +381,11 @@ public class YarnJobClient implements JobClient{
 		userEnvs.put(NEPHELE_HOME_ENV_KEY, nepheleHome);
 		// this is definitively a hack. (But I'm unable to read the yarn-site configuration at the Application Master's
 		// side (YarnInstanceManager).
-		userEnvs.put(YarnConfiguration.RM_SCHEDULER_ADDRESS, configuration.getString(YarnConfiguration.RM_SCHEDULER_ADDRESS, null));
+		final String rmScAdr = yarnConf.get(YarnConfiguration.RM_SCHEDULER_ADDRESS, null);
+		if(rmScAdr == null) {
+			throw new RuntimeException("Yarn Configuration Variable "+YarnConfiguration.RM_SCHEDULER_ADDRESS+" not set!");
+		}
+		userEnvs.put(YarnConfiguration.RM_SCHEDULER_ADDRESS,rmScAdr );
 
 		clc.setEnvironment(userEnvs);
 
@@ -468,8 +486,9 @@ public class YarnJobClient implements JobClient{
 		if (configuration == null) {
 			throw new IllegalArgumentException("Argument configuration must not be null");
 		}
-
-		final org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
+		
+		// the most important thing with Hadoop configuration is that the hadoop config dir is in the classpath!!
+		final org.apache.hadoop.conf.Configuration hadoopConf = new YarnConfiguration();
 
 		final Iterator<String> it = configuration.keySet().iterator();
 

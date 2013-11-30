@@ -60,4 +60,17 @@ log_setting="-Dlog.file="$log" -Dlog4j.configuration=file:"$NEPHELE_CONF_DIR"/lo
 export NEPHELE_ROOT_DIR=${NEPHELE_ROOT_DIR}
 export NEPHELE_CONF_DIR
 
+if [[ "$*" == *\-y* ]]; then
+	# user has "-y" or "-yarn" option active. Hadoop config must be in classpath.
+	echo "Notice: Please make sure that HADOOP_CONF_DIR is set. This is required for YARN."
+	if [[ "$HADOOP_CONF_DIR" == "" ]]; then
+		echo "WARNING: Yarn will most likely not work, because HADOOP_CONF_DIR is not set."
+		sleep 2
+	else
+		echo "HADOOP_CONF_DIR is set to '$HADOOP_CONF_DIR' Everything looks good."
+	fi
+	export HADOOP_CONF_DIR
+	PACT_CC_CLASSPATH=%PACT_CC_CLASSPATH:$HADOOP_CONF_DIR
+fi
+
 $JAVA_RUN $JVM_ARGS $log_setting -classpath $PACT_CC_CLASSPATH eu.stratosphere.pact.client.CliFrontend $*

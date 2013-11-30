@@ -268,6 +268,8 @@ public final class YarnInstanceManager implements InstanceManager {
 
 	public YarnInstanceManager() throws YarnRemoteException {
 		
+		System.err.println("Current classpath "+System.getProperty("java.class.path"));
+		
 		LOG.info("Starting YARN instance manager");
 
 		// Extract the necessary information from the environment
