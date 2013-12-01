@@ -54,8 +54,9 @@ public class Client {
 			}
 		}
 		final int n = Integer.valueOf(args[0]);
-		final Path jarPath = new Path(Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		final Path confPath = new Path("/home/robert/Projekte/ozone/ozone/stratosphere-dist/src/main/stratosphere-bin/conf/stratosphere-conf.yaml");
+		final Path jarPath = new Path("file:///home/robert/Projekte/ozone/ozone/stratosphere-dist/target/stratosphere-dist-0.4-SNAPSHOT-jar-with-dependencies.jar");
+				//new Path(Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		final Path confPath = new Path("file:///home/robert/Projekte/ozone/ozone/stratosphere-dist/src/main/stratosphere-bin/conf/stratosphere-conf.yaml");
 		
 		System.err.println("jarPath = " + jarPath);
 
@@ -122,7 +123,7 @@ public class Client {
 		while (appState != YarnApplicationState.FINISHED
 				&& appState != YarnApplicationState.KILLED
 				&& appState != YarnApplicationState.FAILED) {
-			Thread.sleep(100);
+			Thread.sleep(3000);
 			appReport = yarnClient.getApplicationReport(appId);
 			appState = appReport.getYarnApplicationState();
 		}
