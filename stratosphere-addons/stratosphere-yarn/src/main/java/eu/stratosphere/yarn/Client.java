@@ -37,7 +37,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-import com.sun.tools.internal.xjc.model.CNonElement;
 
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
@@ -59,7 +58,7 @@ public class Client {
 			+ " TaskTrackers)");
 	
 	/**
-	 * Contants
+	 * Constants
 	 */
 	// environment variable names 
 	public final static String ENV_TM_MEMORY = "_CLIENT_TM_MEMORY";
@@ -126,21 +125,20 @@ public class Client {
 			}
 		}
 		
-		
-		
 		// TM Count
-		
 		final int taskManagerCount = Integer.valueOf(cmd.getOptionValue(CONTAINER.getOpt()));
 		
 		
 		// Jar Path
-		
-		// new Path("file:///home/robert/Projekte/ozone/ozone/stratosphere-dist/target/stratosphere-dist-0.4-SNAPSHOT-jar-with-dependencies.jar");
 		Path jarPath;
 		if(cmd.hasOption(STRATOSPHERE_JAR.getOpt())) {
-			jarPath = new Path(cmd.getOptionValue(STRATOSPHERE_JAR.getOpt()));
+			String userPath = cmd.getOptionValue(STRATOSPHERE_JAR.getOpt());
+			if(!userPath.startsWith("file://")) {
+				userPath = "file://" + userPath;
+			}
+			jarPath = new Path(userPath);
 		} else {
-			jarPath = new Path(Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			jarPath = new Path("file://"+Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		}
 		
 		// Conf Path 
@@ -148,7 +146,6 @@ public class Client {
 		
 		if(cmd.hasOption(STRATOSPHERE_CONF.getOpt())) {
 			confPath = new Path(cmd.getOptionValue(STRATOSPHERE_CONF.getOpt()));
-					//new Path("file:///home/robert/Projekte/ozone/ozone/stratosphere-dist/src/main/stratosphere-bin/conf/stratosphere-conf.yaml");
 		} else {
 			System.out.println("No configuration file has been specified");
 			
@@ -164,7 +161,7 @@ public class Client {
 			if(candidates == null || candidates.length == 0) {
 				System.out.println("No configuration file has been found in current directory.\n"
 						+ "Copying default.");
-				JarFile jar = new JarFile(jarPath.toString());
+				JarFile jar = new JarFile(jarPath.toUri().getPath());
 				InputStream confStream = jar.getInputStream(jar.getEntry("stratosphere-conf.yaml"));
 				
 				if(confStream == null) {
@@ -223,13 +220,12 @@ public class Client {
 
 		System.out.println("Using values:");
 		System.out.println("\tContainer Count = "+taskManagerCount);
-		System.out.println("\tJar Path = "+jarPath);
-		System.out.println("\tConfiguration file = "+confPath);
+		System.out.println("\tJar Path = "+jarPath.toUri().getPath());
+		System.out.println("\tConfiguration file = "+confPath.toUri().getPath());
 		System.out.println("\tJobManager memory = "+jmMemory);
 		System.out.println("\tTaskManager memory = "+tmMemory);
 		System.out.println("\tTaskManager cores = "+tmCores);
 
-		System.exit(0);
 		
 		// Create yarnClient
 		conf = Utils.initializeYarnConfiguration();
@@ -295,11 +291,16 @@ public class Client {
 		yarnClient.submitApplication(appContext);
 
 		ApplicationReport appReport = yarnClient.getApplicationReport(appId);
-		System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
+		
 		YarnApplicationState appState = appReport.getYarnApplicationState();
+		boolean told = false;
 		while (appState != YarnApplicationState.FINISHED
 				&& appState != YarnApplicationState.KILLED
 				&& appState != YarnApplicationState.FAILED) {
+			if(!told && appState ==  YarnApplicationState.RUNNING) {
+				System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
+				told = true;
+			}
 			Thread.sleep(5000);
 			appReport = yarnClient.getApplicationReport(appId);
 			appState = appReport.getYarnApplicationState();
@@ -307,9 +308,7 @@ public class Client {
 
 		System.out.println("Application " + appId + " finished with"
 				+ " state " + appState + " at " + appReport.getFinishTime());
-
 	}
-
 
 	public static void main(String[] args) throws Exception {
 		Client c = new Client();
