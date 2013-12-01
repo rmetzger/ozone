@@ -185,7 +185,7 @@ public class ApplicationMaster {
 				++completedContainers;
 				System.out.println("Completed container " + completedContainers);
 			}
-			Thread.sleep(3000);
+			Thread.sleep(5000);
 		}
 		
 		jmr.stop(); // I know what I'm doing here.

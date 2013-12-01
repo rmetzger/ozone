@@ -119,11 +119,12 @@ public class Client {
 		yarnClient.submitApplication(appContext);
 
 		ApplicationReport appReport = yarnClient.getApplicationReport(appId);
+		System.err.println("JobManager is now running on "+appReport.getHost()+":"+6123);
 		YarnApplicationState appState = appReport.getYarnApplicationState();
 		while (appState != YarnApplicationState.FINISHED
 				&& appState != YarnApplicationState.KILLED
 				&& appState != YarnApplicationState.FAILED) {
-			Thread.sleep(3000);
+			Thread.sleep(5000);
 			appReport = yarnClient.getApplicationReport(appId);
 			appState = appReport.getYarnApplicationState();
 		}
