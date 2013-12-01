@@ -2,8 +2,10 @@ package eu.stratosphere.yarn;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Collections;
@@ -92,6 +94,21 @@ public class ApplicationMaster {
 		}
 		output.close();
 		br.close();
+		LOG.info("Wrote to: "+currDir+"/stratosphere-conf-modified.yaml");
+		File newConf = new File(currDir+"/stratosphere-conf-modified.yaml");
+		if(!newConf.exists()) {
+			LOG.warn("modified yaml does not exist!");
+		}
+		// list current files.
+		File cd = new File(".");
+		File[] candidates = cd.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(final File dir, final String name) {
+				LOG.info("Files in this directory: "+name);
+				return name != null && name.endsWith(".yaml");
+			}
+		});
+		
 		// TODO: Copy web frontend files.
 		
 		JobManagerRunner jmr = new JobManagerRunner(currDir+"/stratosphere-conf-modified.yaml");
@@ -124,7 +141,7 @@ public class ApplicationMaster {
 		for (int i = 0; i < taskManagerCount; ++i) {
 			ContainerRequest containerAsk = new ContainerRequest(capability,
 					null, null, priority);
-			System.out.println("Making res-req " + i);
+			LOG.info("Requesting TaskManager container " + i);
 			rmClient.addContainerRequest(containerAsk);
 		}
 
@@ -135,6 +152,7 @@ public class ApplicationMaster {
 
 		Utils.setupLocalResource(conf, new Path("file://"+currDir+"/stratosphere.jar"), stratosphereJar);
 		Utils.setupLocalResource(conf, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf);
+		LOG.info("Prepared localresource for modified yaml: "+stratosphereConf);
 		
 		// Obtain allocated containers and launch
 		int allocatedContainers = 0;
@@ -144,8 +162,8 @@ public class ApplicationMaster {
 				++allocatedContainers;
 
 				// Launch container by create ContainerLaunchContext
-				ContainerLaunchContext ctx = Records
-						.newRecord(ContainerLaunchContext.class);
+				ContainerLaunchContext ctx = Records.newRecord(ContainerLaunchContext.class);
+				
 				String tmCommand = "$JAVA_HOME/bin/java -Xmx"+heapLimit+"m " 
 						+ " eu.stratosphere.nephele.taskmanager.TaskManager -configDir . "
 						+ " 1>"
@@ -156,7 +174,7 @@ public class ApplicationMaster {
 						+ "/stderr";
 				ctx.setCommands(Collections.singletonList(tmCommand));
 				
-				System.err.println("TM command="+tmCommand);
+				LOG.info("Starting TM with command="+tmCommand);
 				
 				// copy resources to the TaskManagers.
 				Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
@@ -170,7 +188,7 @@ public class ApplicationMaster {
 				Utils.setupEnv(conf, containerEnv); //add stratosphere.jar to class path.
 				ctx.setEnvironment(containerEnv);
 				
-				System.out.println("Launching container " + allocatedContainers);
+				LOG.info("Launching container " + allocatedContainers);
 				nmClient.startContainer(container, ctx);
 			}
 			Thread.sleep(100);

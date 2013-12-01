@@ -57,7 +57,7 @@ public class Utils {
 		appMasterJar.setSize(jarStat.getLen());
 		appMasterJar.setTimestamp(jarStat.getModificationTime());
 		appMasterJar.setType(LocalResourceType.FILE);
-		appMasterJar.setVisibility(LocalResourceVisibility.APPLICATION);
+		appMasterJar.setVisibility(LocalResourceVisibility.PUBLIC);
 	}
 	
 	
