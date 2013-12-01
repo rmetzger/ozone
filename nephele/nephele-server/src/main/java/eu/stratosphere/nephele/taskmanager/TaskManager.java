@@ -355,8 +355,6 @@ public class TaskManager implements TaskOperationProtocol {
 			try {
 				Thread.sleep(interval);
 			} catch (InterruptedException e1) {
-				System.err.println("interrupt stack trace");
-				e1.printStackTrace();
 				LOG.debug("Heartbeat thread was interrupted");
 				break;
 			}
@@ -373,13 +371,6 @@ public class TaskManager implements TaskOperationProtocol {
 			checkTaskExecution();
 		}
 
-		System.err.println("Okay, looks like I'm going down now. Lets get some rest");
-		try {
-			Thread.sleep(51000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		// Shutdown the individual components of the task manager
 		shutdown();
 	}

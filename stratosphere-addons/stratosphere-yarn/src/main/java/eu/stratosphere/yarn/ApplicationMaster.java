@@ -93,6 +93,7 @@ public class ApplicationMaster {
 		}
 		output.close();
 		br.close();
+		// TODO: Copy web frontend files.
 		
 		JobManagerRunner jmr = new JobManagerRunner(currDir+"/stratosphere-conf-modified.yaml");
 		LOG.info("Starting JobManager");
