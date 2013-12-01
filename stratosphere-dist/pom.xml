@@ -13,7 +13,7 @@
 
 	<artifactId>stratosphere-dist</artifactId>
 	<name>stratosphere-dist</name>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 
 	<dependencies>
 		<!-- BINARIES -->

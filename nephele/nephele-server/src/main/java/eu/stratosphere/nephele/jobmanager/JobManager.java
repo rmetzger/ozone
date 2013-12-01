@@ -390,7 +390,15 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 			root.setLevel(Level.INFO);
 		}
 		
-		initialize(args);
+		JobManager jobManager = initialize(args);
+				
+		// Start info server for jobmanager
+		jobManager.startInfoServer();
+
+		// Run the main task loop
+		jobManager.runTaskLoop();
+
+		// Clean up task are triggered through a shutdown hook
 	}
 	
 	@SuppressWarnings("static-access")
@@ -441,14 +449,7 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 		if (configDir != null) {
 			infoserverConfig.setString(ConfigConstants.STRATOSPHERE_BASE_DIR_PATH_KEY, configDir+"/..");
 		}
-				
-		// Start info server for jobmanager
-		jobManager.startInfoServer(infoserverConfig);
-
-		// Run the main task loop
-		jobManager.runTaskLoop();
-
-		// Clean up task are triggered through a shutdown hook
+		GlobalConfiguration.includeConfiguration(infoserverConfig);
 		return jobManager;
 	}
 
@@ -1228,9 +1229,9 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 	/**
 	 * Starts the Jetty Infoserver for the Jobmanager
 	 * 
-	 * @param config
 	 */
-	public void startInfoServer(Configuration config) {
+	public void startInfoServer() {
+		final Configuration config = GlobalConfiguration.getConfiguration();
 		// Start InfoServer
 		try {
 			int port = config.getInteger(ConfigConstants.JOB_MANAGER_WEB_PORT_KEY, ConfigConstants.DEFAULT_WEB_FRONTEND_PORT);

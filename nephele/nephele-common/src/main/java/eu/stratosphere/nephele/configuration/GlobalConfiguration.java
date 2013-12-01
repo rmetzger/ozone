@@ -305,7 +305,6 @@ public final class GlobalConfiguration {
 	public static void loadConfiguration(final String configDir) {
 
 		if (configDir == null) {
-
 			LOG.warn("Given configuration directory is null, cannot load configuration");
 			return;
 		}

@@ -29,6 +29,7 @@ import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.NMClient;
 import org.apache.hadoop.yarn.util.Records;
 
+import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.jobmanager.JobManager;
 
 public class ApplicationMaster {
@@ -47,22 +48,18 @@ public class ApplicationMaster {
 		public void run() {
 			String[] args = {"-executionMode","cluster", "-configDir", pathToNepheleConfig};
 			this.jm = JobManager.initialize( args );
+			
+			// Start info server for jobmanager
+			//jobManager.startInfoServer();
+
+			// Run the main task loop
+			this.jm.runTaskLoop();
+		}
+		public void shutdown() {
+			this.jm.shutdown();
 		}
 	}
 	public static void main(String[] args) throws Exception {
-		final int taskManagerCount = Integer.valueOf(args[0]);
-		
-		final int memoryPerTaskManager = 1000; // what we request from yarn
-		
-		final int heapLimit = (int)((float)memoryPerTaskManager*0.8); // what we tell the heap
-		
-//		System.err.println("all envs:");
-//	     Map<String, String> env = System.getenv();
-//        for (String envName : env.keySet()) {
-//            System.out.format("%s=%s%n", envName, env.get(envName));
-//        }
-//        System.err.println("done envs.");
-        
 		
 		// Initialize clients to ResourceManager and NodeManagers
 		Configuration conf = Utils.initializeYarnConfiguration();
@@ -70,6 +67,10 @@ public class ApplicationMaster {
 		final String currDir = envs.get(Environment.PWD.key());
 		final String ownHostname = envs.get(Environment.NM_HOST.key());
 		final String localDirs = envs.get(Environment.LOCAL_DIRS.key());
+		final int taskManagerCount = Integer.valueOf(envs.get(Client.ENV_TM_COUNT));
+		final int memoryPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_MEMORY));
+		final int coresPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_CORES));
+		final int heapLimit = (int)((float)memoryPerTaskManager*0.9);
 		if(currDir == null) throw new RuntimeException("Current directory unknown");
 		if(ownHostname == null) throw new RuntimeException("Own hostname ("+Environment.NM_HOST+") not set.");
 		LOG.info("Working directory "+currDir);
@@ -81,12 +82,10 @@ public class ApplicationMaster {
 		Writer output = new BufferedWriter(new FileWriter(currDir+"/stratosphere-conf-modified.yaml"));
 		String line ;
 		while ( (line = br.readLine()) != null) {
-		    if(line.contains("jobmanager.rpc.address")) {
-		    	output.append("jobmanager.rpc.address: "+ownHostname+"\n");
-//		    } else if(line.contains("taskmanager.heap.mb")) {
-//		    	output.append("taskmanager.heap.mb: "+(int)((float)memoryPerTaskManager*0.8)+"\n");
-		    } else if(localDirs != null && line.contains("taskmanager.tmp.dirs")) {
-		    	output.append("taskmanager.tmp.dirs: "+localDirs+"\n");
+		    if(line.contains(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY)) {
+		    	output.append(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY+": "+ownHostname+"\n");
+		    } else if(localDirs != null && line.contains(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY)) {
+		    	output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
 		    } else {
 		    	output.append(line+"\n");
 		    }
@@ -119,7 +118,7 @@ public class ApplicationMaster {
 		// Resource requirements for worker containers
 		Resource capability = Records.newRecord(Resource.class);
 		capability.setMemory(memoryPerTaskManager);
-		capability.setVirtualCores(1);
+		capability.setVirtualCores(coresPerTaskManager);
 
 		// Make container requests to ResourceManager
 		for (int i = 0; i < taskManagerCount; ++i) {
@@ -168,7 +167,7 @@ public class ApplicationMaster {
 				
 				// Setup CLASSPATH for Container (=TaskTracker)
 				Map<String, String> containerEnv = new HashMap<String, String>();
-				Utils.setupEnv(conf, containerEnv);
+				Utils.setupEnv(conf, containerEnv); //add stratosphere.jar to class path.
 				ctx.setEnvironment(containerEnv);
 				
 				System.out.println("Launching container " + allocatedContainers);
@@ -189,7 +188,8 @@ public class ApplicationMaster {
 			Thread.sleep(5000);
 		}
 		
-		jmr.stop(); // I know what I'm doing here.
+		jmr.shutdown();
+		jmr.join(500);
 		
 		// Un-register with ResourceManager
 		rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, "", "");

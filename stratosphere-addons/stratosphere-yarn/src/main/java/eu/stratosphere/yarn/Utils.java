@@ -1,14 +1,7 @@
 package eu.stratosphere.yarn;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Writer;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -23,8 +16,14 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.Apps;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
+import eu.stratosphere.nephele.configuration.GlobalConfiguration;
+
 public class Utils {
 	
+
+	public static void getStratosphereConfiguration(String confDir) {
+		GlobalConfiguration.loadConfiguration(confDir);
+	}
 	public static Configuration initializeYarnConfiguration() {
 		Configuration conf = new YarnConfiguration();
 	
