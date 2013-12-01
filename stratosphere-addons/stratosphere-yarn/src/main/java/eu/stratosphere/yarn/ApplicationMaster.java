@@ -84,8 +84,8 @@ public class ApplicationMaster {
 		Writer output = new BufferedWriter(new FileWriter(currDir+"/stratosphere-conf-modified.yaml"));
 		String line ;
 		while ( (line = br.readLine()) != null) {
-		    if(line.contains(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY)) {
-		    	output.append(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY+": "+ownHostname+"\n");
+		    if(line.contains(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY)) {
+		    	output.append(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY+": "+ownHostname+"\n");
 		    } else if(localDirs != null && line.contains(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY)) {
 		    	output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
 		    } else {
