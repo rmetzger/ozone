@@ -223,9 +223,12 @@ public class CliFrontend {
 	 * @param params
 	 */
 	private void remote(String[] params) {
-		if(params.length != 4) {
+		//if(params.length != 4) {
 			System.err.println("Usage: [host:port] [jar] [class] [args]");
-			System.exit(1);
+		//	System.exit(1);
+		//}
+		for(int i = 0; i < params.length; i++) {
+			System.err.println("arg "+i+" = "+params[i]);
 		}
 		
 		RemoteExecutor re = new RemoteExecutor(params[0], params[1]);
