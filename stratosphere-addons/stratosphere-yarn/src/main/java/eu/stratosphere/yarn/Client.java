@@ -353,9 +353,8 @@ public class Client {
 				
 		System.out.println("Submitting application master " + appId);
 		yarnClient.submitApplication(appContext);
-
-		ApplicationReport appReport = yarnClient.getApplicationReport(appId);
 		
+		ApplicationReport appReport = yarnClient.getApplicationReport(appId);
 		YarnApplicationState appState = appReport.getYarnApplicationState();
 		boolean told = false;
 		while (appState != YarnApplicationState.FINISHED
@@ -365,7 +364,19 @@ public class Client {
 				System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
 				told = true;
 			}
-			System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
+			System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort+"\n"
+					+ "Application report from ASM: \n" +
+			        "\t application identifier: " + appId.toString() + "\n" +
+			        "\t appId: " + appId.getId() + "\n" +
+			        "\t appDiagnostics: " + appReport.getDiagnostics() + "\n" +
+			        "\t appMasterHost: " + appReport.getHost() + "\n" +
+			        "\t appQueue: " + appReport.getQueue() + "\n" +
+			        "\t appMasterRpcPort: " + appReport.getRpcPort() + "\n" +
+			        "\t appStartTime: " + appReport.getStartTime() + "\n" +
+			        "\t yarnAppState: " + appReport.getYarnApplicationState() + "\n" +
+			        "\t distributedFinalState: " + appReport.getFinalApplicationStatus() + "\n" +
+			        "\t appTrackingUrl: " + appReport.getTrackingUrl() + "\n" +
+			        "\t appUser: " + appReport.getUser());
 			Thread.sleep(5000);
 			appReport = yarnClient.getApplicationReport(appId);
 			appState = appReport.getYarnApplicationState();
