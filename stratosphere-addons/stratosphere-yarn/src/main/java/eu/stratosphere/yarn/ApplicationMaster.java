@@ -68,7 +68,9 @@ import org.apache.hadoop.yarn.client.api.NMClient;
 import org.apache.hadoop.yarn.util.Records;
 
 import eu.stratosphere.nephele.configuration.ConfigConstants;
+import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.jobmanager.JobManager;
+import eu.stratosphere.nephele.taskmanager.bufferprovider.GlobalBufferPool;
 
 public class ApplicationMaster {
 
@@ -112,6 +114,7 @@ public class ApplicationMaster {
 		final String ownHostname = envs.get(Environment.NM_HOST.key());
 		int appId = Integer.valueOf(envs.get(Client.ENV_APP_ID));
 		final String localDirs = envs.get(Environment.LOCAL_DIRS.key());
+		final String applicationMasterHost = envs.get(Environment.NM_HOST.key());
 		final String remoteStratosphereJarPath = envs.get(Client.STRATOSPHERE_JAR_PATH);
 		final int taskManagerCount = Integer.valueOf(envs.get(Client.ENV_TM_COUNT));
 		final int memoryPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_MEMORY));
@@ -170,9 +173,8 @@ public class ApplicationMaster {
 		nmClient.start();
 
 		// Register with ResourceManager
-		System.out.println("registerApplicationMaster 0");
-		rmClient.registerApplicationMaster("", 0, "");
-		System.out.println("registerApplicationMaster 1");
+		LOG.info("registering ApplicationMaster");
+		rmClient.registerApplicationMaster(applicationMasterHost, 0, "http://"+applicationMasterHost+":"+GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_WEB_PORT_KEY, "undefined"));
 
 		// Priority for worker containers - priorities are intra-application
 		Priority priority = Records.newRecord(Priority.class);
