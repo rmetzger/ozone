@@ -1,6 +1,40 @@
+/***********************************************************************************************************************
+ *
+ * Copyright (C) 2013 by the Stratosphere project (http://stratosphere.eu)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ **********************************************************************************************************************/
+
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package eu.stratosphere.yarn;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
@@ -20,6 +54,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -37,12 +72,21 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 
+/**
+ * All classes in this package contain code taken from
+ * https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/Client.java?source=cc
+ * and
+ * https://github.com/hortonworks/simple-yarn-app
+ * 
+ * The Stratosphere jar is uploaded to HDFS by this client. 
+ * The application master and all the TaskManager containers get the jar file downloaded
+ * by YARN into their local fs.
+ * 
+ */
 public class Client {
-	
 	private static final Log LOG = LogFactory.getLog(Client.class);
 	
 	/**
@@ -57,6 +101,9 @@ public class Client {
 	private static final Option CONTAINER = new Option("n","container",true, "Number of Yarn container to allocate (=Number of"
 			+ " TaskTrackers)");
 	
+	static {
+		CONTAINER.setRequired(true);
+	}
 	/**
 	 * Constants
 	 */
@@ -64,6 +111,8 @@ public class Client {
 	public final static String ENV_TM_MEMORY = "_CLIENT_TM_MEMORY";
 	public final static String ENV_TM_CORES = "_CLIENT_TM_CORES";
 	public final static String ENV_TM_COUNT = "_CLIENT_TM_COUNT";
+	public final static String ENV_APP_ID = "_APP_ID";
+	public final static String STRATOSPHERE_JAR_PATH = "_STRATOSPHERE_JAR_PATH"; // the stratosphere jar resource location (in HDFS).
 	
 	private Configuration conf;
 
@@ -72,22 +121,14 @@ public class Client {
 		//
 		//	Command Line Options
 		//
-		OptionGroup optional = new OptionGroup();
-		optional.addOption(VERBOSE);
-		optional.addOption(STRATOSPHERE_CONF);
-		optional.addOption(STRATOSPHERE_JAR);
-		optional.addOption(JM_MEMORY);
-		optional.addOption(TM_MEMORY);
-		optional.addOption(TM_CORES);
-		optional.setRequired(false);
-		
-		OptionGroup required = new OptionGroup();
-		required.addOption(CONTAINER);
-		required.setRequired(true);
-		
 		Options options = new Options();
-		options.addOptionGroup(required);
-		options.addOptionGroup(optional);
+		options.addOption(VERBOSE);
+		options.addOption(STRATOSPHERE_CONF);
+		options.addOption(STRATOSPHERE_JAR);
+		options.addOption(JM_MEMORY);
+		options.addOption(TM_MEMORY);
+		options.addOption(TM_CORES);
+		options.addOption(CONTAINER);
 		
 		
 		CommandLineParser parser = new PosixParser();
@@ -102,12 +143,17 @@ public class Client {
 			formatter.setLeftPadding(5);
 			formatter.setSyntaxPrefix("   Required");
 			Options req = new Options();
-			req.addOptionGroup(required);
+			req.addOption(CONTAINER);
 			formatter.printHelp(" ", req);
 			
 			formatter.setSyntaxPrefix("   Optional");
 			Options opt = new Options();
-			opt.addOptionGroup(optional);
+			opt.addOption(VERBOSE);
+			opt.addOption(STRATOSPHERE_CONF);
+			opt.addOption(STRATOSPHERE_JAR);
+			opt.addOption(JM_MEMORY);
+			opt.addOption(TM_MEMORY);
+			opt.addOption(TM_CORES);
 			formatter.printHelp(" ", opt);
 			System.exit(1);
 		}
@@ -120,6 +166,7 @@ public class Client {
 			root.addAppender(appender);
 			if(cmd.hasOption(VERBOSE.getOpt())) {
 				root.setLevel(Level.DEBUG);
+				LOG.debug("CLASSPATH: "+System.getProperty("java.class.path"));
 			} else {
 				root.setLevel(Level.INFO);
 			}
@@ -130,15 +177,15 @@ public class Client {
 		
 		
 		// Jar Path
-		Path jarPath;
+		Path localJarPath;
 		if(cmd.hasOption(STRATOSPHERE_JAR.getOpt())) {
 			String userPath = cmd.getOptionValue(STRATOSPHERE_JAR.getOpt());
 			if(!userPath.startsWith("file://")) {
 				userPath = "file://" + userPath;
 			}
-			jarPath = new Path(userPath);
+			localJarPath = new Path(userPath);
 		} else {
-			jarPath = new Path("file://"+Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			localJarPath = new Path("file://"+Client.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		}
 		
 		// Conf Path 
@@ -161,7 +208,13 @@ public class Client {
 			if(candidates == null || candidates.length == 0) {
 				System.out.println("No configuration file has been found in current directory.\n"
 						+ "Copying default.");
-				JarFile jar = new JarFile(jarPath.toUri().getPath());
+				JarFile jar = null;
+				try {
+					jar = new JarFile(localJarPath.toUri().getPath());
+				} catch(FileNotFoundException fne) {
+					LOG.fatal("Unable to access jar file. Specify jar file or configuration file.", fne);
+					System.exit(1);
+				}
 				InputStream confStream = jar.getInputStream(jar.getEntry("stratosphere-conf.yaml"));
 				
 				if(confStream == null) {
@@ -220,16 +273,22 @@ public class Client {
 
 		System.out.println("Using values:");
 		System.out.println("\tContainer Count = "+taskManagerCount);
-		System.out.println("\tJar Path = "+jarPath.toUri().getPath());
+		System.out.println("\tJar Path = "+localJarPath.toUri().getPath());
 		System.out.println("\tConfiguration file = "+confPath.toUri().getPath());
 		System.out.println("\tJobManager memory = "+jmMemory);
 		System.out.println("\tTaskManager memory = "+tmMemory);
 		System.out.println("\tTaskManager cores = "+tmCores);
 
-		
-		// Create yarnClient
 		conf = Utils.initializeYarnConfiguration();
 		
+		// intialize HDFS
+	    LOG.info("Copy App Master jar from local filesystem and add to local environment");
+	    // Copy the application master jar to the filesystem 
+	    // Create a local resource to point to the destination jar path 
+	    FileSystem fs = FileSystem.get(conf);
+	    
+		
+	    // Create yarnClient
 		YarnClient yarnClient = YarnClient.createYarnClient();
 		yarnClient.init(conf);
 		yarnClient.start();
@@ -250,25 +309,33 @@ public class Client {
 
 		System.err.println("amCommand="+amCommand);
 		
+		// Set-up ApplicationSubmissionContext for the application
+		ApplicationSubmissionContext appContext = app.getApplicationSubmissionContext();
+		ApplicationId appId = appContext.getApplicationId();
+		
 		// Setup jar for ApplicationMaster
 		LocalResource appMasterJar = Records.newRecord(LocalResource.class);
 		LocalResource stratosphereConf = Records.newRecord(LocalResource.class);
-		Utils.setupLocalResource(conf, jarPath, appMasterJar);
-		Utils.setupLocalResource(conf, confPath, stratosphereConf);
+		Path remotePathJar = Utils.setupLocalResource(conf, fs, appId.getId(), localJarPath, appMasterJar);
+		Utils.setupLocalResource(conf, fs, appId.getId(), confPath, stratosphereConf);
 		
 		Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
 		localResources.put("stratosphere.jar", appMasterJar);
 		localResources.put("stratosphere-conf.yaml", stratosphereConf);
 		
+				
 		amContainer.setLocalResources(localResources);
+		
 
 		// Setup CLASSPATH for ApplicationMaster
 		Map<String, String> appMasterEnv = new HashMap<String, String>();
 		Utils.setupEnv(conf, appMasterEnv);
 		// set configuration values
-		appMasterEnv.put(ENV_TM_COUNT, String.valueOf(taskManagerCount));
-		appMasterEnv.put(ENV_TM_CORES, String.valueOf(tmCores));
-		appMasterEnv.put(ENV_TM_MEMORY, String.valueOf(tmMemory));
+		appMasterEnv.put(Client.ENV_TM_COUNT, String.valueOf(taskManagerCount));
+		appMasterEnv.put(Client.ENV_TM_CORES, String.valueOf(tmCores));
+		appMasterEnv.put(Client.ENV_TM_MEMORY, String.valueOf(tmMemory));
+		appMasterEnv.put(Client.STRATOSPHERE_JAR_PATH, remotePathJar.toString() );
+		appMasterEnv.put(Client.ENV_APP_ID, String.valueOf(appId.getId()));
 		
 		amContainer.setEnvironment(appMasterEnv);
 
@@ -277,16 +344,13 @@ public class Client {
 		capability.setMemory(jmMemory);
 		capability.setVirtualCores(1);
 
-		// Finally, set-up ApplicationSubmissionContext for the application
-		ApplicationSubmissionContext appContext = app
-				.getApplicationSubmissionContext();
+		
 		appContext.setApplicationName("Stratosphere"); // application name
 		appContext.setAMContainerSpec(amContainer);
 		appContext.setResource(capability);
 		appContext.setQueue("default"); // queue
 
-		// Submit application
-		ApplicationId appId = appContext.getApplicationId();
+				
 		System.out.println("Submitting application master " + appId);
 		yarnClient.submitApplication(appContext);
 
