@@ -70,7 +70,6 @@ import org.apache.hadoop.yarn.util.Records;
 import eu.stratosphere.nephele.configuration.ConfigConstants;
 import eu.stratosphere.nephele.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.jobmanager.JobManager;
-import eu.stratosphere.nephele.taskmanager.bufferprovider.GlobalBufferPool;
 
 public class ApplicationMaster {
 
@@ -100,11 +99,11 @@ public class ApplicationMaster {
 		}
 	}
 	public static void main(String[] args) throws Exception {
-		LOG.info("CLASSPATH: "+System.getProperty("java.class.path"));
-		Map<String, String> env = System.getenv();
-        for (String envName : env.keySet()) {
-        	LOG.info(envName+"="+env.get(envName));
-        }
+		// LOG.info("CLASSPATH: "+System.getProperty("java.class.path"));
+//		Map<String, String> env = System.getenv();
+//        for (String envName : env.keySet()) {
+//        	LOG.info(envName+"="+env.get(envName));
+//        }
 		
 		// Initialize clients to ResourceManager and NodeManagers
 		Configuration conf = Utils.initializeYarnConfiguration();

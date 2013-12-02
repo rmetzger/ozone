@@ -48,7 +48,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.ApplicationConstants.Environment;
 import org.apache.hadoop.yarn.api.records.LocalResource;
@@ -130,30 +129,6 @@ public class Utils {
 		Apps.addToEnvironment(appMasterEnv, Environment.CLASSPATH.name(), Environment.PWD.$() + File.separator + "*");
 	}
 	
-//	 private void addToLocalResources(FileSystem fs, String fileSrcPath,
-//		      String fileDstPath, int appId, Map<String, LocalResource> localResources,
-//		      String resources) throws IOException {
-//		    
-//		    if (fileSrcPath == null) {
-//		      FSDataOutputStream ostream = null;
-//		      try {
-//		        ostream = FileSystem
-//		            .create(fs, dst, new FsPermission((short) 0710));
-//		        ostream.writeUTF(resources);
-//		      } finally {
-//		        IOUtils.closeQuietly(ostream);
-//		      }
-//		    } else {
-//		      fs.copyFromLocalFile(new Path(fileSrcPath), dst);
-//		    }
-//		    FileStatus scFileStatus = fs.getFileStatus(dst);
-//		    LocalResource scRsrc =
-//		        LocalResource.newInstance(
-//		            ConverterUtils.getYarnUrlFromURI(dst.toUri()),
-//		            LocalResourceType.FILE, LocalResourceVisibility.APPLICATION,
-//		            scFileStatus.getLen(), scFileStatus.getModificationTime());
-//		    localResources.put(fileDstPath, scRsrc);
-//		  }
 	 
 	/**
 	 * 
@@ -166,14 +141,8 @@ public class Utils {
 		String suffix = ".stratosphere/" + appId + "/" + localRsrcPath.getName();
 		
 	    Path dst = new Path(fs.getHomeDirectory(), suffix);
-//	    if(!fs.exists(dst)) {
-//	    	Log.info("Creating directory for application (Path="+dst+")");
-//	    	FileSystem.create(fs, dst, new FsPermission((short) 0710));
-//	    }
 	    
 	    fs.copyFromLocalFile(localRsrcPath, dst);
-	  //  FileSystem localFs = FileSystem.newInstanceLocal(conf);
-	    // set localresource details
 	    registerLocalResource(fs, dst, appMasterJar);
 	    return dst;
 	}
@@ -181,7 +150,6 @@ public class Utils {
 	public static void registerLocalResource(FileSystem fs, Path remoteRsrcPath, LocalResource appMasterJar) throws IOException {
 		FileStatus jarStat = fs.getFileStatus(remoteRsrcPath);
 		appMasterJar.setResource(ConverterUtils.getYarnUrlFromURI(remoteRsrcPath.toUri()));
-		LOG.info("Setting resource path to "+ConverterUtils.getYarnUrlFromURI(remoteRsrcPath.toUri()));
 		appMasterJar.setSize(jarStat.getLen());
 		appMasterJar.setTimestamp(jarStat.getModificationTime());
 		appMasterJar.setType(LocalResourceType.FILE);
