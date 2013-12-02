@@ -365,6 +365,7 @@ public class Client {
 				System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
 				told = true;
 			}
+			System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
 			Thread.sleep(5000);
 			appReport = yarnClient.getApplicationReport(appId);
 			appState = appReport.getYarnApplicationState();

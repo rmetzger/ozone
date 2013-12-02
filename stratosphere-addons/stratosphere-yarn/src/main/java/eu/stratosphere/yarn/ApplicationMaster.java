@@ -116,7 +116,9 @@ public class ApplicationMaster {
 		final int taskManagerCount = Integer.valueOf(envs.get(Client.ENV_TM_COUNT));
 		final int memoryPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_MEMORY));
 		final int coresPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_CORES));
-		final int heapLimit = (int)((float)memoryPerTaskManager*0.9);
+		
+		final int heapLimit = (int)((float)memoryPerTaskManager*0.7);
+		
 		if(currDir == null) throw new RuntimeException("Current directory unknown");
 		if(ownHostname == null) throw new RuntimeException("Own hostname ("+Environment.NM_HOST+") not set.");
 		LOG.info("Working directory "+currDir);
