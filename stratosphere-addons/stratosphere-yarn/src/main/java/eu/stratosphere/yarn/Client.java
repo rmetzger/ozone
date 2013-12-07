@@ -148,27 +148,7 @@ public class Client {
 			cmd = parser.parse( options, args);
 		} catch(MissingOptionException moe) {
 			System.out.println(moe.getMessage());
-			System.out.println("Usage:");
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.setWidth(200);
-			formatter.setLeftPadding(5);
-			formatter.setSyntaxPrefix("   Required");
-			Options req = new Options();
-			req.addOption(CONTAINER);
-			formatter.printHelp(" ", req);
-			
-			formatter.setSyntaxPrefix("   Optional");
-			Options opt = new Options();
-			opt.addOption(VERBOSE);
-			opt.addOption(GEN_CONF);
-			opt.addOption(STRATOSPHERE_CONF);
-			opt.addOption(STRATOSPHERE_JAR);
-			opt.addOption(JM_MEMORY);
-			opt.addOption(TM_MEMORY);
-			opt.addOption(TM_CORES);
-			opt.addOption(QUERY);
-			opt.addOption(QUEUE);
-			formatter.printHelp(" ", opt);
+			printUsage();
 			System.exit(1);
 		}
 		
@@ -287,6 +267,7 @@ public class Client {
 		}
 		if(!cmd.hasOption(CONTAINER.getOpt())) {
 			LOG.fatal("Missing required argument "+CONTAINER.getOpt());
+			printUsage();
 			yarnClient.stop();
 			System.exit(1);
 		}
@@ -418,6 +399,30 @@ public class Client {
 			LOG.warn("Application failed. Diagnostics "+appReport.getDiagnostics());
 		}
 		
+	}
+
+	private void printUsage() {
+		System.out.println("Usage:");
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.setWidth(200);
+		formatter.setLeftPadding(5);
+		formatter.setSyntaxPrefix("   Required");
+		Options req = new Options();
+		req.addOption(CONTAINER);
+		formatter.printHelp(" ", req);
+		
+		formatter.setSyntaxPrefix("   Optional");
+		Options opt = new Options();
+		opt.addOption(VERBOSE);
+		opt.addOption(GEN_CONF);
+		opt.addOption(STRATOSPHERE_CONF);
+		opt.addOption(STRATOSPHERE_JAR);
+		opt.addOption(JM_MEMORY);
+		opt.addOption(TM_MEMORY);
+		opt.addOption(TM_CORES);
+		opt.addOption(QUERY);
+		opt.addOption(QUEUE);
+		formatter.printHelp(" ", opt);
 	}
 
 	private void showClusterMetrics(YarnClient yarnClient)
