@@ -113,9 +113,6 @@ public class Client {
 	private static final Option CONTAINER = new Option("n","container",true, "Number of Yarn container to allocate (=Number of"
 			+ " TaskTrackers)");
 	
-	static {
-		CONTAINER.setRequired(true);
-	}
 	/**
 	 * Constants
 	 */
@@ -133,7 +130,7 @@ public class Client {
 		//
 		//	Command Line Options
 		//
-		OptionGroup options = new OptionGroup();
+		Options options = new Options();
 		options.addOption(VERBOSE);
 		options.addOption(STRATOSPHERE_CONF);
 		options.addOption(STRATOSPHERE_JAR);
@@ -143,20 +140,12 @@ public class Client {
 		options.addOption(CONTAINER);
 		options.addOption(GEN_CONF);
 		options.addOption(QUEUE);
-//		for(Iterator<Option> i = options.getOptions().iterator(); i.hasNext(); ) {
-//			std.addOption(i.next());
-//		}
-		OptionGroup query = new OptionGroup();
-		query.addOption(QUERY);
-		
-		Options opts = new Options();
-		opts.addOptionGroup(options);
-		opts.addOptionGroup(query);
+		options.addOption(QUERY);
 		
 		CommandLineParser parser = new PosixParser();
 		CommandLine cmd = null;
 		try {
-			cmd = parser.parse( opts, args);
+			cmd = parser.parse( options, args);
 		} catch(MissingOptionException moe) {
 			System.out.println(moe.getMessage());
 			System.out.println("Usage:");
@@ -196,8 +185,6 @@ public class Client {
 				root.setLevel(Level.INFO);
 			}
 		}
-		
-		
 		
 		
 		// Jar Path
@@ -282,10 +269,6 @@ public class Client {
 		}
 		conf = Utils.initializeYarnConfiguration();
 		
-		
-
-		
-		
 		// intialize HDFS
 	    LOG.info("Copy App Master jar from local filesystem and add to local environment");
 	    // Copy the application master jar to the filesystem 
@@ -298,8 +281,14 @@ public class Client {
 		yarnClient.init(conf);
 		yarnClient.start();
 		
+		// Query cluster for metrics
 		if(cmd.hasOption(QUERY.getOpt())) {
 			showClusterMetrics(yarnClient);
+		}
+		if(!cmd.hasOption(CONTAINER.getOpt())) {
+			LOG.fatal("Missing required argument "+CONTAINER.getOpt());
+			yarnClient.stop();
+			System.exit(1);
 		}
 		
 		// TM Count
@@ -443,9 +432,11 @@ public class Client {
 		int totalCores = 0;
 		for(NodeReport rep : nodes) {
 			final Resource res = rep.getCapability();
+			totalMemory += res.getMemory();
+			totalCores += res.getVirtualCores();
 			System.out.format(format, "NodeID", rep.getNodeId());
-			System.out.format(format, "Memory", totalMemory+=res.getMemory());
-			System.out.format(format, "vCores", totalCores+=res.getVirtualCores());
+			System.out.format(format, "Memory", res.getMemory()+" MB");
+			System.out.format(format, "vCores", res.getVirtualCores());
 			System.out.format(format, "HealthReport", rep.getHealthReport());
 			System.out.format(format, "Containers", rep.getNumContainers());
 			System.out.println("+---------------------------------------+");
