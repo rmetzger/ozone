@@ -294,7 +294,7 @@ public class Client {
 	    
 		
 	    // Create yarnClient
-		YarnClient yarnClient = YarnClient.createYarnClient();
+		final YarnClient yarnClient = YarnClient.createYarnClient();
 		yarnClient.init(conf);
 		yarnClient.start();
 		
@@ -316,6 +316,19 @@ public class Client {
 		// Create application via yarnClient
 		YarnClientApplication app = yarnClient.createApplication();
 		GetNewApplicationResponse appResponse = app.getNewApplicationResponse();
+		Resource maxRes = appResponse.getMaximumResourceCapability();
+		if(tmMemory > maxRes.getMemory() || tmCores > maxRes.getVirtualCores()) {
+			LOG.fatal("The cluster does not have the requested resources for the TaskManagers available!\n"
+					+ "Maximum Memory: "+maxRes.getMemory() +", Maximum Cores: "+tmCores);
+			yarnClient.stop();
+			System.exit(1);
+		}
+		if(jmMemory > maxRes.getMemory() ) {
+			LOG.fatal("The cluster does not have the requested resources for the JobManager available!\n"
+					+ "Maximum Memory: "+maxRes.getMemory());
+			yarnClient.stop();
+			System.exit(1);
+		}
 
 		// Set up the container launch context for the application master
 		ContainerLaunchContext amContainer = Records
@@ -375,6 +388,13 @@ public class Client {
 		LOG.info("Submitting application master " + appId);
 		yarnClient.submitApplication(appContext);
 		
+		 Runtime.getRuntime().addShutdownHook(new Thread() {
+		   @Override
+		   public void run() {
+		    LOG.info("YARN Client is shutting down");
+		    yarnClient.stop();
+		   }
+		  });
 		ApplicationReport appReport = yarnClient.getApplicationReport(appId);
 		YarnApplicationState appState = appReport.getYarnApplicationState();
 		boolean told = false;
