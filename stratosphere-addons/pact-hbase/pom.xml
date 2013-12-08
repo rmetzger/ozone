@@ -11,18 +11,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	
-	<repositories>
-		<repository>
-			<id>cloudera-releases</id>
-			<url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+
 
 	<properties>
  		<hbase.version>0.96.0-hadoop2</hbase.version>
