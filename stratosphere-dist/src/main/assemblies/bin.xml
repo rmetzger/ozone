@@ -33,9 +33,6 @@
 				<exclude>**/*sources*</exclude>
 				-->
 				<!--
-				<exclude>eu.stratosphere:pact-clients:**</exclude> 
-				-->
-				<!--
 				  This is a hardcoded exclude-list containing all libraries that are exclusively used in pact-clients.
 				  The previous command did not work because it also excludes libraries that should be in lib, such as commons-io.
 				-->
@@ -52,7 +49,7 @@
 			<useTransitiveFiltering>true</useTransitiveFiltering>
 			
 			<includes>
-				<include>eu.stratosphere:pact-clients:**</include>
+				<include>eu.stratosphere:stratosphere-clients:**</include>
 			</includes>
 			
 			<!--
