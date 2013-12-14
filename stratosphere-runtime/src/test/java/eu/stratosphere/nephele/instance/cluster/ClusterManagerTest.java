@@ -335,8 +335,11 @@ public class ClusterManagerTest {
 	 */
 	@Test
 	public void testCleanUp() {
-
-		GlobalConfiguration.loadConfiguration(System.getProperty(USER_DIR_KEY) + CORRECT_CONF_DIR);
+		final String configDir = getConfigDir();
+		if (configDir == null) {
+			fail("Cannot find configuration directory for cluster manager test");
+		}
+		GlobalConfiguration.loadConfiguration(configDir);
 
 		final TestInstanceListener testInstanceListener = new TestInstanceListener();
 		final ClusterManager cm = new ClusterManager();
