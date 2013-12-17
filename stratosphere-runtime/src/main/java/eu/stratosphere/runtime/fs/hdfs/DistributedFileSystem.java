@@ -50,7 +50,7 @@ public final class DistributedFileSystem extends FileSystem {
 
 	private final Configuration conf;
 
-	private final org.apache.hadoop.fs.FileSystem fs;
+	private org.apache.hadoop.fs.FileSystem fs;
 
 
 	/**
@@ -81,6 +81,7 @@ public final class DistributedFileSystem extends FileSystem {
 
 		Class<?> clazz = null;
 		
+		
 		// try to get the FileSystem implementation class Hadoop 2.0.0 style
 		try {
 			Method newApi = org.apache.hadoop.fs.FileSystem.class.getMethod("getFileSystemClass", String.class, org.apache.hadoop.conf.Configuration.class);
@@ -91,18 +92,17 @@ public final class DistributedFileSystem extends FileSystem {
 		}
 		if (clazz == null) {
 			clazz = conf.getClass(HDFS_IMPLEMENTATION_KEY, null);
-		}
-
-		if (clazz == null) {
-			throw new IOException("No FileSystem found for " + HDFS_IMPLEMENTATION_KEY);
-		}
-
-		try {
-			this.fs = (org.apache.hadoop.fs.FileSystem) clazz.newInstance();
-		} catch (InstantiationException e) {
-			throw new IOException("InstantiationException occured: " + StringUtils.stringifyException(e));
-		} catch (IllegalAccessException e) {
-			throw new IOException("IllegalAccessException occured: " + StringUtils.stringifyException(e));
+			if (clazz == null) {
+				this.fs = org.apache.hadoop.fs.FileSystem.get(conf);
+			}
+		} else {
+			try {
+				this.fs = (org.apache.hadoop.fs.FileSystem) clazz.newInstance();
+			} catch (InstantiationException e) {
+				throw new IOException("InstantiationException occured: " + StringUtils.stringifyException(e));
+			} catch (IllegalAccessException e) {
+				throw new IOException("IllegalAccessException occured: " + StringUtils.stringifyException(e));
+			}
 		}
 	}
 
@@ -125,6 +125,10 @@ public final class DistributedFileSystem extends FileSystem {
 		if (path.getAuthority() == null) {
 			
 			String configEntry = this.conf.get("fs.default.name", null);
+			if(configEntry == null) {
+				// fs.default.name depricated as of hadoop 2.2.0 http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/DeprecatedProperties.html
+				configEntry = this.conf.get("fs.defaultFS", null);
+			}
 			
 			if (configEntry == null) {
 				throw new IOException(getMissingAuthorityErrorPrefix(path) + "Either no default hdfs configuration was registered, " +
