@@ -90,6 +90,9 @@ public final class DistributedFileSystem extends FileSystem {
 			possibleHadoopConfPaths[3] = System.getenv("HADOOP_HOME")+"/etc/hadoop"; // hadoop 2.2
 		}
 		for(int i = 0; i < possibleHadoopConfPaths.length; i++) {
+			if(possibleHadoopConfPaths[i] == null) {
+				continue;
+			}
 			if(new File(possibleHadoopConfPaths[i]).exists()) {
 				if(new File(possibleHadoopConfPaths[i]+"/core-site.xml").exists()) {
 					conf.addResource(new org.apache.hadoop.fs.Path(possibleHadoopConfPaths[i]+"/core-site.xml"));
