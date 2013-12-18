@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import eu.stratosphere.api.distributions.DataDistribution;
-import eu.stratosphere.api.operators.Contract;
+import eu.stratosphere.api.operators.Operator;
 import eu.stratosphere.api.operators.GenericDataSink;
 import eu.stratosphere.api.operators.Ordering;
 import eu.stratosphere.compiler.CompilerException;
@@ -94,47 +94,28 @@ public class DataSinkNode extends OptimizerNode {
 		return (GenericDataSink) super.getPactContract();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#getName()
-	 */
 	@Override
 	public String getName() {
 		return "Data Sink";
 	}
 
-
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#isMemoryConsumer()
-	 */
 	@Override
 	public boolean isMemoryConsumer() {
 		return getPactContract().getPartitionOrdering() != null || getPactContract().getLocalOrder() != null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#getIncomingConnections()
-	 */
 	@Override
 	public List<PactConnection> getIncomingConnections() {
 		return Collections.singletonList(this.input);
 	}
-	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#getOutgoingConnections()
-	 */
+
 	public List<PactConnection> getOutgoingConnections() {
 		return Collections.emptyList();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#setInputs(java.util.Map)
-	 */
 	@Override
-	public void setInputs(Map<Contract, OptimizerNode> contractToNode) {
-		List<Contract> children = getPactContract().getInputs();
+	public void setInputs(Map<Operator, OptimizerNode> contractToNode) {
+		List<Operator> children = getPactContract().getInputs();
 
 		final OptimizerNode pred;
 		final PactConnection conn;
@@ -283,7 +264,7 @@ public class DataSinkNode extends OptimizerNode {
 	}
 	
 	// --------------------------------------------------------------------------------------------
-	//                                   Stub Annotation Handling
+	//                                   Function Annotation Handling
 	// --------------------------------------------------------------------------------------------
 	
 	public boolean isFieldConstant(int input, int fieldNumber) {

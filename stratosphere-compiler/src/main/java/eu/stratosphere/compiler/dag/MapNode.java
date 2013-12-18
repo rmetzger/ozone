@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package eu.stratosphere.compiler.dag;
 import java.util.Collections;
 import java.util.List;
 
-import eu.stratosphere.api.operators.base.GenericMapContract;
+import eu.stratosphere.api.operators.base.MapOperatorBase;
 import eu.stratosphere.compiler.operators.MapDescriptor;
 import eu.stratosphere.compiler.operators.OperatorDescriptorSingle;
 
@@ -32,7 +32,7 @@ public class MapNode extends SingleInputNode {
 	 * 
 	 * @param pactContract The map contract object.
 	 */
-	public MapNode(GenericMapContract<?> pactContract) {
+	public MapNode(MapOperatorBase<?> pactContract) {
 		super(pactContract);
 	}
 
@@ -42,14 +42,10 @@ public class MapNode extends SingleInputNode {
 	 * @return The contract.
 	 */
 	@Override
-	public GenericMapContract<?> getPactContract() {
-		return (GenericMapContract<?>) super.getPactContract();
+	public MapOperatorBase<?> getPactContract() {
+		return (MapOperatorBase<?>) super.getPactContract();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#getName()
-	 */
 	@Override
 	public String getName() {
 		return "Map";
@@ -67,9 +63,6 @@ public class MapNode extends SingleInputNode {
 			return -1;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.SingleInputNode#getPossibleProperties()
-	 */
 	@Override
 	protected List<OperatorDescriptorSingle> getPossibleProperties() {
 		return Collections.<OperatorDescriptorSingle>singletonList(new MapDescriptor());

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -46,17 +46,13 @@ public final class PactRecordSerializer extends TypeSerializer<PactRecord>
 
 	// --------------------------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeAccessors#createInstance()
-	 */
+
 	@Override
 	public PactRecord createInstance() {
 		return new PactRecord(); 
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeAccessors#createCopy(java.lang.Object)
-	 */
+
 	@Override
 	public PactRecord createCopy(PactRecord from) {
 		return from.createCopy();
@@ -70,9 +66,7 @@ public final class PactRecordSerializer extends TypeSerializer<PactRecord>
 		from.copyTo(to);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeAccessorsV2#getLength()
-	 */
+
 	@Override
 	public int getLength() {
 		return -1;

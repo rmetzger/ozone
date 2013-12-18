@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -26,8 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import eu.stratosphere.api.functions.GenericReducer;
-import eu.stratosphere.api.operators.base.GenericReduceContract.Combinable;
-import eu.stratosphere.api.record.functions.ReduceStub;
+import eu.stratosphere.api.operators.base.ReduceOperatorBase.Combinable;
+import eu.stratosphere.api.record.functions.ReduceFunction;
 import eu.stratosphere.pact.runtime.plugable.pactrecord.PactRecordComparator;
 import eu.stratosphere.pact.runtime.plugable.pactrecord.PactRecordSerializer;
 import eu.stratosphere.pact.runtime.sort.CombiningUnilateralSortMerger;
@@ -206,7 +206,7 @@ public class ReduceTaskExternalITCase extends DriverTestBase<GenericReducer<Pact
 		
 	}
 	
-	public static class MockReduceStub extends ReduceStub {
+	public static class MockReduceStub extends ReduceFunction {
 
 		private final PactInteger key = new PactInteger();
 		private final PactInteger value = new PactInteger();
@@ -228,7 +228,7 @@ public class ReduceTaskExternalITCase extends DriverTestBase<GenericReducer<Pact
 	}
 	
 	@Combinable
-	public static class MockCombiningReduceStub extends ReduceStub {
+	public static class MockCombiningReduceStub extends ReduceFunction {
 
 		private final PactInteger key = new PactInteger();
 		private final PactInteger value = new PactInteger();

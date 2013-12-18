@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import eu.stratosphere.util.Collector;
 
 
 
-public interface GenericCrosser<V1, V2, O> extends Stub
+public interface GenericCrosser<V1, V2, O> extends Function
 {
 	void cross(V1 record1, V2 record2, Collector<O> out) throws Exception;
 }

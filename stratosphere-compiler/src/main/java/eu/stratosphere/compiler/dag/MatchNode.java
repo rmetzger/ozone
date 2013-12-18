@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import eu.stratosphere.api.operators.base.GenericMatchContract;
+import eu.stratosphere.api.operators.base.JoinOperatorBase;
 import eu.stratosphere.api.operators.util.FieldSet;
 import eu.stratosphere.compiler.CompilerException;
 import eu.stratosphere.compiler.PactCompiler;
@@ -40,7 +40,7 @@ public class MatchNode extends TwoInputNode {
 	 * 
 	 * @param pactContract The match contract object.
 	 */
-	public MatchNode(GenericMatchContract<?> pactContract) {
+	public MatchNode(JoinOperatorBase<?> pactContract) {
 		super(pactContract);
 	}
 
@@ -52,22 +52,15 @@ public class MatchNode extends TwoInputNode {
 	 * @return The contract.
 	 */
 	@Override
-	public GenericMatchContract<?> getPactContract() {
-		return (GenericMatchContract<?>) super.getPactContract();
+	public JoinOperatorBase<?> getPactContract() {
+		return (JoinOperatorBase<?>) super.getPactContract();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#getName()
-	 */
 	@Override
 	public String getName() {
 		return "Match";
 	}
-	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.TwoInputNode#getPossibleProperties()
-	 */
+
 	@Override
 	protected List<OperatorDescriptorDual> getPossibleProperties() {
 		// see if an internal hint dictates the strategy to use

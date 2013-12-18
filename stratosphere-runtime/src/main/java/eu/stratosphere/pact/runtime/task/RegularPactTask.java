@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -23,12 +23,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import eu.stratosphere.accumulators.Accumulator;
-import eu.stratosphere.accumulators.AccumulatorHelper;
+import eu.stratosphere.api.accumulators.Accumulator;
+import eu.stratosphere.api.accumulators.AccumulatorHelper;
 import eu.stratosphere.api.distributions.DataDistribution;
 import eu.stratosphere.api.functions.GenericReducer;
 import eu.stratosphere.api.functions.RuntimeContext;
-import eu.stratosphere.api.functions.Stub;
+import eu.stratosphere.api.functions.Function;
 import eu.stratosphere.api.typeutils.TypeComparator;
 import eu.stratosphere.api.typeutils.TypeComparatorFactory;
 import eu.stratosphere.api.typeutils.TypeSerializer;
@@ -82,7 +82,7 @@ import eu.stratosphere.util.MutableObjectIterator;
  * The abstract base class for all Pact tasks. Encapsulated common behavior and implements the main life-cycle
  * of the user code.
  */
-public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements PactTaskContext<S, OT> {
+public class RegularPactTask<S extends Function, OT> extends AbstractTask implements PactTaskContext<S, OT> {
 	
 	protected static final Log LOG = LogFactory.getLog(RegularPactTask.class);
 	
@@ -897,73 +897,55 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 	//                                   Task Context Signature
 	// -------------------------------------------------------------------------------------------
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getTaskConfig()
-	 */
+
 	@Override
 	public TaskConfig getTaskConfig() {
 		return this.config;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getUserCodeClassLoader()
-	 */
+
 	@Override
 	public ClassLoader getUserCodeClassLoader() {
 		return this.userCodeClassLoader;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getMemoryManager()
-	 */
+
 	@Override
 	public MemoryManager getMemoryManager() {
 		return getEnvironment().getMemoryManager();
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getIOManager()
-	 */
+
 	@Override
 	public IOManager getIOManager() {
 		return getEnvironment().getIOManager();
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getStub()
-	 */
+
 	@Override
 	public S getStub() {
 		return this.stub;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getOutputCollector()
-	 */
+
 	@Override
 	public Collector<OT> getOutputCollector() {
 		return this.output;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getOwningNepheleTask()
-	 */
+
 	@Override
 	public AbstractInvokable getOwningNepheleTask() {
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#formatLogString(java.lang.String)
-	 */
+
 	@Override
 	public String formatLogString(String message) {
 		return constructLogString(message, getEnvironment().getTaskName(), this);
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getInput(int)
-	 */
+
 	@Override
 	public <X> MutableObjectIterator<X> getInput(int index) {
 		if (index < 0 || index > this.driver.getNumberOfInputs()) {
@@ -999,9 +981,7 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getInputSerializer(int)
-	 */
+
 	@Override
 	public <X> TypeSerializer<X> getInputSerializer(int index) {
 		if (index < 0 || index >= this.driver.getNumberOfInputs()) {
@@ -1014,9 +994,7 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 	}
 
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactTaskContext#getInputComparator(int)
-	 */
+
 	@Override
 	public <X> TypeComparator<X> getInputComparator(int index) {
 		if (this.inputComparators == null) {
@@ -1284,7 +1262,7 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 	// --------------------------------------------------------------------------------------------
 	
 	/**
-	 * Opens the given stub using its {@link Stub#open(Configuration)} method. If the open call produces
+	 * Opens the given stub using its {@link Function#open(Configuration)} method. If the open call produces
 	 * an exception, a new exception with a standard error message is created, using the encountered exception
 	 * as its cause.
 	 * 
@@ -1293,7 +1271,7 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 	 * 
 	 * @throws Exception Thrown, if the user code's open method produces an exception.
 	 */
-	public static void openUserCode(Stub stub, Configuration parameters) throws Exception {
+	public static void openUserCode(Function stub, Configuration parameters) throws Exception {
 		try {
 			stub.open(parameters);
 		} catch (Throwable t) {
@@ -1302,7 +1280,7 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 	}
 	
 	/**
-	 * Closes the given stub using its {@link Stub#close()} method. If the close call produces
+	 * Closes the given stub using its {@link Function#close()} method. If the close call produces
 	 * an exception, a new exception with a standard error message is created, using the encountered exception
 	 * as its cause.
 	 * 
@@ -1310,7 +1288,7 @@ public class RegularPactTask<S extends Stub, OT> extends AbstractTask implements
 	 * 
 	 * @throws Exception Thrown, if the user code's close method produces an exception.
 	 */
-	public static void closeUserCode(Stub stub) throws Exception {
+	public static void closeUserCode(Function stub) throws Exception {
 		try {
 			stub.close();
 		} catch (Throwable t) {

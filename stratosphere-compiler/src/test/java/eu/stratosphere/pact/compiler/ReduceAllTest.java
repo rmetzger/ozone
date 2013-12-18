@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -19,9 +19,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import eu.stratosphere.api.Job;
 import eu.stratosphere.api.operators.FileDataSink;
 import eu.stratosphere.api.operators.FileDataSource;
-import eu.stratosphere.api.plan.Plan;
 import eu.stratosphere.api.record.operators.ReduceOperator;
 import eu.stratosphere.compiler.CompilerException;
 import eu.stratosphere.compiler.plan.OptimizedPlan;
@@ -43,7 +43,7 @@ public class ReduceAllTest extends CompilerTestBase {
 		ReduceOperator reduce1 = ReduceOperator.builder(new IdentityReduce()).name("Reduce1").input(source).build();
 		FileDataSink sink = new FileDataSink(new DummyOutputFormat(), OUT_FILE, "Sink");
 		sink.setInput(reduce1);
-		Plan plan = new Plan(sink, "AllReduce Test");
+		Job plan = new Job(sink, "AllReduce Test");
 		plan.setDefaultParallelism(DEFAULT_PARALLELISM);
 		
 		

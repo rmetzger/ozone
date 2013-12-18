@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -17,15 +17,15 @@ package eu.stratosphere.pact.compiler.util;
 
 import java.io.Serializable;
 
-import eu.stratosphere.api.record.functions.CrossStub;
+import eu.stratosphere.api.record.functions.CrossFunction;
 import eu.stratosphere.types.PactRecord;
 import eu.stratosphere.util.Collector;
 
-public class DummyCrossStub extends CrossStub implements Serializable {
+public class DummyCrossStub extends CrossFunction implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/* (non-Javadoc)
-	 * @see eu.stratosphere.api.record.functions.CrossStub#cross(eu.stratosphere.pact.common.type.PactRecord, eu.stratosphere.pact.common.type.PactRecord, eu.stratosphere.api.record.functions.Collector)
+	 * @see eu.stratosphere.api.record.functions.CrossFunction#cross(eu.stratosphere.pact.common.type.PactRecord, eu.stratosphere.pact.common.type.PactRecord, eu.stratosphere.api.record.functions.Collector)
 	 */
 	@Override
 	public void cross(PactRecord record1, PactRecord record2, Collector<PactRecord> out) {

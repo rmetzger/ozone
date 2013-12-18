@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package eu.stratosphere.compiler.operators;
 import java.util.Collections;
 import java.util.List;
 
-import eu.stratosphere.api.operators.base.GenericReduceContract;
+import eu.stratosphere.api.operators.base.ReduceOperatorBase;
 import eu.stratosphere.api.operators.util.FieldSet;
 import eu.stratosphere.compiler.dag.ReduceNode;
 import eu.stratosphere.compiler.dag.SingleInputNode;
@@ -44,7 +44,7 @@ public final class PartialGroupProperties extends OperatorDescriptorSingle {
 	@Override
 	public SingleInputPlanNode instantiate(Channel in, SingleInputNode node) {
 		// create in input node for combine with same DOP as input node
-		ReduceNode combinerNode = new ReduceNode((GenericReduceContract<?>) node.getPactContract());
+		ReduceNode combinerNode = new ReduceNode((ReduceOperatorBase<?>) node.getPactContract());
 		combinerNode.setDegreeOfParallelism(in.getSource().getDegreeOfParallelism());
 		combinerNode.setSubtasksPerInstance(in.getSource().getSubtasksPerInstance());
 		

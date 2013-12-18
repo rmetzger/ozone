@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -484,9 +484,7 @@ public class HashPartition<BT, PT> extends AbstractPagedInputView implements See
 	}
 
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.io.AbstractPagedInputViewV2#nextSegment(eu.stratosphere.nephele.services.memorymanager.MemorySegment)
-	 */
+
 	@Override
 	protected MemorySegment nextSegment(MemorySegment current) throws IOException {
 		this.currentBufferNum++;
@@ -497,9 +495,7 @@ public class HashPartition<BT, PT> extends AbstractPagedInputView implements See
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.io.AbstractPagedInputViewV2#getLimitForSegment(eu.stratosphere.nephele.services.memorymanager.MemorySegment)
-	 */
+
 	@Override
 	protected int getLimitForSegment(MemorySegment segment) {
 		return segment == this.partitionBuffers[partitionBuffers.length - 1] ? this.finalBufferLimit : this.memorySegmentSize;
@@ -529,9 +525,7 @@ public class HashPartition<BT, PT> extends AbstractPagedInputView implements See
 			this.sizeBits = MathUtils.log2strict(initialSegment.size());
 		}
 		
-		/* (non-Javadoc)
-		 * @see eu.stratosphere.pact.runtime.io.AbstractPagedOutputViewV2#nextSegment(eu.stratosphere.nephele.services.memorymanager.MemorySegment)
-		 */
+
 		@Override
 		protected MemorySegment nextSegment(MemorySegment current, int bytesUsed) throws IOException
 		{

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -104,27 +104,21 @@ public class InterruptibleByteChannel implements ReadableByteChannel, WritableBy
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean isOpen() {
 
 		return this.isOpen;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void close() throws IOException {
 
 		this.isOpen = false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int write(final ByteBuffer src) throws IOException {
 
@@ -157,9 +151,7 @@ public class InterruptibleByteChannel implements ReadableByteChannel, WritableBy
 		return numberOfBytesToAccept;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int read(final ByteBuffer dst) throws IOException {
 

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -35,9 +35,7 @@ public final class TeraOutputFormat extends FileOutputFormat {
 	 */
 	private final byte[] buffer = new byte[TeraKey.KEY_SIZE + TeraValue.VALUE_SIZE + 1];
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void writeRecord(PactRecord record) throws IOException {
 		record.getField(0, TeraKey.class).copyToBuffer(this.buffer);

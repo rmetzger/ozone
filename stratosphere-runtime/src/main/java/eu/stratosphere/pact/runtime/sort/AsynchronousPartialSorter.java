@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -73,9 +73,7 @@ public class AsynchronousPartialSorter<E> extends UnilateralSortMerger<E>
 			2, 0.0f, true);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.sort.UnilateralSortMerger#close()
-	 */
+
 	public void close() {
 		// make a best effort to close the buffer iterator
 		try {
@@ -129,9 +127,7 @@ public class AsynchronousPartialSorter<E> extends UnilateralSortMerger<E>
 			this.queues = queues;
 		}
 
-		/* (non-Javadoc)
-		 * @see eu.stratosphere.pact.common.util.MutableObjectIterator#next(java.lang.Object)
-		 */
+
 		@Override
 		public boolean next(E target) throws IOException {
 			if (this.currentIterator != null && this.currentIterator.next(target)) {

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import java.util.List;
 
 import eu.stratosphere.api.operators.CompilerHints;
 import eu.stratosphere.api.operators.Ordering;
-import eu.stratosphere.api.operators.base.GenericCoGroupContract;
+import eu.stratosphere.api.operators.base.CoGroupOperatorBase;
 import eu.stratosphere.api.operators.util.FieldSet;
 import eu.stratosphere.api.record.operators.CoGroupOperator;
 import eu.stratosphere.compiler.DataStatistics;
@@ -40,7 +40,7 @@ public class CoGroupNode extends TwoInputNode {
 	 * @param pactContract
 	 *        The CoGroup contract object.
 	 */
-	public CoGroupNode(GenericCoGroupContract<?> pactContract) {
+	public CoGroupNode(CoGroupOperatorBase<?> pactContract) {
 		super(pactContract);
 	}
 
@@ -52,8 +52,8 @@ public class CoGroupNode extends TwoInputNode {
 	 * @return The contract.
 	 */
 	@Override
-	public GenericCoGroupContract<?> getPactContract() {
-		return (GenericCoGroupContract<?>) super.getPactContract();
+	public CoGroupOperatorBase<?> getPactContract() {
+		return (CoGroupOperatorBase<?>) super.getPactContract();
 	}
 
 	@Override
@@ -146,10 +146,6 @@ public class CoGroupNode extends TwoInputNode {
 		return this.computeNumberOfProcessedKeys();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#computeOutputEstimates(eu.stratosphere.pact.compiler.DataStatistics)
-	 */
 	@Override
 	public void computeOutputEstimates(DataStatistics statistics) {
 		CompilerHints hints = getPactContract().getCompilerHints();
@@ -183,10 +179,6 @@ public class CoGroupNode extends TwoInputNode {
 		super.computeOutputEstimates(statistics);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#createUniqueFieldsForNode()
-	 */
 	@Override
 	public List<FieldSet> createUniqueFieldsForNode() {
 		List<FieldSet> uniqueFields = null;

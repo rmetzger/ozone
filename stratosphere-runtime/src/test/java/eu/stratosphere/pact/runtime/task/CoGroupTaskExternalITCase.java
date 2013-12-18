@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import eu.stratosphere.api.functions.GenericCoGrouper;
-import eu.stratosphere.api.record.functions.CoGroupStub;
+import eu.stratosphere.api.record.functions.CoGroupFunction;
 import eu.stratosphere.pact.runtime.plugable.pactrecord.PactRecordComparator;
 import eu.stratosphere.pact.runtime.plugable.pactrecord.PactRecordPairComparatorFactory;
 import eu.stratosphere.pact.runtime.test.util.DriverTestBase;
@@ -82,7 +82,7 @@ public class CoGroupTaskExternalITCase extends DriverTestBase<GenericCoGrouper<P
 		Assert.assertEquals("Wrong result set size.", expCnt, this.output.getNumberOfRecords());
 	}
 	
-	public static final class MockCoGroupStub extends CoGroupStub
+	public static final class MockCoGroupStub extends CoGroupFunction
 	{
 		private final PactRecord res = new PactRecord();
 		

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -34,9 +34,7 @@ public class MutableObjectIteratorWrapper implements MutableObjectIterator<PactR
 		this.source = source;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.util.MutableObjectIterator#next(java.lang.Object)
-	 */
+
 	@Override
 	public boolean next(PactRecord target) throws IOException {
 		if (this.source.hasNext()) {

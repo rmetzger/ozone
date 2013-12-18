@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -38,45 +38,35 @@ public class IntType implements SerializationTestType
 		this.value = value;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.io.channels.serialization.SerializationTestType#getRandom(java.util.Random)
-	 */
+
 	@Override
 	public IntType getRandom(Random rnd)
 	{
 		return new IntType(rnd.nextInt());
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.io.IOReadableWritable#write(java.io.DataOutput)
-	 */
+
 	@Override
 	public void write(DataOutput out) throws IOException
 	{
 		out.writeInt(this.value);
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.io.IOReadableWritable#read(java.io.DataInput)
-	 */
+
 	@Override
 	public void read(DataInput in) throws IOException
 	{
 		this.value = in.readInt();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+
 	@Override
 	public int hashCode()
 	{
 		return this.value;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+
 	@Override
 	public boolean equals(Object obj)
 	{

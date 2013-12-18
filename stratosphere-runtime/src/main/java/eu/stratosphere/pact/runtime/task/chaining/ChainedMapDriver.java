@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 package eu.stratosphere.pact.runtime.task.chaining;
 
 import eu.stratosphere.api.functions.GenericMapper;
-import eu.stratosphere.api.functions.Stub;
+import eu.stratosphere.api.functions.Function;
 import eu.stratosphere.configuration.Configuration;
 import eu.stratosphere.nephele.template.AbstractInvokable;
 import eu.stratosphere.pact.runtime.task.RegularPactTask;
@@ -57,7 +57,7 @@ public class ChainedMapDriver<IT, OT> extends ChainedDriver<IT, OT> {
 
 	// --------------------------------------------------------------------------------------------
 
-	public Stub getStub() {
+	public Function getStub() {
 		return this.mapper;
 	}
 

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -16,11 +16,11 @@ package eu.stratosphere.api.functions;
 
 import java.util.HashMap;
 
-import eu.stratosphere.accumulators.Accumulator;
-import eu.stratosphere.accumulators.DoubleCounter;
-import eu.stratosphere.accumulators.Histogram;
-import eu.stratosphere.accumulators.IntCounter;
-import eu.stratosphere.accumulators.LongCounter;
+import eu.stratosphere.api.accumulators.Accumulator;
+import eu.stratosphere.api.accumulators.DoubleCounter;
+import eu.stratosphere.api.accumulators.Histogram;
+import eu.stratosphere.api.accumulators.IntCounter;
+import eu.stratosphere.api.accumulators.LongCounter;
 
 /**
  *

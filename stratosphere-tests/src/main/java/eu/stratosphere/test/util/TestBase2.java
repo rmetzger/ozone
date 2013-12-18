@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -41,7 +41,7 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import eu.stratosphere.api.plan.Plan;
+import eu.stratosphere.api.Job;
 import eu.stratosphere.client.minicluster.NepheleMiniCluster;
 import eu.stratosphere.compiler.DataStatistics;
 import eu.stratosphere.compiler.PactCompiler;
@@ -268,7 +268,7 @@ public abstract class TestBase2 {
 	// --------------------------------------------------------------------------------------------
 
 	protected JobGraph getJobGraph() throws Exception {
-		Plan p = getPactPlan();
+		Job p = getTestJob();
 		if (p == null) {
 			Assert.fail("Error: Cannot obtain Pact plan. Did the thest forget to override either 'getPactPlan()' or 'getJobGraph()' ?");
 		}
@@ -284,7 +284,7 @@ public abstract class TestBase2 {
 		return jgg.compileJobGraph(op);
 	}
 	
-	protected Plan getPactPlan() {
+	protected Job getTestJob() {
 		return null;
 	}
 

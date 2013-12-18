@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -1693,9 +1693,7 @@ public class UnilateralSortMerger<E> implements Sorter<E> {
 			this.spillingInThisBuffer = this.currentBuffer.getCapacity() <= this.bytesUntilSpilling;
 		}
 		
-		/* (non-Javadoc)
-		 * @see eu.stratosphere.api.record.functions.Collector#collect(eu.stratosphere.pact.common.type.PactRecord)
-		 */
+
 		@Override
 		public void collect(E record)
 		{
@@ -1769,9 +1767,7 @@ public class UnilateralSortMerger<E> implements Sorter<E> {
 			}
 		}
 		
-		/* (non-Javadoc)
-		 * @see eu.stratosphere.api.record.functions.Collector#close()
-		 */
+
 		@Override
 		public void close()
 		{

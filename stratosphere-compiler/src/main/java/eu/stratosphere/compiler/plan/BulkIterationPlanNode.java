@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -83,9 +83,7 @@ public class BulkIterationPlanNode extends SingleInputPlanNode implements Iterat
 		return 1;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.candidate.PlanNode#hasDamOnPathDownTo(eu.stratosphere.pact.compiler.plan.candidate.PlanNode)
-	 */
+
 	@Override
 	public SourceAndDamReport hasDamOnPathDownTo(PlanNode source) {
 		SourceAndDamReport fromOutside = super.hasDamOnPathDownTo(source);
@@ -101,9 +99,7 @@ public class BulkIterationPlanNode extends SingleInputPlanNode implements Iterat
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.candidate.IterationPlanNode#acceptForStepFunction(eu.stratosphere.pact.common.plan.Visitor)
-	 */
+
 	@Override
 	public void acceptForStepFunction(Visitor<PlanNode> visitor) {
 		this.rootOfStepFunction.accept(visitor);

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -81,9 +81,7 @@ public class JobGenericInputVertex extends JobInputVertex
 		return this.inputClass;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void read(DataInput in) throws IOException
@@ -116,9 +114,7 @@ public class JobGenericInputVertex extends JobInputVertex
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void write(DataOutput out) throws IOException
 	{
@@ -133,9 +129,7 @@ public class JobGenericInputVertex extends JobInputVertex
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void checkConfiguration(AbstractInvokable invokable) throws IllegalConfigurationException
 	{
@@ -153,27 +147,21 @@ public class JobGenericInputVertex extends JobInputVertex
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Class<? extends AbstractInvokable> getInvokableClass() {
 
 		return this.inputClass;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int getMaximumNumberOfSubtasks(AbstractInvokable invokable)
 	{
 		return invokable.getMaximumNumberOfSubtasks();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int getMinimumNumberOfSubtasks(AbstractInvokable invokable) {
 

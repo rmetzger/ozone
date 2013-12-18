@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -49,27 +49,21 @@ final class RuntimeOutputGateContext implements BufferProvider, OutputGateContex
 		return this.taskContext.getFileOwnerID();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int getMaximumBufferSize() {
 
 		return this.taskContext.getMaximumBufferSize();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Buffer requestEmptyBuffer(int minimumSizeOfBuffer) throws IOException {
 
 		return this.taskContext.requestEmptyBuffer(minimumSizeOfBuffer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Buffer requestEmptyBufferBlocking(int minimumSizeOfBuffer) throws IOException, InterruptedException {
 
@@ -84,36 +78,28 @@ final class RuntimeOutputGateContext implements BufferProvider, OutputGateContex
 		return buffer;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean isShared() {
 
 		return this.taskContext.isShared();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void reportAsynchronousEvent() {
 
 		this.taskContext.reportAsynchronousEvent();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public GateID getGateID() {
 
 		return this.outputGate.getGateID();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public OutputChannelContext createOutputChannelContext(ChannelID channelID, OutputChannelContext previousContext,
 			boolean isReceiverRunning, boolean mergeSpillBuffers) {
@@ -166,9 +152,7 @@ final class RuntimeOutputGateContext implements BufferProvider, OutputGateContex
 		return new RuntimeOutputChannelContext(outputChannel, forwardingChain);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean registerBufferAvailabilityListener(final BufferAvailabilityListener bufferAvailabilityListener) {
 

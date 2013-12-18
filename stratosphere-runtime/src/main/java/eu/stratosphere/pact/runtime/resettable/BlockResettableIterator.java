@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -85,9 +85,7 @@ public class BlockResettableIterator<T> extends AbstractBlockResettableIterator<
 	}
 	
 	
-	/* (non-Javadoc)
-	 * @see java.util.Iterator#hasNext()
-	 */
+
 	@Override
 	public boolean hasNext()
 	{
@@ -124,9 +122,7 @@ public class BlockResettableIterator<T> extends AbstractBlockResettableIterator<
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.util.Iterator#next()
-	 */
+
 	@Override
 	public T next()
 	{
@@ -141,17 +137,13 @@ public class BlockResettableIterator<T> extends AbstractBlockResettableIterator<
 		return out;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.util.Iterator#remove()
-	 */
+
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.resettable.AbstractBlockResettableIterator#reset()
-	 */
+
 	public void reset()
 	{
 		// a reset always goes to the read phase
@@ -159,9 +151,7 @@ public class BlockResettableIterator<T> extends AbstractBlockResettableIterator<
 		super.reset();
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.MemoryBlockIterator#nextBlock()
-	 */
+
 	@Override
 	public boolean nextBlock() throws IOException
 	{
@@ -214,9 +204,7 @@ public class BlockResettableIterator<T> extends AbstractBlockResettableIterator<
 		return !this.noMoreBlocks; 
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.resettable.AbstractBlockResettableIterator#close()
-	 */
+
 	public void close()
 	{
 		// suggest that we are in the read phase. because nothing is in the current block,

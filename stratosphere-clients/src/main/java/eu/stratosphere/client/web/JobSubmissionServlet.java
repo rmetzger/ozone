@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -35,7 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eu.stratosphere.client.program.Client;
-import eu.stratosphere.client.program.ErrorInPlanAssemblerException;
+import eu.stratosphere.client.program.JobInstantiationException;
 import eu.stratosphere.client.program.PackagedProgram;
 import eu.stratosphere.client.program.ProgramInvocationException;
 import eu.stratosphere.compiler.CompilerException;
@@ -97,11 +97,6 @@ public class JobSubmissionServlet extends HttpServlet {
 		this.rand = new Random(System.currentTimeMillis());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
-	 */
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String action = req.getParameter(ACTION_PARAM_NAME);
@@ -170,7 +165,7 @@ public class JobSubmissionServlet extends HttpServlet {
 				showErrorPage(resp, "An error occurred while invoking the pact program: <br/>" + pie.getMessage());
 				return;
 			}
-			catch (ErrorInPlanAssemblerException eipe) {
+			catch (JobInstantiationException eipe) {
 				// collect the stack trace
 				StringWriter sw = new StringWriter();
 				PrintWriter w = new PrintWriter(sw);

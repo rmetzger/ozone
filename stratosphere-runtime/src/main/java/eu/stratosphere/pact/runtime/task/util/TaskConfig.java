@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 - 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.stratosphere.api.distributions.DataDistribution;
-import eu.stratosphere.api.functions.Stub;
+import eu.stratosphere.api.functions.Function;
 import eu.stratosphere.api.functions.aggregators.Aggregator;
 import eu.stratosphere.api.functions.aggregators.AggregatorWithName;
 import eu.stratosphere.api.functions.aggregators.ConvergenceCriterion;
@@ -292,7 +292,7 @@ public class TaskConfig {
 		this.config.setString(DRIVER_CLASS, driver.getName());
 	}
 	
-	public <S extends Stub, OT> Class<? extends PactDriver<S, OT>> getDriver() {
+	public <S extends Function, OT> Class<? extends PactDriver<S, OT>> getDriver() {
 		final String className = this.config.getString(DRIVER_CLASS, null);
 		if (className == null) {
 			throw new CorruptConfigurationException("The pact driver class is missing.");
@@ -611,7 +611,7 @@ public class TaskConfig {
 	}
 	
 	// --------------------------------------------------------------------------------------------
-	//                                    Parameters for Stub Chaining
+	//                                    Parameters for Function Chaining
 	// --------------------------------------------------------------------------------------------
 	
 	public int getNumberOfChainedStubs() {

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -43,17 +43,13 @@ public class SimpleCloseableInputProvider<E> implements CloseableInputProvider<E
 	}
 	
 	
-	/* (non-Javadoc)
-	 * @see java.io.Closeable#close()
-	 */
+
 	@Override
 	public void close() throws IOException {
 		// do nothing
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.CloseableInputProvider#getIterator()
-	 */
+
 	@Override
 	public MutableObjectIterator<E> getIterator() {
 		return this.iterator;

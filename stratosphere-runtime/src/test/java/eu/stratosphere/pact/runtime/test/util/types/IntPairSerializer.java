@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -24,18 +24,14 @@ import eu.stratosphere.core.memory.DataOutputView;
 
 public class IntPairSerializer extends TypeSerializer<IntPair>
 {	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeAccessorsV2#createInstance()
-	 */
+
 	@Override
 	public IntPair createInstance()
 	{
 		return new IntPair();
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeAccessorsV2#createCopy(java.lang.Object)
-	 */
+
 	@Override
 	public IntPair createCopy(IntPair from)
 	{
@@ -52,9 +48,7 @@ public class IntPairSerializer extends TypeSerializer<IntPair>
 		to.setValue(from.getValue());
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeAccessorsV2#getLength()
-	 */
+
 	@Override
 	public int getLength()
 	{

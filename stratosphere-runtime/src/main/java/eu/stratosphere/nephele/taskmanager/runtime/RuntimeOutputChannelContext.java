@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -34,54 +34,42 @@ public final class RuntimeOutputChannelContext extends AbstractOutputChannelCont
 		this.byteBufferedOutputChannel = byteBufferedOutputChannel;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean isInputChannel() {
 
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public ChannelID getChannelID() {
 
 		return this.byteBufferedOutputChannel.getID();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public ChannelID getConnectedChannelID() {
 
 		return this.byteBufferedOutputChannel.getConnectedChannelID();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public JobID getJobID() {
 
 		return this.byteBufferedOutputChannel.getJobID();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public ChannelType getType() {
 
 		return this.byteBufferedOutputChannel.getType();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	protected void processEventAsynchronously(final AbstractEvent event) {
 

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,10 +14,10 @@
  **********************************************************************************************************************/
 package eu.stratosphere.compiler.postpass;
 
-import eu.stratosphere.api.operators.DualInputContract;
+import eu.stratosphere.api.operators.DualInputOperator;
 import eu.stratosphere.api.operators.GenericDataSink;
 import eu.stratosphere.api.operators.Ordering;
-import eu.stratosphere.api.operators.SingleInputContract;
+import eu.stratosphere.api.operators.SingleInputOperator;
 import eu.stratosphere.api.operators.util.FieldList;
 import eu.stratosphere.api.record.operators.CoGroupOperator;
 import eu.stratosphere.api.record.operators.RecordOperator;
@@ -72,9 +72,9 @@ public class GenericPactRecordPostPass extends GenericRecordPostPass<Class<? ext
 			throws CompilerPostPassException, ConflictingFieldTypeInfoException
 	{
 		// check that we got the right types
-		SingleInputContract<?> contract = (SingleInputContract<?>) node.getSingleInputNode().getPactContract();
+		SingleInputOperator<?> contract = (SingleInputOperator<?>) node.getSingleInputNode().getPactContract();
 		if (! (contract instanceof RecordOperator)) {
-			throw new CompilerPostPassException("Error: Contract is not a PactRecord based contract. Wrong compiler invokation.");
+			throw new CompilerPostPassException("Error: Operator is not a PactRecord based contract. Wrong compiler invokation.");
 		}
 		RecordOperator recContract = (RecordOperator) contract;
 		
@@ -99,9 +99,9 @@ public class GenericPactRecordPostPass extends GenericRecordPostPass<Class<? ext
 			throws CompilerPostPassException, ConflictingFieldTypeInfoException
 	{
 		// add the nodes local information. this automatically consistency checks
-		DualInputContract<?> contract = node.getTwoInputNode().getPactContract();
+		DualInputOperator<?> contract = node.getTwoInputNode().getPactContract();
 		if (! (contract instanceof RecordOperator)) {
-			throw new CompilerPostPassException("Error: Contract is not a Pact Record based contract. Wrong compiler invokation.");
+			throw new CompilerPostPassException("Error: Operator is not a Pact Record based contract. Wrong compiler invokation.");
 		}
 		
 		RecordOperator recContract = (RecordOperator) contract;

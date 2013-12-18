@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012-2013 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 package eu.stratosphere.pact.runtime.iterative.task;
 
-import eu.stratosphere.api.functions.Stub;
+import eu.stratosphere.api.functions.Function;
 import eu.stratosphere.pact.runtime.iterative.concurrent.BlockingBackChannel;
 import eu.stratosphere.pact.runtime.iterative.concurrent.SolutionSetUpdateBarrier;
 import eu.stratosphere.pact.runtime.iterative.concurrent.SolutionSetUpdateBarrierBroker;
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  * <p/>
  * If there is a separate solution set tail, the iteration head has to make sure to wait for it to finish.
  */
-public class IterationTailPactTask<S extends Stub, OT> extends AbstractIterativePactTask<S, OT>
+public class IterationTailPactTask<S extends Function, OT> extends AbstractIterativePactTask<S, OT>
 		implements PactTaskContext<S, OT> {
 
 	private static final Log log = LogFactory.getLog(IterationTailPactTask.class);

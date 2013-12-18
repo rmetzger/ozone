@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -89,17 +89,13 @@ public abstract class AbstractInputChannel<T extends IOReadableWritable> extends
 	public abstract void close() throws IOException, InterruptedException;
 
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean isInputChannel() {
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public JobID getJobID() {
 		return this.inputGate.getJobID();

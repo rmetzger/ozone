@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import eu.stratosphere.accumulators.Accumulator;
+import eu.stratosphere.api.accumulators.Accumulator;
 import eu.stratosphere.api.io.InputFormat;
 import eu.stratosphere.api.typeutils.TypeSerializer;
 import eu.stratosphere.api.typeutils.TypeSerializerFactory;
@@ -70,9 +70,7 @@ public class DataSourceTask<OT> extends AbstractInputTask<InputSplit>
 	// cancel flag
 	private volatile boolean taskCanceled = false;
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void registerInputOutput()
 	{
@@ -107,9 +105,7 @@ public class DataSourceTask<OT> extends AbstractInputTask<InputSplit>
 			LOG.debug(getLogString("Finished registering input and output"));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void invoke() throws Exception
 	{
@@ -321,9 +317,7 @@ public class DataSourceTask<OT> extends AbstractInputTask<InputSplit>
 	//                              Input Split creation
 	// ------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.template.AbstractInputTask#computeInputSplits(int)
-	 */
+
 	@Override
 	public InputSplit[] computeInputSplits(int requestedMinNumber) throws Exception {
 		// we have to be sure that the format is instantiated at this point
@@ -333,9 +327,7 @@ public class DataSourceTask<OT> extends AbstractInputTask<InputSplit>
 		return this.format.createInputSplits(requestedMinNumber);
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.template.AbstractInputTask#getInputSplitType()
-	 */
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<InputSplit> getInputSplitType() {
@@ -351,17 +343,13 @@ public class DataSourceTask<OT> extends AbstractInputTask<InputSplit>
 	//                       Control of Parallelism
 	// ------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.template.AbstractInvokable#getMinimumNumberOfSubtasks()
-	 */
+
 	@Override
 	public int getMinimumNumberOfSubtasks() {
 		return 1;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.nephele.template.AbstractInvokable#getMaximumNumberOfSubtasks()
-	 */
+
 	@Override
 	public int getMaximumNumberOfSubtasks() {
 		// since splits can in theory be arbitrarily small, we report a possible infinite number of subtasks.

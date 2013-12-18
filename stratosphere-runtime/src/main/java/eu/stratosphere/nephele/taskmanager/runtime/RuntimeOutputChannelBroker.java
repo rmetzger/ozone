@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -86,9 +86,7 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 		this.forwardingChain = forwardingChain;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean hasDataLeft() throws IOException, InterruptedException {
 
@@ -103,9 +101,7 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void processEvent(final AbstractEvent event) {
 
@@ -120,9 +116,7 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 		getNext().processEvent(event);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Buffer requestEmptyWriteBuffer() throws InterruptedException, IOException {
 
@@ -163,9 +157,7 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 		return this.outputGateContext.getMaximumBufferSize();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void releaseWriteBuffer(final Buffer buffer) throws IOException, InterruptedException {
 
@@ -189,9 +181,7 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 		this.outgoingTransferEnvelope = null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean hasDataLeftToTransmit() throws IOException, InterruptedException {
 
@@ -201,9 +191,7 @@ final class RuntimeOutputChannelBroker extends AbstractOutputChannelForwarder im
 		return this.forwardingChain.anyForwarderHasDataLeft();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void transferEventToInputChannel(final AbstractEvent event) throws IOException, InterruptedException {
 

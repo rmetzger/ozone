@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -38,9 +38,7 @@ public class TestInstanceListener implements InstanceListener {
 	 */
 	final Map<JobID, List<AllocatedResource>> resourcesOfJobs = new HashMap<JobID, List<AllocatedResource>>();
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public synchronized void resourcesAllocated(final JobID jobID, final List<AllocatedResource> allocatedResources) {
 
@@ -60,9 +58,7 @@ public class TestInstanceListener implements InstanceListener {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public synchronized void allocatedResourcesDied(final JobID jobID, final List<AllocatedResource> allocatedResources) {
 

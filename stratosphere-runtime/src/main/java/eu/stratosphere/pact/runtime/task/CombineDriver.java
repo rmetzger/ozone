@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -34,12 +34,12 @@ import eu.stratosphere.util.MutableObjectIterator;
  * Combine task which is executed by a Nephele task manager.
  * <p>
  * The task is inserted into a PACT program before a ReduceTask. The combine task has a single input and one output. It
- * is provided with a ReduceStub that implemented the <code>combine()</code> method.
+ * is provided with a ReduceFunction that implemented the <code>combine()</code> method.
  * <p>
  * The CombineTask uses a combining iterator over all key-value pairs of its input. The output of the iterator is
  * emitted.
  * 
- * @see eu.stratosphere.pact.common.stub.ReduceStub
+ * @see eu.stratosphere.pact.ReduceFunction.stub.ReduceStub
  * 
  * @param <T> The data type consumed and produced by the combiner.
  */
@@ -60,9 +60,7 @@ public class CombineDriver<T> implements PactDriver<GenericReducer<T, ?>, T>
 
 	// ------------------------------------------------------------------------
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactDriver#setup(eu.stratosphere.pact.runtime.task.PactTaskContext)
-	 */
+
 	@Override
 	public void setup(PactTaskContext<GenericReducer<T, ?>, T> context) {
 		this.taskContext = context;
@@ -167,9 +165,7 @@ public class CombineDriver<T> implements PactDriver<GenericReducer<T, ?>, T>
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactDriver#cancel()
-	 */
+
 	@Override
 	public void cancel() {
 		this.running = false;

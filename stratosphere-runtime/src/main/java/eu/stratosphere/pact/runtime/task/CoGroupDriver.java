@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -30,13 +30,13 @@ import eu.stratosphere.util.MutableObjectIterator;
 
 /**
  * CoGroup task which is executed by a Nephele task manager. The task has two
- * inputs and one or multiple outputs. It is provided with a CoGroupStub
+ * inputs and one or multiple outputs. It is provided with a CoGroupFunction
  * implementation.
  * <p>
  * The CoGroupTask group all pairs that share the same key from both inputs. Each for each key, the sets of values that
- * were pair with that key of both inputs are handed to the <code>coGroup()</code> method of the CoGroupStub.
+ * were pair with that key of both inputs are handed to the <code>coGroup()</code> method of the CoGroupFunction.
  * 
- * @see eu.stratosphere.api.record.functions.CoGroupStub
+ * @see eu.stratosphere.api.record.functions.CoGroupFunction
  * @author Stephan Ewen
  */
 public class CoGroupDriver<IT1, IT2, OT> implements PactDriver<GenericCoGrouper<IT1, IT2, OT>, OT>
@@ -52,26 +52,20 @@ public class CoGroupDriver<IT1, IT2, OT> implements PactDriver<GenericCoGrouper<
 
 	// ------------------------------------------------------------------------
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactDriver#setup(eu.stratosphere.pact.runtime.task.PactTaskContext)
-	 */
+
 	@Override
 	public void setup(PactTaskContext<GenericCoGrouper<IT1, IT2, OT>, OT> context) {
 		this.taskContext = context;
 		this.running = true;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.AbstractPactTask#getNumberOfInputs()
-	 */
+
 	@Override
 	public int getNumberOfInputs() {
 		return 2;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.AbstractPactTask#getStubType()
-	 */
+
 	@Override
 	public Class<GenericCoGrouper<IT1, IT2, OT>> getStubType() {
 		@SuppressWarnings("unchecked")
@@ -79,17 +73,13 @@ public class CoGroupDriver<IT1, IT2, OT> implements PactDriver<GenericCoGrouper<
 		return clazz;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.AbstractPactTask#requiresComparatorOnInput()
-	 */
+
 	@Override
 	public boolean requiresComparatorOnInput() {
 		return true;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.AbstractPactTask#prepare()
-	 */
+
 	@Override
 	public void prepare() throws Exception
 	{
@@ -125,9 +115,7 @@ public class CoGroupDriver<IT1, IT2, OT> implements PactDriver<GenericCoGrouper<
 			LOG.debug(this.taskContext.formatLogString("CoGroup task iterator ready."));
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.AbstractPactTask#run()
-	 */
+
 	@Override
 	public void run() throws Exception
 	{
@@ -140,9 +128,7 @@ public class CoGroupDriver<IT1, IT2, OT> implements PactDriver<GenericCoGrouper<
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.AbstractPactTask#cleanup()
-	 */
+
 	@Override
 	public void cleanup() throws Exception {
 		if (this.coGroupIterator != null) {
@@ -151,9 +137,7 @@ public class CoGroupDriver<IT1, IT2, OT> implements PactDriver<GenericCoGrouper<
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.PactDriver#cancel()
-	 */
+
 	@Override
 	public void cancel() throws Exception {
 		this.running = false;

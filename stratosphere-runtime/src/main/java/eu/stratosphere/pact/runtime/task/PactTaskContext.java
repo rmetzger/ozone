@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 package eu.stratosphere.pact.runtime.task;
 
-import eu.stratosphere.api.functions.Stub;
+import eu.stratosphere.api.functions.Function;
 import eu.stratosphere.api.typeutils.TypeComparator;
 import eu.stratosphere.api.typeutils.TypeSerializer;
 import eu.stratosphere.nephele.services.iomanager.IOManager;
@@ -34,7 +34,7 @@ import eu.stratosphere.util.MutableObjectIterator;
  *
  * @see PactDriver
  */
-public interface PactTaskContext<S extends Stub, OT>
+public interface PactTaskContext<S extends Function, OT>
 {
 	TaskConfig getTaskConfig();
 	

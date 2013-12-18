@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.stratosphere.api.functions.AbstractStub;
-import eu.stratosphere.api.operators.Contract;
-import eu.stratosphere.api.operators.DualInputContract;
+import eu.stratosphere.api.functions.AbstractFunction;
+import eu.stratosphere.api.operators.Operator;
+import eu.stratosphere.api.operators.DualInputOperator;
 import eu.stratosphere.api.operators.util.UserCodeClassWrapper;
 import eu.stratosphere.compiler.CompilerException;
 import eu.stratosphere.compiler.DataStatistics;
@@ -71,7 +71,7 @@ public class BinaryUnionNode extends TwoInputNode {
 	}
 	
 	@Override
-	public void setInputs(Map<Contract, OptimizerNode> contractToNode) {
+	public void setInputs(Map<Operator, OptimizerNode> contractToNode) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -304,9 +304,9 @@ public class BinaryUnionNode extends TwoInputNode {
 	//  Mock classes that represents a contract without behavior.
 	// ------------------------------------------------------------------------
 	
-	private static final class MockStub extends AbstractStub {}
+	private static final class MockStub extends AbstractFunction {}
 	
-	private static final class UnionPlaceholderContract extends DualInputContract<MockStub> {
+	private static final class UnionPlaceholderContract extends DualInputOperator<MockStub> {
 		private UnionPlaceholderContract() {
 			super(new UserCodeClassWrapper<MockStub>(MockStub.class), "Union");
 		}

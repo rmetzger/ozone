@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -71,25 +71,19 @@ public class SortMergeCoGroupIterator<T1, T2> implements CoGroupTaskIterator<T1,
 	@Override
 	public void close() {}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.CoGroupTaskIterator#getValues1()
-	 */
+
 	@Override
 	public Iterator<T1> getValues1() {
 		return this.firstReturn;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.CoGroupTaskIterator#getValues2()
-	 */
+
 	@Override
 	public Iterator<T2> getValues2() {
 		return this.secondReturn;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.CoGroupTaskIterator#next()
-	 */
+
 	@Override
 	public boolean next() throws IOException
 	{

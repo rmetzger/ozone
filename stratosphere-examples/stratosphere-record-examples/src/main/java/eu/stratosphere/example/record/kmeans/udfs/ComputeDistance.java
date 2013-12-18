@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -16,8 +16,8 @@ package eu.stratosphere.example.record.kmeans.udfs;
 
 import java.io.Serializable;
 
-import eu.stratosphere.api.functions.StubAnnotation.ConstantFieldsFirst;
-import eu.stratosphere.api.record.functions.CrossStub;
+import eu.stratosphere.api.record.functions.CrossFunction;
+import eu.stratosphere.api.record.functions.FunctionAnnotation.ConstantFieldsFirst;
 import eu.stratosphere.types.PactDouble;
 import eu.stratosphere.types.PactInteger;
 import eu.stratosphere.types.PactRecord;
@@ -28,7 +28,7 @@ import eu.stratosphere.util.Collector;
  * centers.
  */
 @ConstantFieldsFirst({0,1})
-public class ComputeDistance extends CrossStub implements Serializable {
+public class ComputeDistance extends CrossFunction implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private final PactDouble distance = new PactDouble();

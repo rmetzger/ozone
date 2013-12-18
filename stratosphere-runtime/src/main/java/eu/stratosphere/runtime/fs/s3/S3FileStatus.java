@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -39,63 +39,49 @@ public final class S3FileStatus implements FileStatus {
 		this.accessTime = accessTime;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public long getLen() {
 
 		return this.length;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public long getBlockSize() {
 
 		return this.length;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public short getReplication() {
 
 		return 1;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public long getModificationTime() {
 		
 		return this.modificationTime;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public long getAccessTime() {
 		
 		return this.accessTime;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean isDir() {
 
 		return this.isDir;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Path getPath() {
 

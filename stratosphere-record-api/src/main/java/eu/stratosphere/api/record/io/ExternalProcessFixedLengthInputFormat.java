@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -97,9 +97,7 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 	 */
 	public abstract boolean readBytes(PactRecord target, byte[] buffer, int startPos);
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void configure(Configuration parameters)
 	{
@@ -126,9 +124,7 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 		this.targetReadBufferSize = targetReadBufferSize;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void open(GenericInputSplit split) throws IOException {
 		
@@ -156,17 +152,13 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 		
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean reachedEnd() throws IOException {
 		return noMoreRecordBuffers;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean nextRecord(PactRecord record) throws IOException {
 		

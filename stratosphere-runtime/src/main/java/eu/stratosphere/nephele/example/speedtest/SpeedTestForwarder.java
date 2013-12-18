@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -37,9 +37,7 @@ public final class SpeedTestForwarder extends AbstractTask {
 	 */
 	private RecordWriter<SpeedTestRecord> output;
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void registerInputOutput() {
 
@@ -47,9 +45,7 @@ public final class SpeedTestForwarder extends AbstractTask {
 		this.output = new RecordWriter<SpeedTestRecord>(this, SpeedTestRecord.class);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void invoke() throws Exception {
 

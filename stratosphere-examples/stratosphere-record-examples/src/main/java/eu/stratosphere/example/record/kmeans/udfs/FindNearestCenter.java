@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -17,8 +17,8 @@ package eu.stratosphere.example.record.kmeans.udfs;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import eu.stratosphere.api.functions.StubAnnotation.ConstantFields;
-import eu.stratosphere.api.record.functions.ReduceStub;
+import eu.stratosphere.api.record.functions.ReduceFunction;
+import eu.stratosphere.api.record.functions.FunctionAnnotation.ConstantFields;
 import eu.stratosphere.api.record.operators.ReduceOperator.Combinable;
 import eu.stratosphere.types.PactDouble;
 import eu.stratosphere.types.PactInteger;
@@ -31,7 +31,7 @@ import eu.stratosphere.util.Collector;
  */
 @Combinable
 @ConstantFields(1)
-public class FindNearestCenter extends ReduceStub implements Serializable {
+public class FindNearestCenter extends ReduceFunction implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private final PactInteger centerId = new PactInteger();

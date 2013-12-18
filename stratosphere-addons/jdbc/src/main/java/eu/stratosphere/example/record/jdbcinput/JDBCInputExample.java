@@ -1,3 +1,18 @@
+/***********************************************************************************************************************
+ *
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ **********************************************************************************************************************/
+
 package eu.stratosphere.example.record.jdbcinput;
 
 import java.sql.Connection;
@@ -7,9 +22,9 @@ import java.sql.Statement;
 import eu.stratosphere.api.io.jdbc.JDBCInputFormat;
 import eu.stratosphere.api.operators.FileDataSink;
 import eu.stratosphere.api.operators.GenericDataSource;
-import eu.stratosphere.api.plan.Plan;
-import eu.stratosphere.api.plan.PlanAssembler;
-import eu.stratosphere.api.plan.PlanAssemblerDescription;
+import eu.stratosphere.api.Job;
+import eu.stratosphere.api.Program;
+import eu.stratosphere.api.ProgramDescription;
 import eu.stratosphere.api.record.io.CsvOutputFormat;
 import eu.stratosphere.client.LocalExecutor;
 import eu.stratosphere.nephele.client.JobExecutionResult;
@@ -24,10 +39,10 @@ import eu.stratosphere.types.PactString;
  *       See the Maven file (pom.xml) for a reference to the derby dependency. You can simply
  *       Change the scope of the Maven dependency from test to compile.
  */
-public class JDBCInputExample implements PlanAssembler, PlanAssemblerDescription {
+public class JDBCInputExample implements Program, ProgramDescription {
 
 	@Override
-	public Plan getPlan(String... args) {
+	public Job createJob(String... args) {
 		String url = args.length > 0 ? args[0] : "jdbc:derby:memory:ebookshop";
 		String query = args.length > 1 ? args[1] : "select * from books";
 		String output = args.length > 2 ? args[2] : "file:///tmp";
@@ -51,7 +66,7 @@ public class JDBCInputExample implements PlanAssembler, PlanAssemblerDescription
 			.field(PactInteger.class, 4);
 
 		sink.addInput(source);
-		return new Plan(sink, "JDBC Input Example Job");
+		return new Job(sink, "JDBC Input Example Job");
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import eu.stratosphere.api.functions.GenericCrosser;
-import eu.stratosphere.api.record.functions.CrossStub;
+import eu.stratosphere.api.record.functions.CrossFunction;
 import eu.stratosphere.pact.runtime.test.util.DelayingInfinitiveInputIterator;
 import eu.stratosphere.pact.runtime.test.util.DriverTestBase;
 import eu.stratosphere.pact.runtime.test.util.ExpectedTestException;
@@ -574,7 +574,7 @@ public class CrossTaskTest extends DriverTestBase<GenericCrosser<PactRecord, Pac
 		Assert.assertTrue("Exception was thrown despite proper canceling.", success.get());
 	}
 	
-	public static final class MockCrossStub extends CrossStub
+	public static final class MockCrossStub extends CrossFunction
 	{
 		@Override
 		public void cross(PactRecord record1, PactRecord record2, Collector<PactRecord> out) {
@@ -582,7 +582,7 @@ public class CrossTaskTest extends DriverTestBase<GenericCrosser<PactRecord, Pac
 		}
 	}
 	
-	public static final class MockFailingCrossStub extends CrossStub
+	public static final class MockFailingCrossStub extends CrossFunction
 	{
 		private int cnt = 0;
 		

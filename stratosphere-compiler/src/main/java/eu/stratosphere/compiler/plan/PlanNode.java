@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.stratosphere.api.operators.Contract;
+import eu.stratosphere.api.operators.Operator;
 import eu.stratosphere.api.operators.util.FieldSet;
 import eu.stratosphere.compiler.CompilerException;
 import eu.stratosphere.compiler.costs.Costs;
@@ -101,7 +101,7 @@ public abstract class PlanNode implements Visitable<PlanNode>, DumpableNode<Plan
 	 * 
 	 * @return The pact contract this node represents in the plan.
 	 */
-	public Contract getPactContract() {
+	public Operator getPactContract() {
 		return this.template.getPactContract();
 	}
 	
@@ -299,9 +299,7 @@ public abstract class PlanNode implements Visitable<PlanNode>, DumpableNode<Plan
 	
 	// --------------------------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+
 	@Override
 	public String toString() {
 		return this.template.getName() + " \"" + getPactContract().getName() + "\" : " + this.driverStrategy +
@@ -310,25 +308,19 @@ public abstract class PlanNode implements Visitable<PlanNode>, DumpableNode<Plan
 	
 	// --------------------------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plandump.DumpableNode#getOptimizerNode()
-	 */
+
 	@Override
 	public OptimizerNode getOptimizerNode() {
 		return this.template;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plandump.DumpableNode#getPlanNode()
-	 */
+
 	@Override
 	public PlanNode getPlanNode() {
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plandump.DumpableNode#getDumpableInputs()
-	 */
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public Iterator<DumpableConnection<PlanNode>> getDumpableInputs() {

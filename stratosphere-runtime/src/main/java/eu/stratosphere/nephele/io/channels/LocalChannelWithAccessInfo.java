@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -52,18 +52,14 @@ final class LocalChannelWithAccessInfo implements ChannelWithAccessInfo {
 		this.deleteOnClose = new AtomicBoolean(deleteOnClose);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public FileChannel getChannel() {
 
 		return this.channel;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public FileChannel getAndIncrementReferences() {
 
@@ -84,9 +80,7 @@ final class LocalChannelWithAccessInfo implements ChannelWithAccessInfo {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int decrementReferences() {
 
@@ -131,9 +125,7 @@ final class LocalChannelWithAccessInfo implements ChannelWithAccessInfo {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean incrementReferences() {
 
@@ -151,9 +143,7 @@ final class LocalChannelWithAccessInfo implements ChannelWithAccessInfo {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void disposeSilently() {
 
@@ -172,9 +162,7 @@ final class LocalChannelWithAccessInfo implements ChannelWithAccessInfo {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void updateDeleteOnCloseFlag(final boolean deleteOnClose) {
 

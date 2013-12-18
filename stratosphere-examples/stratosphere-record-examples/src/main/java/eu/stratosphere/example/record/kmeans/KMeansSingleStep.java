@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -16,11 +16,11 @@
 package eu.stratosphere.example.record.kmeans;
 
 
+import eu.stratosphere.api.Job;
+import eu.stratosphere.api.Program;
+import eu.stratosphere.api.ProgramDescription;
 import eu.stratosphere.api.operators.FileDataSink;
 import eu.stratosphere.api.operators.FileDataSource;
-import eu.stratosphere.api.plan.Plan;
-import eu.stratosphere.api.plan.PlanAssembler;
-import eu.stratosphere.api.plan.PlanAssemblerDescription;
 import eu.stratosphere.api.record.operators.CrossOperator;
 import eu.stratosphere.api.record.operators.ReduceOperator;
 import eu.stratosphere.example.record.kmeans.udfs.ComputeDistance;
@@ -40,13 +40,11 @@ import eu.stratosphere.types.PactInteger;
  * next to it. Finally, a second Reduce PACT compute the new locations of all
  * cluster centers.
  */
-public class KMeansSingleStep implements PlanAssembler, PlanAssemblerDescription {
+public class KMeansSingleStep implements Program, ProgramDescription {
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
-	public Plan getPlan(String... args) {
+	public Job createJob(String... args) {
 		// parse job parameters
 		int numSubTasks = (args.length > 0 ? Integer.parseInt(args[0]) : 1);
 		String dataPointInput = (args.length > 1 ? args[1] : "");
@@ -85,7 +83,7 @@ public class KMeansSingleStep implements PlanAssembler, PlanAssemblerDescription
 		FileDataSink newClusterPoints = new FileDataSink(new PointOutFormat(), output, recomputeClusterCenter, "New Center Positions");
 
 		// return the PACT plan
-		Plan plan = new Plan(newClusterPoints, "KMeans Iteration");
+		Job plan = new Job(newClusterPoints, "KMeans Iteration");
 		plan.setDefaultParallelism(numSubTasks);
 		return plan;
 	}

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -77,9 +77,7 @@ public class ArrayRecordComparatorFactory implements TypeComparatorFactory<Value
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.common.generic.types.TypeComparatorFactory#writeParametersToConfig(eu.stratosphere.nephele.configuration.Configuration)
-	 */
+
 	@Override
 	public void writeParametersToConfig(Configuration config) {
 		for (int i = 0; i < this.positions.length; i++) {
@@ -145,9 +143,7 @@ public class ArrayRecordComparatorFactory implements TypeComparatorFactory<Value
 		this.sortDirections = direction;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.common.generic.types.TypeComparatorFactory#createComparator()
-	 */
+
 	@Override
 	public ArrayRecordComparator createComparator() {
 		return new ArrayRecordComparator(this.positions, this.types, this.sortDirections);

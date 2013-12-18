@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -217,10 +217,6 @@ public class LocalProperties implements Cloneable
 
 	// --------------------------------------------------------------------------------------------
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -231,10 +227,6 @@ public class LocalProperties implements Cloneable
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof LocalProperties) {
@@ -247,20 +239,12 @@ public class LocalProperties implements Cloneable
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "LocalProperties [ordering=" + this.ordering + ", grouped=" + this.groupedFields
 			+ ", unique=" + this.uniqueFields + "]";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
 	@Override
 	public LocalProperties clone() {
 		return new LocalProperties(this.ordering, this.groupedFields,

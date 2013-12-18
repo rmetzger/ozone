@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -27,17 +27,13 @@ import eu.stratosphere.types.PactInteger;
  */
 public class PactIntegerSerializer extends TypeSerializer<PactInteger> {
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeSerializer#createInstance()
-	 */
+
 	@Override
 	public PactInteger createInstance() {
 		return new PactInteger();
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeSerializer#createCopy(java.lang.Object)
-	 */
+
 	@Override
 	public PactInteger createCopy(PactInteger from) {
 		return new PactInteger(from.getValue());
@@ -51,9 +47,7 @@ public class PactIntegerSerializer extends TypeSerializer<PactInteger> {
 		to.setValue(from.getValue());
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.plugable.TypeSerializer#getLength()
-	 */
+
 	@Override
 	public int getLength() {
 		return 4;

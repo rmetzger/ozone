@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package eu.stratosphere.compiler.plan;
 
 import java.util.Collection;
 
-import eu.stratosphere.api.plan.Plan;
+import eu.stratosphere.api.Job;
 import eu.stratosphere.util.Visitable;
 import eu.stratosphere.util.Visitor;
 
@@ -46,7 +46,7 @@ public class OptimizedPlan implements Visitable<PlanNode> {
 	/**
 	 * The original pact plan.
 	 */
-	private final Plan pactPlan;
+	private final Job pactPlan;
 
 	/**
 	 * Name of the PACT job
@@ -73,7 +73,7 @@ public class OptimizedPlan implements Visitable<PlanNode> {
 	 *        The name of the PACT job
 	 */
 	public OptimizedPlan(Collection<SourcePlanNode> sources, Collection<SinkPlanNode> sinks,
-			Collection<PlanNode> allNodes, String jobName, Plan pactPlan)
+			Collection<PlanNode> allNodes, String jobName, Job pactPlan)
 	{
 		this.dataSources = sources;
 		this.dataSinks = sinks;
@@ -123,7 +123,7 @@ public class OptimizedPlan implements Visitable<PlanNode> {
 	 * 
 	 * @return The original pact plan.
 	 */
-	public Plan getOriginalPactPlan() {
+	public Job getOriginalPactPlan() {
 		return this.pactPlan;
 	}
 

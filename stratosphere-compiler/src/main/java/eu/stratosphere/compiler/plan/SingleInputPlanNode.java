@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2012 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -132,9 +132,7 @@ public class SingleInputPlanNode extends PlanNode {
 	
 	// --------------------------------------------------------------------------------------------
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.common.plan.Visitable#accept(eu.stratosphere.pact.common.plan.Visitor)
-	 */
+
 	@Override
 	public void accept(Visitor<PlanNode> visitor) {
 		if (visitor.preVisit(this)) {
@@ -143,9 +141,7 @@ public class SingleInputPlanNode extends PlanNode {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.candidate.PlanNode#getPredecessors()
-	 */
+
 	@Override
 	public Iterator<PlanNode> getPredecessors() {
 		return new Iterator<PlanNode>() {
@@ -169,9 +165,7 @@ public class SingleInputPlanNode extends PlanNode {
 		};
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.candidate.PlanNode#getInputs()
-	 */
+
 	@Override
 	public Iterator<Channel> getInputs() {
 		return new Iterator<Channel>() {
@@ -195,9 +189,7 @@ public class SingleInputPlanNode extends PlanNode {
 		};
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.candidate.PlanNode#hasDamOnPathDownTo(eu.stratosphere.pact.compiler.plan.candidate.PlanNode)
-	 */
+
 	@Override
 	public SourceAndDamReport hasDamOnPathDownTo(PlanNode source) {
 		if (source == this) {

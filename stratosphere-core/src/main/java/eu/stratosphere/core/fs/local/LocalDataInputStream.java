@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -47,53 +47,41 @@ public class LocalDataInputStream extends FSDataInputStream {
 		this.fis = new FileInputStream(file);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void seek(final long desired) throws IOException {
 
 		this.fis.getChannel().position(desired);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int read() throws IOException {
 
 		return this.fis.read();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int read(final byte[] buffer, final int offset, final int length) throws IOException {
 
 		return this.fis.read(buffer, offset, length);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void close() throws IOException {
 
 		this.fis.close();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int available() throws IOException {
 		return this.fis.available();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public long skip(final long n) throws IOException {
 		return this.fis.skip(n);

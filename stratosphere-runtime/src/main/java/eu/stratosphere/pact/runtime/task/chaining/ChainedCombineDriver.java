@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 package eu.stratosphere.pact.runtime.task.chaining;
 
 import eu.stratosphere.api.functions.GenericReducer;
-import eu.stratosphere.api.functions.Stub;
+import eu.stratosphere.api.functions.Function;
 import eu.stratosphere.api.typeutils.TypeComparator;
 import eu.stratosphere.api.typeutils.TypeComparatorFactory;
 import eu.stratosphere.api.typeutils.TypeSerializer;
@@ -82,7 +82,7 @@ public class ChainedCombineDriver<T> extends ChainedDriver<T, T> {
 		switch (ds) {
 			// local strategy is COMBININGSORT
 			// The Input is combined using a sort-merge strategy. Before spilling on disk, the data volume is reduced using
-			// the combine() method of the ReduceStub.
+			// the combine() method of the ReduceFunction.
 			// An iterator on the sorted, grouped, and combined pairs is created and returned
 			case PARTIAL_GROUP:
 				this.sorter = new AsynchronousPartialSorterCollector<T>(memoryManager, this.parent,
@@ -153,7 +153,7 @@ public class ChainedCombineDriver<T> extends ChainedDriver<T, T> {
 	
 	// --------------------------------------------------------------------------------------------
 
-	public Stub getStub() {
+	public Function getStub() {
 		return this.combiner;
 	}
 

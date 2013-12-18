@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -99,9 +99,7 @@ public final class SingleInstanceProfilingEvent extends InstanceProfilingEvent {
 		return this.instanceName;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void read(DataInput in) throws IOException {
 		super.read(in);
@@ -109,9 +107,7 @@ public final class SingleInstanceProfilingEvent extends InstanceProfilingEvent {
 		this.instanceName = StringRecord.readString(in);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void write(DataOutput out) throws IOException {
 		super.write(out);
@@ -119,9 +115,7 @@ public final class SingleInstanceProfilingEvent extends InstanceProfilingEvent {
 		StringRecord.writeString(out, this.instanceName);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean equals(Object obj) {
 
@@ -142,9 +136,7 @@ public final class SingleInstanceProfilingEvent extends InstanceProfilingEvent {
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int hashCode() {
 

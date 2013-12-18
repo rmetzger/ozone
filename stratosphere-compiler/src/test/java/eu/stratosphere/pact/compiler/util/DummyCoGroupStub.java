@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -18,11 +18,11 @@ package eu.stratosphere.pact.compiler.util;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import eu.stratosphere.api.record.functions.CoGroupStub;
+import eu.stratosphere.api.record.functions.CoGroupFunction;
 import eu.stratosphere.types.PactRecord;
 import eu.stratosphere.util.Collector;
 
-public class DummyCoGroupStub extends CoGroupStub implements Serializable {
+public class DummyCoGroupStub extends CoGroupFunction implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Override

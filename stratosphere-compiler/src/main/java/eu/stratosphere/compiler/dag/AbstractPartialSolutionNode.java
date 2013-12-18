@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import eu.stratosphere.api.operators.Contract;
+import eu.stratosphere.api.operators.Operator;
 import eu.stratosphere.compiler.DataStatistics;
 import eu.stratosphere.compiler.costs.CostEstimator;
 import eu.stratosphere.compiler.plan.PlanNode;
@@ -31,7 +31,7 @@ import eu.stratosphere.util.Visitor;
 public abstract class AbstractPartialSolutionNode extends OptimizerNode
 {
 	
-	protected AbstractPartialSolutionNode(Contract contract) {
+	protected AbstractPartialSolutionNode(Operator contract) {
 		super(contract);
 	}
 
@@ -47,9 +47,6 @@ public abstract class AbstractPartialSolutionNode extends OptimizerNode
 	
 	// --------------------------------------------------------------------------------------------
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#isMemoryConsumer()
-	 */
 	@Override
 	public boolean isMemoryConsumer() {
 		return false;
@@ -64,44 +61,24 @@ public abstract class AbstractPartialSolutionNode extends OptimizerNode
 		this.costWeight = costWeight;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#getIncomingConnections()
-	 */
 	@Override
 	public List<PactConnection> getIncomingConnections() {
 		return Collections.<PactConnection>emptyList();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#setInputs(java.util.Map)
-	 */
 	@Override
-	public void setInputs(Map<Contract, OptimizerNode> contractToNode) {
-	}
+	public void setInputs(Map<Operator, OptimizerNode> contractToNode) {}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#computeOutputEstimates(eu.stratosphere.pact.compiler.DataStatistics)
-	 */
 	@Override
 	public void computeOutputEstimates(DataStatistics statistics) {
 		// do nothing. we obtain the estimates another way from the enclosing iteration
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#computeInterestingProperties()
-	 */
 	@Override
 	public void computeInterestingPropertiesForInputs(CostEstimator estimator) {
 		// no children, so nothing to compute
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see eu.stratosphere.pact.compiler.plan.OptimizerNode#computeUnclosedBranchStack()
-	 */
 	@Override
 	public void computeUnclosedBranchStack() {
 		// because there are no inputs, there are no unclosed branches.

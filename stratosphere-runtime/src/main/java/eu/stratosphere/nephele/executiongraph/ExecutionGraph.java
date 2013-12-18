@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -1180,9 +1180,7 @@ public class ExecutionGraph implements ExecutionListener {
 		return this.jobStatus.get();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void executionStateChanged(final JobID jobID, final ExecutionVertexID vertexID,
 			final ExecutionState newExecutionState, String optionalMessage) {
@@ -1326,18 +1324,14 @@ public class ExecutionGraph implements ExecutionListener {
 		return this.jobName;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void userThreadStarted(final JobID jobID, final ExecutionVertexID vertexID, final Thread userThread) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void userThreadFinished(final JobID jobID, final ExecutionVertexID vertexID, final Thread userThread) {
 		// TODO Auto-generated method stub
@@ -1386,9 +1380,7 @@ public class ExecutionGraph implements ExecutionListener {
 		return this.stages.iterator();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int getPriority() {
 

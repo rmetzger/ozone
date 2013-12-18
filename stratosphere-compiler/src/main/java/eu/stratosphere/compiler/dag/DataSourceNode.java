@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import eu.stratosphere.api.io.InputFormat;
 import eu.stratosphere.api.io.UnsplittableInput;
 import eu.stratosphere.api.io.statistics.BaseStatistics;
 import eu.stratosphere.api.operators.CompilerHints;
-import eu.stratosphere.api.operators.Contract;
+import eu.stratosphere.api.operators.Operator;
 import eu.stratosphere.api.operators.GenericDataSource;
 import eu.stratosphere.api.operators.util.FieldSet;
 import eu.stratosphere.api.record.io.FileInputFormat;
@@ -113,7 +113,7 @@ public class DataSourceNode extends OptimizerNode {
 	}
 
 	@Override
-	public void setInputs(Map<Contract, OptimizerNode> contractToNode) {
+	public void setInputs(Map<Operator, OptimizerNode> contractToNode) {
 		// do nothing
 	}
 

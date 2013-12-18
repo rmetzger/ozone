@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -70,18 +70,14 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Buffer requestEmptyBuffer(final int minimumSizeOfBuffer) throws IOException {
 
 		return this.localBufferPool.requestEmptyBuffer(minimumSizeOfBuffer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public Buffer requestEmptyBufferBlocking(int minimumSizeOfBuffer) throws IOException,
 			InterruptedException {
@@ -89,18 +85,14 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 		return this.localBufferPool.requestEmptyBufferBlocking(minimumSizeOfBuffer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int getMaximumBufferSize() {
 
 		return this.localBufferPool.getMaximumBufferSize();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void clearLocalBufferPool() {
 
@@ -109,18 +101,14 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean isShared() {
 
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void logBufferUtilization() {
 
@@ -135,27 +123,21 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void reportAsynchronousEvent() {
 
 		this.localBufferPool.reportAsynchronousEvent();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public int getNumberOfChannels() {
 
 		return this.numberOfOutputChannels;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void setDesignatedNumberOfBuffers(int numberOfBuffers) {
 
@@ -167,9 +149,7 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 		return this.task.getVertexID();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public OutputGateContext createOutputGateContext(final GateID gateID) {
 
@@ -194,9 +174,7 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 		return new RuntimeOutputGateContext(this, outputGate);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public InputGateContext createInputGateContext(final GateID gateID) {
 
@@ -226,9 +204,7 @@ public final class RuntimeTaskContext implements BufferProvider, TaskContext {
 		return this.localBufferPool;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean registerBufferAvailabilityListener(final BufferAvailabilityListener bufferAvailabilityListener) {
 

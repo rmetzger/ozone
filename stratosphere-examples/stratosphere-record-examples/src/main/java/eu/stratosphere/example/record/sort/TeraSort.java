@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -15,13 +15,13 @@
 
 package eu.stratosphere.example.record.sort;
 
+import eu.stratosphere.api.Job;
+import eu.stratosphere.api.Program;
+import eu.stratosphere.api.ProgramDescription;
 import eu.stratosphere.api.operators.FileDataSink;
 import eu.stratosphere.api.operators.FileDataSource;
 import eu.stratosphere.api.operators.Order;
 import eu.stratosphere.api.operators.Ordering;
-import eu.stratosphere.api.plan.Plan;
-import eu.stratosphere.api.plan.PlanAssembler;
-import eu.stratosphere.api.plan.PlanAssemblerDescription;
 import eu.stratosphere.example.record.sort.terasort.TeraDistribution;
 import eu.stratosphere.example.record.sort.terasort.TeraInputFormat;
 import eu.stratosphere.example.record.sort.terasort.TeraKey;
@@ -39,22 +39,18 @@ import eu.stratosphere.example.record.sort.terasort.TeraOutputFormat;
  *
  * @author warneke
  */
-public final class TeraSort implements PlanAssembler, PlanAssemblerDescription {
+public final class TeraSort implements Program, ProgramDescription {
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public String getDescription() {
 
 		return "Parameters: [numSubStasks] [input] [output]";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
-	public Plan getPlan(String... args) throws IllegalArgumentException {
+	public Job createJob(String... args) throws IllegalArgumentException {
 		// parse job parameters
 		final int numSubTasks = (args.length > 0 ? Integer.parseInt(args[0]) : 1);
 		final String input = (args.length > 1 ? args[1] : "");
@@ -73,7 +69,7 @@ public final class TeraSort implements PlanAssembler, PlanAssemblerDescription {
 
 		sink.addInput(source);
 
-		return new Plan(sink, "TeraSort");
+		return new Job(sink, "TeraSort");
 	}
 
 }

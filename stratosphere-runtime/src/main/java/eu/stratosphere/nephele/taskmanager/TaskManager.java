@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -490,9 +490,7 @@ public class TaskManager implements TaskOperationProtocol {
         return connectable;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public TaskCancelResult cancelTask(final ExecutionVertexID id) throws IOException {
 
@@ -521,9 +519,7 @@ public class TaskManager implements TaskOperationProtocol {
 		return new TaskCancelResult(id, AbstractTaskResult.ReturnCode.SUCCESS);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public TaskKillResult killTask(final ExecutionVertexID id) throws IOException {
 
@@ -552,9 +548,7 @@ public class TaskManager implements TaskOperationProtocol {
 		return new TaskKillResult(id, AbstractTaskResult.ReturnCode.SUCCESS);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public List<TaskSubmissionResult> submitTasks(final List<TaskDeploymentDescriptor> tasks) throws IOException {
 
@@ -724,9 +718,7 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public LibraryCacheProfileResponse getLibraryCacheProfile(LibraryCacheProfileRequest request) throws IOException {
 
@@ -743,9 +735,7 @@ public class TaskManager implements TaskOperationProtocol {
 		return response;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void updateLibraryCache(LibraryCacheUpdate update) throws IOException {
 
@@ -865,18 +855,14 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void logBufferUtilization() throws IOException {
 
 		this.byteBufferedChannelManager.logBufferUtilization();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void killTaskManager() throws IOException {
 
@@ -894,9 +880,7 @@ public class TaskManager implements TaskOperationProtocol {
 		timer.schedule(timerTask, 10L);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void invalidateLookupCacheEntries(final Set<ChannelID> channelIDs) throws IOException {
 

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import eu.stratosphere.api.functions.GenericMatcher;
+import eu.stratosphere.api.functions.GenericJoiner;
 import eu.stratosphere.api.typeutils.TypeComparator;
 import eu.stratosphere.api.typeutils.TypePairComparator;
 import eu.stratosphere.api.typeutils.TypeSerializer;
@@ -111,15 +111,11 @@ public class MergeMatchIterator<T1, T2, O> implements MatchTaskIterator<T1, T2, 
 		this.memoryForSpillingIterator = memoryManager.allocatePages(parentTask, numPagesForSpiller);
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.MatchTaskIterator#open()
-	 */
+
 	@Override
 	public void open() throws IOException {}
 
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.MatchTaskIterator#close()
-	 */
+
 	@Override
 	public void close() {
 		if (this.blockIt != null) {
@@ -134,16 +130,14 @@ public class MergeMatchIterator<T1, T2, O> implements MatchTaskIterator<T1, T2, 
 		this.memoryManager.release(this.memoryForSpillingIterator);
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.stratosphere.pact.runtime.task.util.MatchTaskIterator#abort()
-	 */
+
 	@Override
 	public void abort() {
 		close();
 	}
 
 	/**
-	 * Calls the <code>MatchStub#match()</code> method for all two key-value pairs that share the same key and come 
+	 * Calls the <code>JoinFunction#match()</code> method for all two key-value pairs that share the same key and come 
 	 * from different inputs. The output of the <code>match()</code> method is forwarded.
 	 * <p>
 	 * This method first zig-zags between the two sorted inputs in order to find a common
@@ -154,7 +148,7 @@ public class MergeMatchIterator<T1, T2, O> implements MatchTaskIterator<T1, T2, 
 	 * @see eu.stratosphere.pact.runtime.task.util.MatchTaskIterator#callWithNextKey()
 	 */
 	@Override
-	public boolean callWithNextKey(final GenericMatcher<T1, T2, O> matchFunction, final Collector<O> collector)
+	public boolean callWithNextKey(final GenericJoiner<T1, T2, O> matchFunction, final Collector<O> collector)
 	throws Exception
 	{
 		if (!this.iterator1.nextKey() || !this.iterator2.nextKey()) {
@@ -235,7 +229,7 @@ public class MergeMatchIterator<T1, T2, O> implements MatchTaskIterator<T1, T2, 
 	 * @throws Exception Forwards all exceptions thrown by the stub.
 	 */
 	private void crossFirst1withNValues(final T1 val1, final T2 firstValN,
-			final Iterator<T2> valsN, final GenericMatcher<T1, T2, O> matchFunction, final Collector<O> collector)
+			final Iterator<T2> valsN, final GenericJoiner<T1, T2, O> matchFunction, final Collector<O> collector)
 	throws Exception
 	{
 		this.serializer1.copyTo(val1, this.copy1);
@@ -268,7 +262,7 @@ public class MergeMatchIterator<T1, T2, O> implements MatchTaskIterator<T1, T2, 
 	 * @throws Exception Forwards all exceptions thrown by the stub.
 	 */
 	private void crossSecond1withNValues(T2 val1, T1 firstValN,
-			Iterator<T1> valsN, GenericMatcher<T1, T2, O> matchFunction, Collector<O> collector)
+			Iterator<T1> valsN, GenericJoiner<T1, T2, O> matchFunction, Collector<O> collector)
 	throws Exception
 	{
 		this.serializer2.copyTo(val1, this.copy2);
@@ -298,7 +292,7 @@ public class MergeMatchIterator<T1, T2, O> implements MatchTaskIterator<T1, T2, 
 	 */
 	private void crossMwithNValues(final T1 firstV1, Iterator<T1> spillVals,
 			final T2 firstV2, final Iterator<T2> blockVals,
-			final GenericMatcher<T1, T2, O> matchFunction, final Collector<O> collector)
+			final GenericJoiner<T1, T2, O> matchFunction, final Collector<O> collector)
 	throws Exception
 	{
 		// ==================================================

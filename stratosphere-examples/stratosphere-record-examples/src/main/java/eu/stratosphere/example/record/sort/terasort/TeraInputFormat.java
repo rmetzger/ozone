@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *
- * Copyright (C) 2010 by the Stratosphere project (http://stratosphere.eu)
+ * Copyright (C) 2010-2013 by the Stratosphere project (http://stratosphere.eu)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -28,9 +28,7 @@ public final class TeraInputFormat extends DelimitedInputFormat {
 	private final TeraKey key = new TeraKey();
 	private final TeraValue value = new TeraValue();
 	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public boolean readRecord(PactRecord target, byte[] record, int offset, int numBytes)
 	{
