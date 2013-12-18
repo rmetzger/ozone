@@ -29,6 +29,7 @@ This tutorial shows how to build Stratosphere on your own system. Please open a 
 * Maven (at least version 3.0.4)
 * Java 6 or 7
 
+
 ```
 git clone https://github.com/stratosphere/stratosphere.git
 cd stratosphere
@@ -81,7 +82,7 @@ Get some test data:
 
 Start the job:
 
-	./bin/pact-client.sh run --jarfile ./examples/pact/pact-examples-0.4-SNAPSHOT-WordCount.jar --arguments 1 file://`pwd`/hamlet.txt file://`pwd`/wordcount-result.txt
+	./bin/stratosphere run --jarfile ./examples/stratosphere-record-examples-0.4-SNAPSHOT-WordCount.jar --arguments 1 file://`pwd`/hamlet.txt file://`pwd`/wordcount-result.txt
 
 You will find a file called `wordcount-result.txt` in your current directory.
 
