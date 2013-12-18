@@ -107,6 +107,24 @@ public final class ConfigConstants {
 	 * The key for the config parameter defining the number of archived jobs for the jobmanager
 	 */
 	public static final String JOB_MANAGER_WEB_ARCHIVE_COUNT = "jobmanager.web.archive";
+	
+	// ------------------------ Hadoop Configuration ------------------------
+	
+	
+	/**
+	 * Path to hdfs-defaul.xml file
+	 */
+	public static final String HDFS_DEFAULT_CONFIG = "fs.hdfs.hdfsdefault";
+	
+	/**
+	 * Path to hdfs-site.xml file
+	 */
+	public static final String HDFS_SITE_CONFIG = "fs.hdfs.hdfssite";
+	
+	/**
+	 * Path to Hadoop configuration
+	 */
+	public static final String PATH_HADOOP_CONFIG = "fs.hdfs.hadoopconf";
 
 	// ------------------------------------------------------------------------
 	// Default Values
