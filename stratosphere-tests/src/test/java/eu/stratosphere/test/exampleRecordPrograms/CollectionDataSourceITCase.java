@@ -21,25 +21,23 @@ import java.util.List;
 
 
 /**
- * test the collection and iterator data input using Wordcount example
+ * test the collection and iterator data input using the Wordcount example
  *
  */
-public class WordCountCollectionCase extends WordCountITCase {
+public class CollectionDataSourceITCase extends WordCountITCase {
+	
 	public static class Join extends JoinFunction {
-
         @Override
         public void join(Record value1, Record value2, Collector<Record> out) throws Exception {
             out.collect(new Record(value1.getField(1,StringValue.class),value2.getField(1, IntValue.class)));
-
         }
     }
 
 	public static class SerializableIteratorTest extends SerializableIterator<List<Object>> {
 	
 		private static final long serialVersionUID = 1L;
-			private String [] s = COUNTS.split("\n");
-			private int pos = 0;
-
+		private String [] s = COUNTS.split("\n");
+		private int pos = 0;
 
         public List<Object> next() {
             List<Object> tmp = new ArrayList<Object>();
@@ -59,9 +57,8 @@ public class WordCountCollectionCase extends WordCountITCase {
 		
 		public Plan getPlan(String arg1, String arg2) {
 			// parse job parameters
-			int numSubTasks   = Integer.parseInt(arg1);
+			int numSubTasks  = Integer.parseInt(arg1);
 			String output    = arg2;
-			
 
 			List<Object> tmp= new ArrayList<Object>();
 			int pos = 0;
@@ -77,11 +74,8 @@ public class WordCountCollectionCase extends WordCountITCase {
             //test collection input, the input record is {id, count}
             CollectionDataSource source2 = new CollectionDataSource(tmp);
 
-
-
             JoinOperator join = JoinOperator.builder(Join.class, IntValue.class, 0, 0)
                     .input1(source).input2(source2).build();
-
 
 			FileDataSink out = new FileDataSink(new CsvOutputFormat(), output, join, "Word Counts");
 			CsvOutputFormat.configureRecordFormat(out)
@@ -96,7 +90,7 @@ public class WordCountCollectionCase extends WordCountITCase {
 		}
 	}
 	
-	public WordCountCollectionCase(Configuration config) {
+	public CollectionDataSourceITCase(Configuration config) {
 		super(config);
 	}
 
@@ -119,7 +113,6 @@ public class WordCountCollectionCase extends WordCountITCase {
          */
         try {
             CollectionDataSource source = new CollectionDataSource("a","b","c");
-
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
@@ -127,7 +120,6 @@ public class WordCountCollectionCase extends WordCountITCase {
 
         try {
             CollectionDataSource source = new CollectionDataSource(new Object[][]{{1,"a"},{2,"b"},{3,"c"}});
-
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
@@ -158,8 +150,9 @@ public class WordCountCollectionCase extends WordCountITCase {
          */
         try {
             List<Object> tmp= new ArrayList<Object>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i++) {
                 tmp.add(i);
+            }
             CollectionDataSource source = new CollectionDataSource(tmp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,8 +178,9 @@ public class WordCountCollectionCase extends WordCountITCase {
          */
         try {
             List<Object> tmp= new ArrayList<Object>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i++) {
                 tmp.add(i);
+            }
             tmp.add("a");
             CollectionDataSource source = new CollectionDataSource(tmp);
             Assert.fail("input type is different");

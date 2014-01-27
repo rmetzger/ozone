@@ -11,6 +11,24 @@ import eu.stratosphere.api.common.operators.util.SerializableIterator;
 
 /**
  * Operator for input nodes which reads data from collection or iterator.
+ * Use this operator if you want to pass data from the application submitting the 
+ * Stratosphere job to the cluster.
+ * 
+ * There are two main ways to use the CollectionDataSource:
+ * * Using a @link {@link SerializableIterator}
+ *  <pre>
+ *  	CollectionDataSource source = new CollectionDataSource(new SerializableIteratorTest());
+ *  </pre>
+ *  
+ * * Using a Collection of Java Objects.
+ * <pre>
+ * 		CollectionDataSource source2 = new CollectionDataSource(new List<String>() );
+ * </pre>
+ * Note that you can as many elements as you want to the constructor:
+ * <pre>
+ *  	CollectionDataSource("some", "strings", "that", "get", "distributed");
+ * </pre>
+ * The only limitation is that the elements need to have the same type.
  * 
  */
 public class CollectionDataSource extends GenericDataSource<GenericInputFormat<?>> {

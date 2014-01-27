@@ -122,7 +122,7 @@ public interface InputFormat<OT, T extends InputSplit> extends Serializable {
 	boolean reachedEnd() throws IOException;
 	
 	/**
-	 * Tries to read the next pair from the input. By using the return value invalid records in the
+	 * Tries to read the next record from the input. By using the return value invalid records in the
 	 * input can be skipped.
 	 * <p>
 	 * When this method is called, the input format it guaranteed to be opened.
