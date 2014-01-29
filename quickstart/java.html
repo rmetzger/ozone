@@ -1,6 +1,8 @@
 --- 
 layout: inner_with_sidebar
 title: "Quickstart: Java"
+description: Getting started with a Java Stratosphere program.
+keywords: stratosphere, java, program, howto, quickstart, big data, data analytics
 links:
   - {anchor: "requirements", title: "Requirements"}
   - {anchor: "create_project", title: "Create Project"}
@@ -36,8 +38,7 @@ $ curl https://raw.github.com/stratosphere/stratosphere-quickstart/master/quicks
 $ mvn archetype:generate                             \
     -DarchetypeGroupId=eu.stratosphere               \
     -DarchetypeArtifactId=quickstart-java            \
-    -DarchetypeVersion=0.4-SNAPSHOT                  \
-    -DarchetypeCatalog=https://oss.sonatype.org/content/repositories/snapshots/
+    -DarchetypeVersion={{site.current_stable}}
 {% endhighlight %}
       This allows you to <strong>name your newly created project</strong>. It will interactively ask you for the groupId, artifactId, and package name.
       </div>
@@ -48,7 +49,7 @@ $ mvn archetype:generate                             \
   <div class="page-header"><h2>Inspect Project</h2></div>
   <p class="lead">There will be a <strong>new directory in your working directory</strong>. If you've used the <em>curl</em> approach, the directory is called <code>quickstart</code>. Otherwise, it has the name of your artifactId.</p>
   <p class="lead">The sample project is a <strong>Maven project</strong>, which contains two classes. <em>Job</em> is a basic skeleton program and <em>WordCountJob</em> a working example. Please note that the <em>main</em> method of both classes allow you to start Stratosphere in a development/testing mode.</p>
-  <p class="lead">We strongly recommend to <strong>import this project into your IDE</strong>. If you use Eclipse, the <a href="http://www.eclipse.org/m2e/">m2e plugin</a> allows to <a href="http://books.sonatype.com/m2eclipse-book/reference/creating-sect-importing-projects.html#fig-creating-import">import Maven projects</a>. Other IDEs such as IntelliJ also support this.</p>
+  <p class="lead">We recommend to <strong>import this project into your IDE</strong> to develop and test it. If you use Eclipse, the <a href="http://www.eclipse.org/m2e/">m2e plugin</a> allows to <a href="http://books.sonatype.com/m2eclipse-book/reference/creating-sect-importing-projects.html#fig-creating-import">import Maven projects</a>. Some Eclipse bundles include that plugin by default, other require you to install it manually. The IntelliJ IDE also supports Maven projects out of the box.</p>
 </section>
 
 <section id="build_project">
@@ -58,6 +59,76 @@ $ mvn archetype:generate                             \
 
 <section id="next_steps">
   <div class="page-header"><h2>Next Steps</h2></div>
-  <p class="lead"><strong>Write your application!</strong> If you have any troubles, ask on our <a href="https://github.com/stratosphere/stratosphere/issues">GitHub page</a> (open an issue) or on our <a href="https://groups.google.com/forum/#!forum/stratosphere-dev">Mailing list</a>. We are happy to provide help.</p>
-  </p>
+  <p class="lead"><strong>Write your application!</strong></p>
+  <p>The quickstart project contains the classical Word Count (“Hello World” of Big Data) example. The goal of Word count is to determine the number of occurrences of each word in a text. So imagine you want to know how often the term "the" or "house" occurs in all Wikipedia texts. The result is a file that has a line for each term and its count.</p>
+ <br>
+<b>Sample Input:</b> <br>
+{% highlight bash %}
+big data is big
+{% endhighlight %}
+<b>Sample Output:</b> <br>
+{% highlight bash %}
+big 2
+data 1
+is 1
+{% endhighlight %}
+<p>This code shows how the plan for Word Count is created. You see a source
+(FileDataSource), two operators (map and reduce), and a sink (CsvOutputFormat).</p>
+
+{% highlight java %}
+public class WordCount implements Program {
+
+    @Override
+    public Plan getPlan(String... args) {
+        FileDataSource source = new FileDataSource(new TextInputFormat(), inputPath, "Input Lines");
+
+        MapOperator mapper = MapOperator.builder(new SplitWords())
+            .input(source)
+            .name("Tokenize Lines")
+            .build();
+
+        ReduceOperator reducer = ReduceOperator.builder(new CountWords(), StringValue.class, 0)
+            .input(mapper)
+            .name("Count Words")
+            .build();
+
+        FileDataSink sink = new FileDataSink(new CsvOutputFormat(), outputPath, reducer, "Word Counts"); 
+        CsvOutputFormat.configureRecordFormat(sink)
+            .recordDelimiter('\n')
+            .fieldDelimiter(' ')
+            .field(StringValue.class, 0)
+            .field(IntValue.class, 1);
+
+        return new Plan(sink, "Word Count Example");
+    }
+}
+{% endhighlight %}
+
+<p>The operations are defined by specialized classes, here the SplitWords and
+CountWords classes. The following snippet shows the implementation of the SplitWords class:</p>
+
+{% highlight java %}
+public static class SplitWords extends MapFunction {
+
+    private final Record output = new Record();
+    private final StringValue word = new StringValue();
+    private final IntValue one = new IntValue(1);
+
+    @Override
+    public void map(Record record, Collector<Record> collector) {
+        StringValue line = record.getField(0, StringValue.class);
+
+        for (String currentWord : line.getValue().split("")) {
+            this.word.setValue(currentWord);
+            this.output.setField(0, this.word);
+            this.output.setField(1, this.one);
+            collector.collect(this.output);
+        }
+    }
+}
+{% endhighlight %}
+
+<p><a href="(https://github.com/stratosphere/stratosphere/blob/release-{{site.current_stable}}/stratosphere-examples/stratosphere-java-examples/src/main/java/eu/stratosphere/example/java/record/wordcount/WordCount.java?source=cc">Check GitHub</a> for the full example code.</p>
+
+<p class="lead">For a complete overview over our Java API, have a look at the <a href="{{ site.baseurl }}/docs/{{site.current_stable_documentation}}/programming_guides/java.html">Stratosphere Documentation</a>. If you have any trouble, ask on our <a href="https://groups.google.com/forum/#!forum/stratosphere-dev">Mailing list</a>. We are happy to provide help.</p>
 </section>

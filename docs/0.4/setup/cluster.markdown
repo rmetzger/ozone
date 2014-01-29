@@ -23,7 +23,7 @@ This involves two steps. First, installing and configuring Stratosphere and seco
 Stratosphere runs on all *UNIX-like environments*, e.g. **Linux**, **Mac OS X**, and **Cygwin** (for Windows) and expects the cluster to consist of **one master node** and **one or more worker nodes**. Before you start to setup the system, make sure you have the following software installed **on each node**:
 
 -   **Java 1.6.x** or higher,
--   **ssh** (sshd must be running to use the Nephele scripts that manage
+-   **ssh** (sshd must be running to use the Stratosphere scripts that manage
     remote components)
 
 If your cluster does not fulfill these software requirements you will
@@ -101,32 +101,23 @@ on to each worker node from your master node via ssh without a password.
 #### Setting JAVA\_HOME on each Node
 
 Stratosphere requires the `JAVA_HOME` environment variable to be set on the
-master and all worker nodes. If this variable is not set, Stratosphere tries
-to determine the default Java installation. However, it is recommended to set
-this variable by hand to ensure that all nodes run the same Java version. To check
-if `JAVA_HOME` is already set on your system, type in the following command:
+master and all worker nodes and point to the directory of your Java installation.
 
-    $ echo $JAVA_HOME
+You can set this variable in `conf/stratosphere-conf.yaml` via the `env.java.home` key.
 
-The output of the command should be non-empty and pointing to the
-directory of your Java installation.
-
-Setting the `JAVA_HOME` can be achieved in various ways. One way is to
-add the following line to your shell profile. If you use the *bash*
+Alternatively, add the following line to your shell profile. If you use the *bash*
 shell (probably the most common shell), the shell profile is located in
 *\~/.bashrc*:
 
     export JAVA_HOME=/path/to/java_home/
 
-Alternatively, if your ssh daemon supports user environments, you can
+If your ssh daemon supports user environments, you can
 also add `JAVA_HOME` to *.\~/.ssh/environment*. As super user *root*
 you can enable ssh user environments with the following commands:
 
     $ echo "PermitUserEnvironment yes" >> /etc/ssh/sshd_config
     $ /etc/init.d/ssh restart
 
-It is also possible to set the configuration key `env.java.home` in 
-`conf/stratosphere-conf.yaml`.
 </section>
 
 <section id="hdfs">
@@ -214,12 +205,12 @@ safe to answer the confirmation with *yes*.
 
     $ bin/hadoop namenode -format
 
-Finally, we need to copy the Hadoop directory to all worker nodes which
-are intended to act as DataNodes. It is important that the Hadoop
-directory is **accessible on each machine at the same location**. We
-recommend to use either a shared network directory (e.g. an NFS share)
-or symlinks to ensure that. In the following we assume the Hadoop
-directory is stored in a shared network directory.
+Finally, we need to make sure that the Hadoop directory is available to
+all worker nodes which are intended to act as DataNodes and that all nodes
+**find the directory under the same path**. We recommend to use a shared network
+directory (e.g. an NFS share) for that. Alternatively, one can copy the
+directory to all nodes (with the disadvantage that all configuration and
+code updates need to be synced to all nodes).
 
 #### Starting HDFS
 
@@ -250,14 +241,14 @@ After downloading the latest release, copy the archive to your master node and e
 #### Configuring the Cluster
 
 After having extracted the system files, you need to configure Stratosphere for the
-cluster by editing `conf/stratosphere-conf.yaml`.
+cluster by editing *conf/stratosphere-conf.yaml*.
 
 Set the `jobmanager.rpc.address` key to point to your master node. Furthermode define the maximum amount of main memory the JVM is allowed to
 allocate on each node by setting the `jobmanager.heap.mb` and `taskmanager.heap.mb` keys.
 
 The value is given in MB. If some worker nodes have more main memory
 which you want to allocate to the Stratosphere system you can overwrite
-the default value by setting an environment variable *NEPHELE\_TM\_HEAP*
+the default value by setting an environment variable `STRATOSPHERE_TM_HEAP`
 on the respective node.
 
 Finally you must provide a list of all nodes in your cluster
@@ -274,9 +265,9 @@ Each entry must be separated by a new line, as in the following example:
     .
     192.168.0.150
 
-After having completed the list of worker nodes, copy the entire
-Stratosphere directory to every worker node. Similar to HDFS, **we
-assume the files are accessible on each machine at the same location via a shared network directory**.
+The Stratosphere directory must be available on every worker under the same path.
+Similarly as for HDFS, you can use a shared NSF directory, or copy the entire
+Stratosphere directory to every worker node.
 
 #### Configuring the Network Buffers
 
@@ -311,8 +302,8 @@ system would allocate roughly 300 MiBytes for network buffers.
 The number and size of network buffers can be configured with the
 following parameters:
 
--   `channel.network.numberOfBuffers`, and
--   `channel.network.bufferSizeInBytes`.
+-   `taskmanager.network.numberOfBuffers`, and
+-   `taskmanager.network.bufferSizeInBytes`.
 
 #### Configuring Temporary I/O Directories
 
@@ -335,7 +326,7 @@ Please see the [configuration page](config.html "Configuration") for details and
 
 The following script starts a JobManager on the local node and connects via
 SSH to all worker nodes listed in the *slaves* file to start the
-TaskManager on each node. Now your Stratosphere System is up and
+TaskManager on each node. Now your Stratosphere system is up and
 running. The JobManager running on the local node will now accept jobs
 at the configured RPC port.
 

@@ -30,20 +30,20 @@ Follow these instructions to learn how to lauch a Stratosphere Session within yo
 You only need one file to run Stratosphere on YARN, the <i>Stratosphere Uber-Jar</i>. Download the Uber-jar on the [download page]({{site.baseurl}}/downloads/#bin).
 
 
-If you want to build the uber-jar from sources, follow the build instructions. Make sure to use the `-Dhadoop.profile=2` profile. You can find the Jar file in `stratosphere-dist/target/stratosphere-dist-0.4-SNAPSHOT-yarn-uberjar.jar` (*Note: The version might be different for you* ).
+If you want to build the uber-jar from sources, follow the build instructions. Make sure to use the `-Dhadoop.profile=2` profile. You can find the Jar file in `stratosphere-dist/target/stratosphere-dist-{{site.current_snapshot}}-yarn-uberjar.jar` (*Note: The version might be different for you* ).
 
 ### Deploy
 
 Invoke the Jar file using the following command:
 
 ```bash
-java -jar stratosphere-dist-0.4-SNAPSHOT-yarn-uberjar.jar
+java -jar stratosphere-dist-{{site.current_stable}}-yarn-uberjar.jar
 ```
 
 This command will show you the following overview:
 
 ```bash
-java -jar stratosphere-dist-0.4-SNAPSHOT-yarn-uberjar.jar 
+java -jar stratosphere-dist-{{site.current_stable}}-yarn-uberjar.jar 
 Usage:
    Required
      -n,--container <arg>   Number of Yarn container to allocate (=Number of TaskTrackers)
@@ -64,7 +64,7 @@ Please note that the Client requires the `HADOOP_HOME` (or `YARN_CONF_DIR` or `H
 **Example:** Issue the following command to allocate 10 TaskTrackers, with 8GB of memory each:
 
 ```bash
-java -jar stratosphere-dist-0.4-SNAPSHOT-yarn-uberjar.jar -n 10 -tm 8192
+java -jar stratosphere-dist-{{site.current_stable}}-yarn-uberjar.jar -n 10 -tm 8192
 ```
 
 
@@ -82,29 +82,29 @@ So open `screen`, start Stratosphere on YARN, use `CTRL+a` then press `d` to det
 ### Submit Job to Stratosphere
 
 
-Use the following command to submit a Stratosphere Job-jar to the YARN cluster:
+Use the following command to submit a Stratosphere job to the YARN cluster:
 
 ```
-java -cp stratosphere-dist-0.4-SNAPSHOT-yarn-uberjar.jar eu.stratosphere.pact.client.CliFrontend
+java -cp stratosphere-dist-{{site.current_stable}}-yarn-uberjar.jar eu.stratosphere.client.CliFrontend
 ```
 
-If you have Stratosphere installed from a custom build or a zip file, use the pact-client:
+If you have Stratosphere installed from a custom build or a zip file, use the [commandline client]({{site.baseurl}}/docs/0.4/program_execution/cli_client.html):
 
 ```
-./bin/pact-client.sh
+./bin/stratosphere
 ``` 
 
 Both commands will show you a help like this:
 
 ```
 [...]
-Action "run" compiles and submits a PACT program.
+Action "run" compiles and submits a Stratosphere program.
   "run" action arguments:
-     -a,--arguments <programArgs>   Pact program arguments
-     -c,--class <classname>         Pact program assembler class
-     -j,--jarfile <jarfile>         Pact program JAR file
-     -m,--jobmanager <arg>          Hostname:port of JobManager [optional]
-     -w,--wait                      Wait until program finishes
+     -a,--arguments <programArgs>   Program arguments
+     -c,--class <classname>         Program class
+     -j,--jarfile <jarfile>         Stratosphere program JAR file
+     -m,--jobmanager <host:port>    Jobmanager to which the program is submitted
+     -w,--wait                      Wait for program to finish
 [...]
 ```
 
@@ -116,7 +116,9 @@ Use the *run* action to submit a job to YARN. The uberjar will show you the addr
 # Optionally download some sample data first
 wget -O hamlet.txt http://www.gutenberg.org/cache/epub/1787/pg1787.txt
 # Submit Job to Stratosphere
-./bin/pact-client.sh run -m localhost:6123 -j examples/pact/pact-examples-0.4-SNAPSHOT-WordCount.jar --arguments 1 file://`pwd`/hamlet.txt file://`pwd`/wordcount-result.txt 
+./bin/stratosphere run -m localhost:6123 \
+                       -j ./examples/stratosphere-java-examples-{{site.current_stable}}-WordCount.jar \
+                       -a 1 file://`pwd`/hamlet.txt file://`pwd`/wordcount-result.txt 
 ```
 
 You can use also script without the `-m` (or `--jobmanager`) argument, but you have to configure the `stratosphere-conf.yaml` with the correct JobManager details.
@@ -146,6 +148,6 @@ The commands in detail:
 * `-Dhadoop.version=2.0.0-cdh4.2.0` sets a special version of the Hadoop dependencies. Make sure that the specified Hadoop version is compatible with the profile you activated (non-YARN probably need `-Dhadoop.profile=1`)
 * `-P!include-yarn` this command disables YARN in Stratosphere. This is required in this case because the Hadoop version we are using here `2.0.0-cdh4.2.0` is using the old YARN interface. As stated above, we expect Hadoop 2.2 (but Hadoop 2.1-betas might also work since they use the new APIs.)
 
-Please ask the Stratosphere Team if you have issues with your Hadoop compatabiliy.
+Please post to the [Stratosphere mailinglist](https://groups.google.com/d/forum/stratosphere-dev) or create an issue on [Github](https://github.com/stratosphere/stratosphere/issues), if you have issues with your Hadoop compatabiliy.
 
 </section>

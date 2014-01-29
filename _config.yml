@@ -1,4 +1,4 @@
-name:               "Stratosphere | Above the Clouds"
+name:               "Stratosphere | Next Generation Big Data Processing"
 markdown:           redcarpet
 pygments:           true
 timezone:           "Europe/Berlin"
@@ -12,3 +12,14 @@ paginate_path:      "blog/page-:num"
 # see https://github.com/mojombo/jekyll/issues/332
 baseurl:            "/stratosphere"
 
+# Stratosphere related variables
+current_snapshot:       "0.5-SNAPSHOT"
+current_snapshot_yarn:  "0.5-hadoop2-SNAPSHOT"
+current_stable:         "0.4"
+current_stable_yarn:    "0.4-hadoop2"
+#used in download and quickstart
+current_stable_dl:      "https://github.com/stratosphere/stratosphere/releases/download/release-0.4/stratosphere-0.4.tgz"
+current_stable_dl_yarn: "https://github.com/stratosphere/stratosphere/releases/download/release-0.4/stratosphere-0.4-hadoop2.tgz"
+current_stable_uberjar: "https://github.com/stratosphere/stratosphere/releases/download/release-0.4/stratosphere-dist-0.4-hadoop2-yarn-uberjar.jar"
+current_stable_sopremo: "https://github.com/stratosphere/stratosphere-sopremo/releases/download/release-0.4/sopremo-meteor-dist-0.4-bin.tar.gz"
+current_stable_documentation: "0.4"

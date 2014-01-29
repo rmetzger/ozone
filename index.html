@@ -1,6 +1,8 @@
 --- 
 layout: default 
-title:  Overview
+title:  Next Generation Big Data Analytics Platform
+description: Stratosphere is an Open Source platform for massively parallel big data analytics. It features a rich set of operators, advanced, iterative data flows, an efficient runtime, and automatic program optimization.
+keywords: stratosphere, big data, data analytics, open source, hadoop, apache, massively-parallel data processing, map reduce
 ---
 
 <script src="{{ site.baseurl }}/js/jquery.scrollTo.min.js"></script>
@@ -35,18 +37,19 @@ $( document ).ready(function() {
   <h1>Stratosphere</h1>
   <p style="padding-bottom:2em">Big Data looks tiny from here.</p>
   <p>
-    <a href="http://dopa.dima.tu-berlin.de/bin/stratosphere-0.4-SNAPSHOT.tgz" onclick="_gaq.push(['_trackEvent','Action','download-src',this.href]);" class="btn btn-info btn-lg" style="width:10em">
-      <i class="icon-download"> </i>Download
+    <a href="{{site.current_stable_dl}}" onclick="_gaq.push(['_trackEvent','Action','download-startpage',this.href]);" class="btn btn-info btn-lg" style="width:10em">
+      <i class="icon-download"> </i>Download {{site.current_stable}}
     </a>
     <a href="https://github.com/stratosphere/stratosphere" target="_blanc" onclick="_gaq.push(['_trackEvent','Action','github',this.href]);" class="btn btn-primary btn-lg">
       <i class="icon-github"> </i>View on GitHub
-    </a>
+    </a><br>
+    <p style="font-size:60%">Stable: {{site.current_stable}}, Beta:  {{site.current_snapshot}}</p>
   </p>
 </div>
 <div class="container features">
   <div class="row" style="padding-top:40px;padding-bottom:40px;">
     <div class="col-md-12">
-      <h2><strong>Stratosphere is the next-generation Big Data Analytics Platform</strong>.</h2>
+      <h2><strong>Stratosphere is the next generation Big Data Analytics Platform</strong>.</h2>
       <p class="lead">It combines the strengths of MapReduce/Hadoop with powerful programming abstractions in Java and Scala and a high performance runtime. Stratosphere has native support for iterations, incremental iterations, and programs consisting of large DAGs of operations.</p>
     </div>
   </div>
@@ -63,6 +66,8 @@ $( document ).ready(function() {
       <h3><i class="icon-rocket"></i> <a href="#feature_operators" class="smsc">Advanced Analytics</a></h3>
       <p>Iterative, arbitrarily large programs with multiple inputs and outputs.</p>
     </div>
+  </div>
+  <div class="row feature-highlights">
     <div class="col-md-4">
       <h3><i class="icon-cloud"></i> <a href="#feature_stack">Run in the Cloud</a></h3>
       <p>Instantly deploy Stratosphere on Amazon's EC2 and run your data analysis in the cloud.</p>
@@ -79,6 +84,7 @@ $( document ).ready(function() {
 </div>
 
 <hr style="border-top: 10px solid #eeeeee;margin-top:60px">
+
 
 
 <div class="container features-detail" style="padding-top:40px;padding-bottom:40px;">
@@ -229,7 +235,7 @@ val plan = new ScalaPlan(Seq(output))
     </div>
     <div class="col-md-6">
       <p>Stratosphere seamlessly integrates into existing Hadoop setups and runs side-by-side with Hadoop's TaskTrackers and DataNodes. Stratosphere can read data from Hadoop sources, but comes with its own efficient runtime. Similar to Hadoop, Stratosphere scales by adding more machines to the cluster. <br>
-    Stratosphere runs also on Hadoop 2.2 (YARN), so you don not need to change your infrastructure.  <br>
+    Stratosphere runs also on Hadoop 2.2 (YARN), so you do not need to change your infrastructure.  <br>
     The Local execution mode allows to debug and analyze your application right from your favorite IDE, without having Stratosphere installed.</p>
       </p>
     </div>
@@ -266,7 +272,7 @@ val plan = new ScalaPlan(Seq(output))
   <div class="row">
     <div class="col-md-12">
       <h3><strong>Next Steps</strong></h3>
-      <p><a href="{{ site.baseurl }}/download">Download</a> and try Stratosphere. Our Quickstart scripts make it easy for developers to create an empty Stratosphere program skeleton to start from. Dependencies are seamlessly handled by Maven without any installation. Testing and debugging is possible directly inside the IDE with Stratosphere's embedded mode.
+      <p><a href="{{ site.baseurl }}/downloads">Download</a> and try Stratosphere. Our Quickstart scripts make it easy for developers to create an empty Stratosphere program skeleton to start from. Dependencies are seamlessly handled by Maven without any installation. Testing and debugging is possible directly inside the IDE with Stratosphere's embedded mode.
       Ready-made binaries for cluster setups are available as well.
       </p>
       <p>Visit <a href="http://bigdataclass.org" target="_blanc">bigdataclass.org</a> for Stratosphere programming exercises.</p>
