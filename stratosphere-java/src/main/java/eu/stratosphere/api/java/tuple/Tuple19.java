@@ -23,7 +23,7 @@ package eu.stratosphere.api.java.tuple;
 
 import eu.stratosphere.util.StringUtils;
 
-@SuppressWarnings({ "restriction"})
+@SuppressWarnings({"restriction"})
 public final class Tuple19<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19> extends Tuple {
 
 	private static final long serialVersionUID = 1L;
@@ -128,6 +128,15 @@ public final class Tuple19<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T1
 	}
 	public T19 T19() {
 		return this._19;
+	}
+	public T1 getFirst() {
+		return this._1;
+	}
+	public T2 getSecond() {
+		return this._2;
+	}
+	public T3 getThird() {
+		return this._3;
 	}
 	public void T1(T1 value) {
 		this._1 = value;

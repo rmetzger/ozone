@@ -30,6 +30,8 @@ public class TupleGenerator {
 	
 	private static final int LAST = 22;
 	
+	private static final String[] SPEAKING = { "First", "Second", "Third" };
+	
 	
 	public static void main(String[] args) throws Exception {
 		File root = new File(ROOT_DIRECTORY);
@@ -106,11 +108,21 @@ public class TupleGenerator {
 			w.println("\t}");
 		}
 		
+		// speaking accessors
+		for (int i = 1; i <= 3; i++) {
+			if(numFields >= i) {
+				w.println("\tpublic " + GEN_TYPE_PREFIX + i + " get" + SPEAKING[i-1] + "() {");
+				w.println("\t\treturn this._" + i + ";");
+				w.println("\t}");
+			}
+		}
+		
 		for (int i = 1; i <= numFields; i++) {
 			w.println("\tpublic void " + GEN_TYPE_PREFIX + i + "(" + GEN_TYPE_PREFIX + i + " value) {");
 			w.println("\t\tthis._" + i + " = value;");
 			w.println("\t}");
 		}
+		
 		
 		
 		// accessor getter method
