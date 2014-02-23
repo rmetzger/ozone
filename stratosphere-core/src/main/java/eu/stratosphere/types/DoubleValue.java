@@ -26,7 +26,7 @@ import eu.stratosphere.core.memory.DataOutputView;
  * 
  * @see eu.stratosphere.types.Key
  */
-public class DoubleValue implements Key, ResettableValue<DoubleValue>, CopyableValue<DoubleValue> {
+public class DoubleValue implements Key, ResettableValue<DoubleValue>, CopyableValue<DoubleValue>, JavaValue<Double> {
 	private static final long serialVersionUID = 1L;
 
 	private double value;
@@ -131,5 +131,15 @@ public class DoubleValue implements Key, ResettableValue<DoubleValue>, CopyableV
 	@Override
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		target.write(source, 8);
+	}
+
+	@Override
+	public Double getObjectValue() {
+		return this.getValue();
+	}
+
+	@Override
+	public void setObjectValue(Double object) {
+		this.setValue(object);
 	}
 }
