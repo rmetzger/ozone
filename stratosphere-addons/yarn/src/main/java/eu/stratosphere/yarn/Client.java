@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DataOutputBuffer;
+import org.apache.hadoop.mapreduce.security.TokenCache;
+import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -67,6 +71,8 @@ import eu.stratosphere.configuration.GlobalConfiguration;
  * https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-applications/hadoop-yarn-applications-distributedshell/src/main/java/org/apache/hadoop/yarn/applications/distributedshell/Client.java?source=cc
  * and
  * https://github.com/hortonworks/simple-yarn-app
+ * and 
+ * https://github.com/yahoo/storm-yarn/blob/master/src/main/java/com/yahoo/storm/yarn/StormOnYarn.java
  * 
  * The Stratosphere jar is uploaded to HDFS by this client. 
  * The application master and all the TaskManager containers get the jar file downloaded
@@ -282,14 +288,19 @@ public class Client {
 		// Set up the container launch context for the application master
 		ContainerLaunchContext amContainer = Records
 				.newRecord(ContainerLaunchContext.class);
+		
 		final String amCommand = "$JAVA_HOME/bin/java"
 				+ " -Xmx"+jmMemory+"M" + " eu.stratosphere.yarn.ApplicationMaster" + " "
 				+ " 1>"
 				+ ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stdout"
-				+ " 2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
-				+ "/stderr";
+				+ " 2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stderr";
 		amContainer.setCommands(Collections.singletonList(amCommand));
 
+		
+		
+
+        
+		
 		System.err.println("amCommand="+amCommand);
 		
 		// Set-up ApplicationSubmissionContext for the application
@@ -300,13 +311,20 @@ public class Client {
 		LocalResource appMasterJar = Records.newRecord(LocalResource.class);
 		LocalResource stratosphereConf = Records.newRecord(LocalResource.class);
 		Path remotePathJar = Utils.setupLocalResource(conf, fs, appId.toString(), localJarPath, appMasterJar);
-		Utils.setupLocalResource(conf, fs, appId.toString(), confPath, stratosphereConf);
+		Path remotePathConf = Utils.setupLocalResource(conf, fs, appId.toString(), confPath, stratosphereConf);
 		
 		Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
 		localResources.put("stratosphere.jar", appMasterJar);
 		localResources.put("stratosphere-conf.yaml", stratosphereConf);
 		
 				
+		// setup security tokens (code from apache storm)
+        Path[] paths = new Path[3];
+        paths[0] = remotePathJar;
+        paths[1] = remotePathConf;
+        Utils.setTokensFor(amContainer, paths, this.conf);
+        
+        
 		amContainer.setLocalResources(localResources);
 		
 

@@ -172,7 +172,7 @@ public class ApplicationMaster {
 	//	Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere.jar"), stratosphereJar);
 		
 		// register conf with local fs.
-		Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf);
+		Path remoteConfPath = Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf);
 		LOG.info("Prepared localresource for modified yaml: "+stratosphereConf);
 		
 		// Obtain allocated containers and launch
@@ -209,6 +209,11 @@ public class ApplicationMaster {
 				Map<String, String> containerEnv = new HashMap<String, String>();
 				Utils.setupEnv(conf, containerEnv); //add stratosphere.jar to class path.
 				ctx.setEnvironment(containerEnv);
+				
+				Path[] paths = new Path[3];
+		        paths[0] = remoteJarPath;
+		        paths[1] = remoteConfPath;
+		        Utils.setTokensFor(ctx, paths, conf);
 				
 				LOG.info("Launching container " + allocatedContainers);
 				nmClient.startContainer(container, ctx);
