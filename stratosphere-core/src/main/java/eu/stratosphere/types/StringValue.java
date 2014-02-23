@@ -38,7 +38,7 @@ import org.apache.commons.lang3.Validate;
  * @see java.lang.CharSequence
  */
 public class StringValue implements NormalizableKey<StringValue>, CharSequence, ResettableValue<StringValue>, 
-		CopyableValue<StringValue>, Appendable
+		CopyableValue<StringValue>, Appendable, JavaValue<String>
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -834,5 +834,15 @@ public class StringValue implements NormalizableKey<StringValue>, CharSequence, 
 				out.writeByte(c);
 			}
 		}
+	}
+
+	@Override
+	public String getObjectValue() {
+		return this.getValue();
+	}
+
+	@Override
+	public void setObjectValue(String object) {
+		this.setValue(object);
 	}
 }
