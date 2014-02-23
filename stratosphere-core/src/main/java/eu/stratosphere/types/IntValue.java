@@ -27,7 +27,7 @@ import eu.stratosphere.core.memory.MemorySegment;
  * 
  * @see eu.stratosphere.types.Key
  */
-public class IntValue implements NormalizableKey<IntValue>, ResettableValue<IntValue>, CopyableValue<IntValue> {
+public class IntValue implements Key, NormalizableKey, ResettableValue<IntValue>, CopyableValue<IntValue>, JavaValue<IntValue> {
 	private static final long serialVersionUID = 1L;
 	
 	private int value;
@@ -157,5 +157,15 @@ public class IntValue implements NormalizableKey<IntValue>, ResettableValue<IntV
 	@Override
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		target.write(source, 4);
+	}
+
+	@Override
+	public Integer getObjectValue() {
+		return this.value;
+	}
+
+	@Override
+	public void setObjectValue(Integer object) {
+		this.setValue(object);
 	}
 }

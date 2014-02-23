@@ -67,8 +67,17 @@ public class UserCodeObjectWrapper<T> implements UserCodeWrapper<T> {
 					if (f.getName().contains("$outer")) {
 						newCurrent = f.get(current);
 					}
+					// check if field has SerializableField Annotation.
+					boolean hasSerializableFieldAnnotation = false;
+					Annotation[] annotations = f.getAnnotations();
+					for(Annotation a: annotations){
+						if(a.annotationType().equals(SerializableField.class)) {
+							hasSerializableFieldAnnotation = true;
+							break;
+						}
+					}
 
-					if (hasCustomSerialization || Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers())) {
+					if (!hasSerializableFieldAnnotation || hasCustomSerialization || Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers())) {
 						// field not relevant for serialization
 						continue;
 					}
