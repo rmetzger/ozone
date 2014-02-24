@@ -550,63 +550,75 @@ public class TaskManager implements TaskOperationProtocol {
 	@Override
 	public List<TaskSubmissionResult> submitTasks(final List<TaskDeploymentDescriptor> tasks) throws IOException {
 
-		final List<TaskSubmissionResult> submissionResultList = new SerializableArrayList<TaskSubmissionResult>();
-		final List<Task> tasksToStart = new ArrayList<Task>();
-
-		// Make sure all tasks are fully registered before they are started
-		for (final TaskDeploymentDescriptor tdd : tasks) {
-
-			final JobID jobID = tdd.getJobID();
-			final ExecutionVertexID vertexID = tdd.getVertexID();
-			RuntimeEnvironment re;
-			try {
-				re = new RuntimeEnvironment(tdd, this.memoryManager, this.ioManager, new TaskInputSplitProvider(jobID,
-					vertexID, this.globalInputSplitProvider), this.accumulatorProtocolProxy);
-			} catch (Throwable t) {
-				final TaskSubmissionResult result = new TaskSubmissionResult(vertexID,
-					AbstractTaskResult.ReturnCode.DEPLOYMENT_ERROR);
-				result.setDescription(StringUtils.stringifyException(t));
-				LOG.error(result.getDescription());
-				submissionResultList.add(result);
-				continue;
+		try {
+			final List<TaskSubmissionResult> submissionResultList = new SerializableArrayList<TaskSubmissionResult>();
+			final List<Task> tasksToStart = new ArrayList<Task>();
+	
+			// Make sure all tasks are fully registered before they are started
+			for (final TaskDeploymentDescriptor tdd : tasks) {
+	
+				final JobID jobID = tdd.getJobID();
+				final ExecutionVertexID vertexID = tdd.getVertexID();
+				RuntimeEnvironment re;
+				try {
+					re = new RuntimeEnvironment(tdd, this.memoryManager, this.ioManager, new TaskInputSplitProvider(jobID,
+						vertexID, this.globalInputSplitProvider), this.accumulatorProtocolProxy);
+				} catch (Throwable t) {
+					final TaskSubmissionResult result = new TaskSubmissionResult(vertexID,
+						AbstractTaskResult.ReturnCode.DEPLOYMENT_ERROR);
+					result.setDescription(StringUtils.stringifyException(t));
+					LOG.error(result.getDescription());
+					submissionResultList.add(result);
+					continue;
+				}
+	
+				final Configuration jobConfiguration = tdd.getJobConfiguration();
+				final Set<ChannelID> activeOutputChannels = null; // TODO: Fix me
+	
+				// Register the task
+				Task task;
+				try {
+					task = createAndRegisterTask(vertexID, jobConfiguration, re,
+						activeOutputChannels);
+				} catch (InsufficientResourcesException e) {
+					final TaskSubmissionResult result = new TaskSubmissionResult(vertexID,
+						AbstractTaskResult.ReturnCode.INSUFFICIENT_RESOURCES);
+					result.setDescription(e.getMessage());
+					LOG.error(result.getDescription());
+					submissionResultList.add(result);
+					continue;
+				}
+	
+				if (task == null) {
+					final TaskSubmissionResult result = new TaskSubmissionResult(vertexID,
+						AbstractTaskResult.ReturnCode.TASK_NOT_FOUND);
+					result.setDescription("Task " + re.getTaskNameWithIndex() + " (" + vertexID + ") was already running");
+					LOG.error(result.getDescription());
+					submissionResultList.add(result);
+					continue;
+				}
+	
+				submissionResultList.add(new TaskSubmissionResult(vertexID, AbstractTaskResult.ReturnCode.SUCCESS));
+				tasksToStart.add(task);
 			}
-
-			final Configuration jobConfiguration = tdd.getJobConfiguration();
-			final Set<ChannelID> activeOutputChannels = null; // TODO: Fix me
-
-			// Register the task
-			Task task;
-			try {
-				task = createAndRegisterTask(vertexID, jobConfiguration, re,
-					activeOutputChannels);
-			} catch (InsufficientResourcesException e) {
-				final TaskSubmissionResult result = new TaskSubmissionResult(vertexID,
-					AbstractTaskResult.ReturnCode.INSUFFICIENT_RESOURCES);
-				result.setDescription(e.getMessage());
-				LOG.error(result.getDescription());
-				submissionResultList.add(result);
-				continue;
+	
+			// Now start the tasks
+			for (final Task task : tasksToStart) {
+				task.startExecution();
 			}
-
-			if (task == null) {
-				final TaskSubmissionResult result = new TaskSubmissionResult(vertexID,
-					AbstractTaskResult.ReturnCode.TASK_NOT_FOUND);
-				result.setDescription("Task " + re.getTaskNameWithIndex() + " (" + vertexID + ") was already running");
-				LOG.error(result.getDescription());
-				submissionResultList.add(result);
-				continue;
-			}
-
-			submissionResultList.add(new TaskSubmissionResult(vertexID, AbstractTaskResult.ReturnCode.SUCCESS));
-			tasksToStart.add(task);
+	
+			return submissionResultList;
 		}
-
-		// Now start the tasks
-		for (final Task task : tasksToStart) {
-			task.startExecution();
+		catch (IOException ioe) {
+			System.err.println("Error: Task deployment failed on task manager: " + ioe.getMessage());
+			ioe.printStackTrace();
+			throw ioe;
 		}
-
-		return submissionResultList;
+		catch (Throwable t) {
+			System.err.println("Error: Task deployment failed on task manager: " + t.getMessage());
+			t.printStackTrace();
+			throw new IOException("Error on taskmanager during task deployent.", t);
+		}
 	}
 
 	/**

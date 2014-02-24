@@ -1156,6 +1156,10 @@ public class JobManager implements DeploymentManager, ExtendedManagementProtocol
 				try {
 					submissionResultList = instance.submitTasks(submissionList);
 				} catch (final IOException ioe) {
+					LOG.error("RPC call to submit the tasks failed.", ioe);
+					System.err.println("RPC call to submit the tasks failed: " + ioe.getMessage());
+					ioe.printStackTrace();
+					
 					final String errorMsg = StringUtils.stringifyException(ioe);
 					for (final ExecutionVertex vertex : verticesToBeDeployed) {
 						vertex.updateExecutionStateAsynchronously(ExecutionState.FAILED, errorMsg);
