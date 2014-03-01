@@ -233,7 +233,9 @@ public class Client {
 	    // Copy the application master jar to the filesystem 
 	    // Create a local resource to point to the destination jar path 
 	    FileSystem fs = FileSystem.get(conf);
-	    
+	    if(!fs.getUri().getScheme().startsWith("hdfs")) {
+	    	LOG.warn("The configured file system is not HDFS. Current fs: "+fs.getUri());
+	    }
 		
 	    // Create yarnClient
 		final YarnClient yarnClient = YarnClient.createYarnClient();
