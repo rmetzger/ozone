@@ -19,8 +19,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DataOutputBuffer;
+import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.ApplicationConstants.Environment;
 import org.apache.hadoop.yarn.api.protocolrecords.AllocateResponse;
@@ -209,11 +214,19 @@ public class ApplicationMaster {
 				Map<String, String> containerEnv = new HashMap<String, String>();
 				Utils.setupEnv(conf, containerEnv); //add stratosphere.jar to class path.
 				ctx.setEnvironment(containerEnv);
-				
-				Path[] paths = new Path[3];
-		        paths[0] = remoteJarPath;
-		        paths[1] = remoteConfPath;
-		        Utils.setTokensFor(ctx, paths, conf);
+
+				UserGroupInformation user = UserGroupInformation.getCurrentUser();
+				try {
+					Credentials credentials = user.getCredentials();
+					DataOutputBuffer dob = new DataOutputBuffer();
+					credentials.writeTokenStorageToStream(dob);
+					ByteBuffer securityTokens = ByteBuffer.wrap(dob.getData(),
+							0, dob.getLength());
+					ctx.setTokens(securityTokens);
+				} catch (IOException e) {
+					LOG.warn("Getting current user info failed when trying to launch the container"
+							+ e.getMessage());
+				}
 				
 				LOG.info("Launching container " + allocatedContainers);
 				nmClient.startContainer(container, ctx);
