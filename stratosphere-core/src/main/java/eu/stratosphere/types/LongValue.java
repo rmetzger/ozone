@@ -27,7 +27,7 @@ import eu.stratosphere.core.memory.MemorySegment;
  * 
  * @see eu.stratosphere.types.Key
  */
-public class LongValue implements Key, NormalizableKey, CopyableValue<LongValue> {
+public class LongValue implements Key, NormalizableKey, CopyableValue<LongValue>, JavaValue<Long> {
 	private static final long serialVersionUID = 1L;
 
 	private long value;
@@ -53,7 +53,8 @@ public class LongValue implements Key, NormalizableKey, CopyableValue<LongValue>
 	 * 
 	 * @return The value of the encapsulated long.
 	 */
-	public long getValue() {
+	@Override
+	public Long getValue() {
 		return this.value;
 	}
 

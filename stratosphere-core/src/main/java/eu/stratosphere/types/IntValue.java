@@ -27,7 +27,7 @@ import eu.stratosphere.core.memory.MemorySegment;
  * 
  * @see eu.stratosphere.types.Key
  */
-public class IntValue implements Key, NormalizableKey, CopyableValue<IntValue> {
+public class IntValue implements Key, NormalizableKey, CopyableValue<IntValue>, JavaValue<Integer> {
 	private static final long serialVersionUID = 1L;
 	
 	private int value;
@@ -53,7 +53,7 @@ public class IntValue implements Key, NormalizableKey, CopyableValue<IntValue> {
 	 * 
 	 * @return the value of the encapsulated int.
 	 */
-	public int getValue() {
+	public Integer getValue() {
 		return this.value;
 	}
 

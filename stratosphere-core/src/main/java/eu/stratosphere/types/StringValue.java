@@ -36,7 +36,7 @@ import eu.stratosphere.core.memory.MemorySegment;
  * @see java.lang.String
  * @see java.lang.CharSequence
  */
-public class StringValue implements Key, NormalizableKey, CharSequence, CopyableValue<StringValue>, Appendable {
+public class StringValue implements Key, NormalizableKey, CharSequence, CopyableValue<StringValue>, Appendable, JavaValue<String> {
 	private static final long serialVersionUID = 1L;
 	
 	private static final char[] EMPTY_STRING = new char[0];
@@ -127,6 +127,7 @@ public class StringValue implements Key, NormalizableKey, CharSequence, Copyable
 	 * 
 	 * @return A String resembling the contents of this StringValue.
 	 */
+	@Override
 	public String getValue() {
 		return toString();
 	}
