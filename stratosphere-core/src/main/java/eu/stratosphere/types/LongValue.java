@@ -53,8 +53,7 @@ public class LongValue implements Key, NormalizableKey, CopyableValue<LongValue>
 	 * 
 	 * @return The value of the encapsulated long.
 	 */
-	@Override
-	public Long getValue() {
+	public long getValue() {
 		return this.value;
 	}
 
@@ -184,5 +183,10 @@ public class LongValue implements Key, NormalizableKey, CopyableValue<LongValue>
 	@Override
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		target.write(source, 8);
+	}
+
+	@Override
+	public Long getObjectValue() {
+		return this.value;
 	}
 }

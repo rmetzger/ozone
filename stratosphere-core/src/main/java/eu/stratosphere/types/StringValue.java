@@ -127,7 +127,6 @@ public class StringValue implements Key, NormalizableKey, CharSequence, Copyable
 	 * 
 	 * @return A String resembling the contents of this StringValue.
 	 */
-	@Override
 	public String getValue() {
 		return toString();
 	}
@@ -798,5 +797,10 @@ public class StringValue implements Key, NormalizableKey, CharSequence, Copyable
 			System.arraycopy(this.value, 0, value, 0, this.len);
 			this.value = value;
 		}
+	}
+
+	@Override
+	public String getObjectValue() {
+		return this.getValue();
 	}
 }

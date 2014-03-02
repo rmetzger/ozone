@@ -53,7 +53,7 @@ public class IntValue implements Key, NormalizableKey, CopyableValue<IntValue>, 
 	 * 
 	 * @return the value of the encapsulated int.
 	 */
-	public Integer getValue() {
+	public int getValue() {
 		return this.value;
 	}
 
@@ -156,5 +156,10 @@ public class IntValue implements Key, NormalizableKey, CopyableValue<IntValue>, 
 	@Override
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		target.write(source, 4);
+	}
+
+	@Override
+	public Integer getObjectValue() {
+		return this.value;
 	}
 }
