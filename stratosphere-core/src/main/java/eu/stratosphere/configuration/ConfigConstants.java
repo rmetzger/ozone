@@ -186,6 +186,9 @@ public final class ConfigConstants {
 	 */
 	public static final String JOB_MANAGER_WEB_ARCHIVE_COUNT = "jobmanager.web.history";
 	
+	public static final String JOB_MANAGER_WEB_LOG_PATH_KEY = "jobmanager.web.logpath";
+	
+	
 	// ------------------------------ Web Client ------------------------------
 	
 	/**
@@ -379,6 +382,7 @@ public final class ConfigConstants {
 	 * The default directory to store uploaded jobs in.
 	 */
 	public static final String DEFAULT_WEB_JOB_STORAGE_DIR = DEFAULT_WEB_TMP_DIR + "/webclient-jobs/";
+	
 
 	/**
 	 * The default path to the file containing the list of access privileged users and passwords.
@@ -397,6 +401,7 @@ public final class ConfigConstants {
 	 * The default index for the default instance type.
 	 */
 	public static final int DEFAULT_DEFAULT_INSTANCE_TYPE_INDEX = 1;
+
 	
 	// ------------------------------------------------------------------------
 	

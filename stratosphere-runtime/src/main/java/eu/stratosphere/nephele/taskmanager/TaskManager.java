@@ -147,6 +147,7 @@ public class TaskManager implements TaskOperationProtocol {
 	 * {@link GlobalConfiguration}, which must be loaded prior to instantiating the task manager.
 	 */
 	public TaskManager(final int taskManagersPerJVM) throws Exception {
+		System.out.println("Current dir "+(new File(".").getAbsolutePath()));
 		
 		// IMPORTANT! At this point, the GlobalConfiguration must have been read!
 

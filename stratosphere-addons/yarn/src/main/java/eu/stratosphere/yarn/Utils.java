@@ -16,6 +16,7 @@ package eu.stratosphere.yarn;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -164,19 +165,18 @@ public class Utils {
 	    Path dst = new Path(homedir, suffix);
 	    
 	    LOG.info("Copying from "+localRsrcPath+" to "+dst );
-	    
 	    fs.copyFromLocalFile(localRsrcPath, dst);
 	    registerLocalResource(fs, dst, appMasterJar);
 	    return dst;
 	}
 	
-	public static void registerLocalResource(FileSystem fs, Path remoteRsrcPath, LocalResource appMasterJar) throws IOException {
+	public static void registerLocalResource(FileSystem fs, Path remoteRsrcPath, LocalResource localResource) throws IOException {
 		FileStatus jarStat = fs.getFileStatus(remoteRsrcPath);
-		appMasterJar.setResource(ConverterUtils.getYarnUrlFromURI(remoteRsrcPath.toUri()));
-		appMasterJar.setSize(jarStat.getLen());
-		appMasterJar.setTimestamp(jarStat.getModificationTime());
-		appMasterJar.setType(LocalResourceType.FILE);
-		appMasterJar.setVisibility(LocalResourceVisibility.APPLICATION);
+		localResource.setResource(ConverterUtils.getYarnUrlFromURI(remoteRsrcPath.toUri()));
+		localResource.setSize(jarStat.getLen());
+		localResource.setTimestamp(jarStat.getModificationTime());
+		localResource.setType(LocalResourceType.FILE);
+		localResource.setVisibility(LocalResourceVisibility.PUBLIC);
 	}
 
 	public static void setTokensFor(ContainerLaunchContext amContainer, Path[] paths, Configuration conf) throws IOException {
@@ -189,4 +189,14 @@ public class Utils {
         amContainer.setTokens(securityTokens);
 	}
 	
+	public static void logFilesInCurrentDirectory(final Log logger) {
+		new File(".").list(new FilenameFilter() {
+			
+			@Override
+			public boolean accept(File dir, String name) {
+				logger.info(dir.getAbsolutePath()+"/"+name);
+				return true;
+			}
+		});
+	}
 }

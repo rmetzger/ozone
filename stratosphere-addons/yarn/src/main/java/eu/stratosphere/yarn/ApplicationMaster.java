@@ -82,26 +82,33 @@ public class ApplicationMaster {
 		}
 	}
 	public static void main(String[] args) throws Exception {
+		Utils.logFilesInCurrentDirectory(LOG);
 		
 		// Initialize clients to ResourceManager and NodeManagers
 		Configuration conf = Utils.initializeYarnConfiguration();
 		FileSystem fs = FileSystem.get(conf);
 		Map<String, String> envs = System.getenv();
 		final String currDir = envs.get(Environment.PWD.key());
+		final String logDirs =  envs.get(Environment.LOG_DIRS.key());
 		final String ownHostname = envs.get(Environment.NM_HOST.key());
 		final String appId = envs.get(Client.ENV_APP_ID);
 		final String localDirs = envs.get(Environment.LOCAL_DIRS.key());
 		final String clientHomeDir = envs.get(Client.ENV_CLIENT_HOME_DIR);
 		final String applicationMasterHost = envs.get(Environment.NM_HOST.key());
 		final String remoteStratosphereJarPath = envs.get(Client.STRATOSPHERE_JAR_PATH);
+		final String shipListString = envs.get(Client.ENV_CLIENT_SHIP_FILES);
 		final int taskManagerCount = Integer.valueOf(envs.get(Client.ENV_TM_COUNT));
 		final int memoryPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_MEMORY));
 		final int coresPerTaskManager = Integer.valueOf(envs.get(Client.ENV_TM_CORES));
 		
 		final int heapLimit = (int)((float)memoryPerTaskManager*0.7);
 		
-		if(currDir == null) throw new RuntimeException("Current directory unknown");
-		if(ownHostname == null) throw new RuntimeException("Own hostname ("+Environment.NM_HOST+") not set.");
+		if(currDir == null) {
+			throw new RuntimeException("Current directory unknown");
+		}
+		if(ownHostname == null) {
+			throw new RuntimeException("Own hostname ("+Environment.NM_HOST+") not set.");
+		}
 		LOG.info("Working directory "+currDir);
 		
 		final String localWebInterfaceDir = currDir+"/resources/"+ConfigConstants.DEFAULT_JOB_MANAGER_WEB_PATH_NAME;
@@ -125,6 +132,7 @@ public class ApplicationMaster {
 		// just to make sure.
 		output.append(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY+": "+ownHostname+"\n");
 		output.append(ConfigConstants.JOB_MANAGER_WEB_ROOT_PATH_KEY+": "+localWebInterfaceDir+"\n");
+		output.append(ConfigConstants.JOB_MANAGER_WEB_LOG_PATH_KEY+": "+logDirs+"\n");
 		if(localDirs != null) output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
 		output.close();
 		br.close();
@@ -175,11 +183,23 @@ public class ApplicationMaster {
 		// register Stratosphere Jar with remote HDFS
 		final Path remoteJarPath = new Path(remoteStratosphereJarPath);
 		Utils.registerLocalResource(fs, remoteJarPath, stratosphereJar);
-	//	Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere.jar"), stratosphereJar);
 		
 		// register conf with local fs.
 		Path remoteConfPath = Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf, new Path(clientHomeDir));
 		LOG.info("Prepared localresource for modified yaml: "+stratosphereConf);
+		
+		// prepare the files to ship
+		String[] remoteShipPaths = shipListString.split(",");
+		LocalResource[] remoteShipRsc = new LocalResource[remoteShipPaths.length]; 
+		{ // scope for i
+			int i = 0;
+			for(String remoteShipPathStr : remoteShipPaths) {
+				remoteShipRsc[i] = Records.newRecord(LocalResource.class);
+				Path remoteShipPath = new Path(remoteShipPathStr);
+				Utils.registerLocalResource(fs, remoteShipPath, remoteShipRsc[i]);
+				i++;
+			}
+		}
 		
 		// Obtain allocated containers and launch
 		int allocatedContainers = 0;
@@ -196,10 +216,10 @@ public class ApplicationMaster {
 						+ " eu.stratosphere.nephele.taskmanager.TaskManager -configDir . "
 						+ " 1>"
 						+ ApplicationConstants.LOG_DIR_EXPANSION_VAR
-						+ "/stdout" 
+						+ "/taskmanager-stdout.log" 
 						+ " 2>"
 						+ ApplicationConstants.LOG_DIR_EXPANSION_VAR
-						+ "/stderr";
+						+ "/taskmanager-stderr.log";
 				ctx.setCommands(Collections.singletonList(tmCommand));
 				
 				LOG.info("Starting TM with command="+tmCommand);
@@ -208,6 +228,12 @@ public class ApplicationMaster {
 				Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
 				localResources.put("stratosphere.jar", stratosphereJar);
 				localResources.put("stratosphere-conf.yaml", stratosphereConf);
+				
+				// add ship resources
+				for( int i = 0; i < remoteShipPaths.length; i++) {
+					localResources.put(new Path(remoteShipPaths[i]).getName(), remoteShipRsc[i]);
+				}
+				
 				
 				ctx.setLocalResources(localResources);
 				
