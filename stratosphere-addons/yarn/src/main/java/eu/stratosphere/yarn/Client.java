@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -90,7 +91,7 @@ public class Client {
 	private static final Option GEN_CONF = new Option("g","generateConf",false, "Place default configuration file in current directory");
 	private static final Option QUEUE = new Option("qu","queue",true, "Specify YARN queue.");
 	private static final Option SHIP_PATH = new Option("s","ship",true, "Ship files in the specified directory");
-	private static final Option STRATOSPHERE_CONF = new Option("c","conf",true, "Path to Stratosphere configuration file");
+	private static final Option STRATOSPHERE_CONF_DIR = new Option("c","confDir",true, "Path to Stratosphere configuration directory");
 	private static final Option STRATOSPHERE_JAR = new Option("j","jar",true, "Path to Stratosphere jar file");
 	private static final Option JM_MEMORY = new Option("jm","jobManagerMemory",true, "Memory for JobManager Container [in MB]");
 	private static final Option TM_MEMORY = new Option("tm","taskManagerMemory",true, "Memory per TaskManager Container [in MB]");
@@ -110,6 +111,8 @@ public class Client {
 	public static final String ENV_CLIENT_HOME_DIR = "_CLIENT_HOME_DIR";
 	public static final String ENV_CLIENT_SHIP_FILES = "_CLIENT_SHIP_FILES";
 	
+	private static final String CONFIG_FILE_NAME = "stratosphere-conf.yaml";
+	
 	private Configuration conf;
 
 	public void run(String[] args) throws Exception {
@@ -120,7 +123,7 @@ public class Client {
 		//
 		Options options = new Options();
 		options.addOption(VERBOSE);
-		options.addOption(STRATOSPHERE_CONF);
+		options.addOption(STRATOSPHERE_CONF_DIR);
 		options.addOption(STRATOSPHERE_JAR);
 		options.addOption(JM_MEMORY);
 		options.addOption(TM_MEMORY);
@@ -177,9 +180,15 @@ public class Client {
 		
 		// Conf Path 
 		Path confPath = null;
-		
-		if(cmd.hasOption(STRATOSPHERE_CONF.getOpt())) {
-			confPath = new Path(cmd.getOptionValue(STRATOSPHERE_CONF.getOpt()));
+		String confDirPath = "";
+		if(cmd.hasOption(STRATOSPHERE_CONF_DIR.getOpt())) {
+			confDirPath = cmd.getOptionValue(STRATOSPHERE_CONF_DIR.getOpt())+"/";
+			File confFile = new File(confDirPath+CONFIG_FILE_NAME);
+			if(!confFile.exists()) {
+				LOG.fatal("Unable to locate configuration file in "+confFile);
+				System.exit(1);
+			}
+			confPath = new Path(confFile.getAbsolutePath());
 		} else {
 			System.out.println("No configuration file has been specified");
 			
@@ -415,6 +424,11 @@ public class Client {
 				&& appState != YarnApplicationState.FAILED) {
 			if(!told && appState ==  YarnApplicationState.RUNNING) {
 				System.err.println("Stratosphere JobManager is now running on "+appReport.getHost()+":"+jmPort);
+				System.err.println("JobManager Web Interface: "+appReport.getTrackingUrl());
+				// write jobmanager connect information
+				PrintWriter out = new PrintWriter(confDirPath+".yarn-jobmanager");
+				out.println(appReport.getHost()+":"+jmPort);
+				out.close();
 				told = true;
 			}
 			if(!told) {

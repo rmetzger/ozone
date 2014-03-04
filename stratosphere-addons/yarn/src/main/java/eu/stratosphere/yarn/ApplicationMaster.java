@@ -50,6 +50,8 @@ import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.NMClient;
 import org.apache.hadoop.yarn.util.Records;
 
+import com.google.common.base.Preconditions;
+
 import eu.stratosphere.configuration.ConfigConstants;
 import eu.stratosphere.configuration.GlobalConfiguration;
 import eu.stratosphere.nephele.jobmanager.JobManager;
@@ -188,19 +190,23 @@ public class ApplicationMaster {
 		Path remoteConfPath = Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf, new Path(clientHomeDir));
 		LOG.info("Prepared localresource for modified yaml: "+stratosphereConf);
 		
+		
 		// prepare the files to ship
+		LocalResource[] remoteShipRsc = null;
 		String[] remoteShipPaths = shipListString.split(",");
-		LocalResource[] remoteShipRsc = new LocalResource[remoteShipPaths.length]; 
-		{ // scope for i
-			int i = 0;
-			for(String remoteShipPathStr : remoteShipPaths) {
-				if(remoteShipPathStr == null || remoteShipPathStr.isEmpty()) {
-					continue;
+		if(remoteShipPaths.length == 1) {
+			remoteShipRsc = new LocalResource[remoteShipPaths.length]; 
+			{ // scope for i
+				int i = 0;
+				for(String remoteShipPathStr : remoteShipPaths) {
+					if(remoteShipPathStr == null || remoteShipPathStr.isEmpty()) {
+						continue;
+					}
+					remoteShipRsc[i] = Records.newRecord(LocalResource.class);
+					Path remoteShipPath = new Path(remoteShipPathStr);
+					Utils.registerLocalResource(fs, remoteShipPath, remoteShipRsc[i]);
+					i++;
 				}
-				remoteShipRsc[i] = Records.newRecord(LocalResource.class);
-				Path remoteShipPath = new Path(remoteShipPathStr);
-				Utils.registerLocalResource(fs, remoteShipPath, remoteShipRsc[i]);
-				i++;
 			}
 		}
 		
@@ -233,8 +239,11 @@ public class ApplicationMaster {
 				localResources.put("stratosphere-conf.yaml", stratosphereConf);
 				
 				// add ship resources
-				for( int i = 0; i < remoteShipPaths.length; i++) {
-					localResources.put(new Path(remoteShipPaths[i]).getName(), remoteShipRsc[i]);
+				if(remoteShipPaths.length > 1) {
+					Preconditions.checkNotNull(remoteShipRsc);
+					for( int i = 0; i < remoteShipPaths.length; i++) {
+						localResources.put(new Path(remoteShipPaths[i]).getName(), remoteShipRsc[i]);
+					}
 				}
 				
 				
