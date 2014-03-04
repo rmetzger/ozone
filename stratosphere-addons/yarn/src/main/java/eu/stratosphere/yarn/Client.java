@@ -116,8 +116,7 @@ public class Client {
 	private Configuration conf;
 
 	public void run(String[] args) throws Exception {
-		Utils.logFilesInCurrentDirectory(LOG);
-		
+		//Utils.logFilesInCurrentDirectory(LOG);
 		//
 		//	Command Line Options
 		//
@@ -438,19 +437,6 @@ public class Client {
 			} else {
 				Thread.sleep(5000);
 			}
-//			System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort+"\n"
-//					+ "Application report from ASM: \n" +
-//			        "\t application identifier: " + appId.toString() + "\n" +
-//			        "\t appId: " + appId.getId() + "\n" +
-//			        "\t appDiagnostics: " + appReport.getDiagnostics() + "\n" +
-//			        "\t appMasterHost: " + appReport.getHost() + "\n" +
-//			        "\t appQueue: " + appReport.getQueue() + "\n" +
-//			        "\t appMasterRpcPort: " + appReport.getRpcPort() + "\n" +
-//			        "\t appStartTime: " + appReport.getStartTime() + "\n" +
-//			        "\t yarnAppState: " + appReport.getYarnApplicationState() + "\n" +
-//			        "\t distributedFinalState: " + appReport.getFinalApplicationStatus() + "\n" +
-//			        "\t appTrackingUrl: " + appReport.getTrackingUrl() + "\n" +
-//			        "\t appUser: " + appReport.getUser());
 			
 			appReport = yarnClient.getApplicationReport(appId);
 			appState = appReport.getYarnApplicationState();

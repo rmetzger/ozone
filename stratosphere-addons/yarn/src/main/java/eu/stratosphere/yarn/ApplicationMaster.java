@@ -84,8 +84,7 @@ public class ApplicationMaster {
 		}
 	}
 	public static void main(String[] args) throws Exception {
-		Utils.logFilesInCurrentDirectory(LOG);
-		
+		//Utils.logFilesInCurrentDirectory(LOG);
 		// Initialize clients to ResourceManager and NodeManagers
 		Configuration conf = Utils.initializeYarnConfiguration();
 		FileSystem fs = FileSystem.get(conf);
