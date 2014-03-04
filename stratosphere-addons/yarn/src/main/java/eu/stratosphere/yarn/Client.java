@@ -423,7 +423,7 @@ public class Client {
 				&& appState != YarnApplicationState.FAILED) {
 			if(!told && appState ==  YarnApplicationState.RUNNING) {
 				System.err.println("Stratosphere JobManager is now running on "+appReport.getHost()+":"+jmPort);
-				System.err.println("JobManager Web Interface: "+appReport.getTrackingUrl());
+				System.err.println("JobManager Web Interface: http://"+appReport.getTrackingUrl());
 				// write jobmanager connect information
 				PrintWriter out = new PrintWriter(confDirPath+".yarn-jobmanager");
 				out.println(appReport.getHost()+":"+jmPort);

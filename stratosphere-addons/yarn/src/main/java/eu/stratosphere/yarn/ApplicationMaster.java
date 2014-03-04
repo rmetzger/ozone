@@ -193,7 +193,7 @@ public class ApplicationMaster {
 		// prepare the files to ship
 		LocalResource[] remoteShipRsc = null;
 		String[] remoteShipPaths = shipListString.split(",");
-		if(remoteShipPaths.length == 1) {
+		if(!shipListString.isEmpty()) {
 			remoteShipRsc = new LocalResource[remoteShipPaths.length]; 
 			{ // scope for i
 				int i = 0;
@@ -238,7 +238,7 @@ public class ApplicationMaster {
 				localResources.put("stratosphere-conf.yaml", stratosphereConf);
 				
 				// add ship resources
-				if(remoteShipPaths.length > 1) {
+				if(!shipListString.isEmpty()) {
 					Preconditions.checkNotNull(remoteShipRsc);
 					for( int i = 0; i < remoteShipPaths.length; i++) {
 						localResources.put(new Path(remoteShipPaths[i]).getName(), remoteShipRsc[i]);
