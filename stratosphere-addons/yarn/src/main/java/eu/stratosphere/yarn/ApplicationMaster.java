@@ -91,6 +91,7 @@ public class ApplicationMaster {
 		final String ownHostname = envs.get(Environment.NM_HOST.key());
 		final String appId = envs.get(Client.ENV_APP_ID);
 		final String localDirs = envs.get(Environment.LOCAL_DIRS.key());
+		final String clientHomeDir = envs.get(Client.ENV_CLIENT_HOME_DIR);
 		final String applicationMasterHost = envs.get(Environment.NM_HOST.key());
 		final String remoteStratosphereJarPath = envs.get(Client.STRATOSPHERE_JAR_PATH);
 		final int taskManagerCount = Integer.valueOf(envs.get(Client.ENV_TM_COUNT));
@@ -177,7 +178,7 @@ public class ApplicationMaster {
 	//	Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere.jar"), stratosphereJar);
 		
 		// register conf with local fs.
-		Path remoteConfPath = Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf);
+		Path remoteConfPath = Utils.setupLocalResource(conf, fs, appId, new Path("file://"+currDir+"/stratosphere-conf-modified.yaml"), stratosphereConf, new Path(clientHomeDir));
 		LOG.info("Prepared localresource for modified yaml: "+stratosphereConf);
 		
 		// Obtain allocated containers and launch

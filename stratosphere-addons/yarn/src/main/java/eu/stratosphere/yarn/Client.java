@@ -105,6 +105,8 @@ public class Client {
 	public final static String ENV_TM_COUNT = "_CLIENT_TM_COUNT";
 	public final static String ENV_APP_ID = "_APP_ID";
 	public final static String STRATOSPHERE_JAR_PATH = "_STRATOSPHERE_JAR_PATH"; // the stratosphere jar resource location (in HDFS).
+
+	public static final String ENV_CLIENT_HOME_DIR = "_CLIENT_HOME_DIR";
 	
 	private Configuration conf;
 
@@ -307,8 +309,8 @@ public class Client {
 		// Setup jar for ApplicationMaster
 		LocalResource appMasterJar = Records.newRecord(LocalResource.class);
 		LocalResource stratosphereConf = Records.newRecord(LocalResource.class);
-		Path remotePathJar = Utils.setupLocalResource(conf, fs, appId.toString(), localJarPath, appMasterJar);
-		Path remotePathConf = Utils.setupLocalResource(conf, fs, appId.toString(), confPath, stratosphereConf);
+		Path remotePathJar = Utils.setupLocalResource(conf, fs, appId.toString(), localJarPath, appMasterJar, fs.getHomeDirectory());
+		Path remotePathConf = Utils.setupLocalResource(conf, fs, appId.toString(), confPath, stratosphereConf, fs.getHomeDirectory());
 		// FsPermission permission = FsPermission.createImmutable((short) 0777);
 		// fs.setPermission(new Path(".stratosphere/" + appId.toString() + "/"), permission);
 		Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
@@ -337,6 +339,7 @@ public class Client {
 		appMasterEnv.put(Client.ENV_TM_MEMORY, String.valueOf(tmMemory));
 		appMasterEnv.put(Client.STRATOSPHERE_JAR_PATH, remotePathJar.toString() );
 		appMasterEnv.put(Client.ENV_APP_ID, appId.toString());
+		appMasterEnv.put(Client.ENV_CLIENT_HOME_DIR, fs.getHomeDirectory().toString());
 		
 		amContainer.setEnvironment(appMasterEnv);
 
