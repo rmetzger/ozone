@@ -194,6 +194,9 @@ public class ApplicationMaster {
 		{ // scope for i
 			int i = 0;
 			for(String remoteShipPathStr : remoteShipPaths) {
+				if(remoteShipPathStr == null || remoteShipPathStr.isEmpty()) {
+					continue;
+				}
 				remoteShipRsc[i] = Records.newRecord(LocalResource.class);
 				Path remoteShipPath = new Path(remoteShipPathStr);
 				Utils.registerLocalResource(fs, remoteShipPath, remoteShipRsc[i]);

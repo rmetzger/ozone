@@ -129,6 +129,7 @@ public class Client {
 		options.addOption(GEN_CONF);
 		options.addOption(QUEUE);
 		options.addOption(QUERY);
+		options.addOption(SHIP_PATH);
 		
 		CommandLineParser parser = new PosixParser();
 		CommandLine cmd = null;
@@ -358,7 +359,7 @@ public class Client {
 		LOG.debug("Security is enabled: "+ UserGroupInformation.isSecurityEnabled());
          
 		amContainer.setLocalResources(localResources);
-		
+		fs.close();
 
 		// Setup CLASSPATH for ApplicationMaster
 		Map<String, String> appMasterEnv = new HashMap<String, String>();
@@ -378,7 +379,6 @@ public class Client {
 		Resource capability = Records.newRecord(Resource.class);
 		capability.setMemory(jmMemory);
 		capability.setVirtualCores(1);
-
 		
 		appContext.setApplicationName("Stratosphere"); // application name
 		appContext.setAMContainerSpec(amContainer);
@@ -392,7 +392,9 @@ public class Client {
 		    	LOG.info("Killing the Stratosphere-YARN application.");
 				yarnClient.killApplication(appId);
 				LOG.info("Deleting files in "+paths[2]);
-				fs.delete(paths[2], true); // delete conf and jar file.
+				FileSystem shutFS = FileSystem.get(conf);
+				shutFS.delete(paths[2], true); // delete conf and jar file.
+				shutFS.close();
 			} catch (Exception e) {
 				LOG.warn("Exception while killing the YARN application", e);
 			}
@@ -412,7 +414,7 @@ public class Client {
 				&& appState != YarnApplicationState.KILLED
 				&& appState != YarnApplicationState.FAILED) {
 			if(!told && appState ==  YarnApplicationState.RUNNING) {
-				System.err.println("JobManager is now running on "+appReport.getHost()+":"+jmPort);
+				System.err.println("Stratosphere JobManager is now running on "+appReport.getHost()+":"+jmPort);
 				told = true;
 			}
 			if(!told) {
