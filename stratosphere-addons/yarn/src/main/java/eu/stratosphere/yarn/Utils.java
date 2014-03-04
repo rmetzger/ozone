@@ -185,6 +185,7 @@ public class Utils {
         DataOutputBuffer dob = new DataOutputBuffer();
         credentials.writeTokenStorageToStream(dob);
         ByteBuffer securityTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+        LOG.info("Setting tokens. Size "+securityTokens.capacity());
         amContainer.setTokens(securityTokens);
 	}
 	

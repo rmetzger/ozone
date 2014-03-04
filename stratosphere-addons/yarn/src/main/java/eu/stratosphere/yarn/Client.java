@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -318,8 +319,10 @@ public class Client {
         Path[] paths = new Path[3];
         paths[0] = remotePathJar;
         paths[1] = remotePathConf;
+        paths[2] = new Path(fs.getHomeDirectory(), ".stratosphere/" + appId.toString() + "/");
+        LOG.info("also adding path "+paths[2]);
         Utils.setTokensFor(amContainer, paths, this.conf);
-        
+        LOG.info("Security is set to "+ UserGroupInformation.isSecurityEnabled());
         
 		amContainer.setLocalResources(localResources);
 		
