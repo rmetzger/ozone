@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
@@ -237,7 +238,6 @@ public class Client {
 	    // Create a local resource to point to the destination jar path 
 	    FileSystem fs = FileSystem.get(conf);
 	    
-		
 	    // Create yarnClient
 		final YarnClient yarnClient = YarnClient.createYarnClient();
 		yarnClient.init(conf);
@@ -309,7 +309,8 @@ public class Client {
 		LocalResource stratosphereConf = Records.newRecord(LocalResource.class);
 		Path remotePathJar = Utils.setupLocalResource(conf, fs, appId.toString(), localJarPath, appMasterJar);
 		Path remotePathConf = Utils.setupLocalResource(conf, fs, appId.toString(), confPath, stratosphereConf);
-		
+		FsPermission permission = FsPermission.createImmutable((short) 777);
+		fs.setPermission(new Path(".stratosphere/" + appId.toString() + "/"), permission);
 		Map<String, LocalResource> localResources = new HashMap<String, LocalResource>(2);
 		localResources.put("stratosphere.jar", appMasterJar);
 		localResources.put("stratosphere-conf.yaml", stratosphereConf);
