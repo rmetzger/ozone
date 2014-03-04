@@ -226,8 +226,8 @@ public class Client {
 		
 		// queue
 		String queue = "default";
-		if(cmd.hasOption(QUERY.getOpt())) {
-			queue = cmd.getOptionValue(QUERY.getOpt());
+		if(cmd.hasOption(QUEUE.getOpt())) {
+			queue = cmd.getOptionValue(QUEUE.getOpt());
 		}
 		
 		// JobManager Memory
