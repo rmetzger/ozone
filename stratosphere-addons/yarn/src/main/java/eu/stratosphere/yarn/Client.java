@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -222,12 +223,12 @@ public class Client {
 			String shipPath = cmd.getOptionValue(SHIP_PATH.getOpt());
 			File shipDir = new File(shipPath);
 			if(shipDir.isDirectory()) {
-				shipFiles = Arrays.asList(shipDir.listFiles(new FilenameFilter() {
+				shipFiles = new ArrayList<File>(Arrays.asList(shipDir.listFiles(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
 						return !(name.equals(".") || name.equals("..") );
 					}
-				}));
+				})));
 			} else {
 				LOG.warn("Ship directory is not a directory!");
 			}
