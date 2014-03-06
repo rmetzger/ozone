@@ -224,7 +224,7 @@ public class ApplicationMaster {
 				
 				String tmCommand = "$JAVA_HOME/bin/java -Xmx"+heapLimit+"m " ;
 				if(hasLog4j) {
-					tmCommand += " -Dlog.file=\""+ApplicationConstants.LOG_DIR_EXPANSION_VAR +"/taskmanager-log4j.log\" -Dlog4j.configuration=file:"+currDir+"/log4j.properties";
+					tmCommand += " -Dlog.file=\""+ApplicationConstants.LOG_DIR_EXPANSION_VAR +"/taskmanager-log4j.log\" -Dlog4j.configuration=file:log4j.properties";
 				}
 				tmCommand		+= " eu.stratosphere.nephele.taskmanager.TaskManager -configDir . "
 						+ " 1>"
