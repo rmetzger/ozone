@@ -340,10 +340,10 @@ public class TaskManager implements TaskOperationProtocol {
 			LOG.fatal("Taskmanager startup failed:" + StringUtils.stringifyException(e));
 			System.exit(FAILURERETURNCODE);
 		}
-
+LOG.debug("start IO Loop");
 		// Run the main I/O loop
 		taskManager.runIOLoop();
-
+LOG.debug("shutdown");
 		// Shut down
 		taskManager.shutdown();
 	}
@@ -366,6 +366,7 @@ public class TaskManager implements TaskOperationProtocol {
 
 			// Send heartbeat
 			try {
+				LOG.debug("heartbeat");
 				this.jobManager.sendHeartbeat(this.localInstanceConnectionInfo, this.hardwareDescription);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -862,14 +863,14 @@ public class TaskManager implements TaskOperationProtocol {
 
 	@Override
 	public void killTaskManager() throws IOException {
-
+LOG.debug("Kill taskManager");
 		// Kill the entire JVM after a delay of 10ms, so this RPC will finish properly before
 		final Timer timer = new Timer();
 		final TimerTask timerTask = new TimerTask() {
 
 			@Override
 			public void run() {
-
+				LOG.debug("Killing TaskManager");
 				System.exit(0);
 			}
 		};
