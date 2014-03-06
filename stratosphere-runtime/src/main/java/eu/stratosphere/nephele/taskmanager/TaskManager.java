@@ -148,7 +148,7 @@ public class TaskManager implements TaskOperationProtocol {
 	 */
 	public TaskManager(final int taskManagersPerJVM) throws Exception {
 		// IMPORTANT! At this point, the GlobalConfiguration must have been read!
-
+LOG.debug("++ INITIALIZING TM");
 		final String address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
 		InetSocketAddress jobManagerAddress = null;
 		if (address == null) {
@@ -298,9 +298,10 @@ public class TaskManager implements TaskOperationProtocol {
 		}
 
 		this.ioManager = new IOManager(tmpDirPaths);
-
+	LOG.debug("++ AFTER IOM");
 		// Add shutdown hook for clean up tasks
 		Runtime.getRuntime().addShutdownHook(new TaskManagerCleanUp(this));
+	LOG.debug("++ END INITIALIZING TM");
 	}
 
 	/**
