@@ -21,6 +21,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -215,20 +216,29 @@ public class Client {
 				} 
 			}
 		}
-		File[] shipFiles = null;
+		List<File> shipFiles = null;
 		// path to directory to ship
 		if(cmd.hasOption(SHIP_PATH.getOpt())) {
 			String shipPath = cmd.getOptionValue(SHIP_PATH.getOpt());
 			File shipDir = new File(shipPath);
 			if(shipDir.isDirectory()) {
-				shipFiles = shipDir.listFiles(new FilenameFilter() {
+				shipFiles = Arrays.asList(shipDir.listFiles(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
 						return !(name.equals(".") || name.equals("..") );
 					}
-				});
+				}));
 			} else {
 				LOG.warn("Ship directory is not a directory!");
+			}
+		}
+		boolean hasLog4j = false;
+		//check if there is a log4j file
+		if(confDirPath != null) {
+			File l4j = new File(confDirPath+"/log4j.properties");
+			if(l4j.exists()) {
+				shipFiles.add(l4j);
+				hasLog4j = true;
 			}
 		}
 		
@@ -317,11 +327,15 @@ public class Client {
 		ContainerLaunchContext amContainer = Records
 				.newRecord(ContainerLaunchContext.class);
 		
-		final String amCommand = "$JAVA_HOME/bin/java"
-				+ " -Xmx"+jmMemory+"M" + " eu.stratosphere.yarn.ApplicationMaster" + " "
-				+ " 1>"
-				+ ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/jobmanager-stdout.log"
-				+ " 2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/jobmanager-stderr.log";
+		String amCommand = "$JAVA_HOME/bin/java"
+					+ " -Xmx"+jmMemory+"M";
+		if(hasLog4j) {
+			amCommand 	+= " -Dlog.file=\""+ApplicationConstants.LOG_DIR_EXPANSION_VAR +"/jobmanager-log4j.log\" -Dlog4j.configuration=file:log4j.properties";
+		}
+		amCommand 	+= " eu.stratosphere.yarn.ApplicationMaster" + " "
+					+ " 1>"
+					+ ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/jobmanager-stdout.log"
+					+ " 2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/jobmanager-stderr.log";
 		amContainer.setCommands(Collections.singletonList(amCommand));
 		
 		System.err.println("amCommand="+amCommand);
@@ -341,11 +355,11 @@ public class Client {
 		
 		
 		// setup security tokens (code from apache storm)
-		final Path[] paths = new Path[3 + shipFiles.length];
+		final Path[] paths = new Path[3 + shipFiles.size()];
 		StringBuffer envShipFileList = new StringBuffer();
 		// upload ship files
-		for (int i = 0; i < shipFiles.length; i++) {
-			File shipFile = shipFiles[i];
+		for (int i = 0; i < shipFiles.size(); i++) {
+			File shipFile = shipFiles.get(i);
 			LocalResource shipResources = Records.newRecord(LocalResource.class);
 			Path shipLocalPath = new Path("file://" + shipFile.getAbsolutePath());
 			paths[3 + i] = Utils.setupLocalResource(conf, fs, appId.toString(),
@@ -353,7 +367,7 @@ public class Client {
 			localResources.put(shipFile.getName(), shipResources);
 			
 			envShipFileList.append(paths[3 + i]);
-			if(i+1 < shipFiles.length) {
+			if(i+1 < shipFiles.size()) {
 				envShipFileList.append(',');
 			}
 		}

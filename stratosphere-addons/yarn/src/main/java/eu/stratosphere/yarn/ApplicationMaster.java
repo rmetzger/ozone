@@ -190,6 +190,7 @@ public class ApplicationMaster {
 		LOG.info("Prepared localresource for modified yaml: "+stratosphereConf);
 		
 		
+		boolean hasLog4j = new File(currDir+"/log4j.properties").exists();
 		// prepare the files to ship
 		LocalResource[] remoteShipRsc = null;
 		String[] remoteShipPaths = shipListString.split(",");
@@ -220,8 +221,11 @@ public class ApplicationMaster {
 				// Launch container by create ContainerLaunchContext
 				ContainerLaunchContext ctx = Records.newRecord(ContainerLaunchContext.class);
 				
-				String tmCommand = "$JAVA_HOME/bin/java -Xmx"+heapLimit+"m " 
-						+ " eu.stratosphere.nephele.taskmanager.TaskManager -configDir . "
+				String tmCommand = "$JAVA_HOME/bin/java -Xmx"+heapLimit+"m " ;
+				if(hasLog4j) {
+					tmCommand += " -Dlog.file=\""+ApplicationConstants.LOG_DIR_EXPANSION_VAR +"/taskmanager-log4j.log\" -Dlog4j.configuration=file:"+currDir+"/log4j.properties";
+				}
+				tmCommand		+= " eu.stratosphere.nephele.taskmanager.TaskManager -configDir . "
 						+ " 1>"
 						+ ApplicationConstants.LOG_DIR_EXPANSION_VAR
 						+ "/taskmanager-stdout.log" 
@@ -287,7 +291,7 @@ public class ApplicationMaster {
 			}
 			Thread.sleep(5000);
 		}
-		
+		LOG.info("Shutting down JobManager");
 		jmr.shutdown();
 		jmr.join(500);
 		
