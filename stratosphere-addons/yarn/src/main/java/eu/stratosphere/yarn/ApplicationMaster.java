@@ -216,7 +216,7 @@ public class ApplicationMaster {
 		while (allocatedContainers < taskManagerCount) {
 			AllocateResponse response = rmClient.allocate(0);
 			for (Container container : response.getAllocatedContainers()) {
-				LOG.info("Got new Container for TM "+container.getId());
+				LOG.info("Got new Container for TM "+container.getId()+" on host "+container.getNodeId().getHost());
 				++allocatedContainers;
 
 				// Launch container by create ContainerLaunchContext
@@ -290,6 +290,7 @@ public class ApplicationMaster {
 			for (ContainerStatus status : response.getCompletedContainersStatuses()) {
 				++completedContainers;
 				LOG.info("Completed container "+status.getContainerId()+". Total Completed:" + completedContainers);
+				LOG.info("Diagnostics "+status.getDiagnostics());
 			}
 			Thread.sleep(5000);
 		}
