@@ -296,7 +296,7 @@ LOG.debug("++ INITIALIZING TM");
 				+ " megabytes of memory", rte);
 			throw rte;
 		}
-
+		LOG.debug("++ BEFORE IOM. tmp dirs "+tmpDirPaths+" 0 = "+tmpDirPaths[0]);
 		this.ioManager = new IOManager(tmpDirPaths);
 	LOG.debug("++ AFTER IOM");
 		// Add shutdown hook for clean up tasks
