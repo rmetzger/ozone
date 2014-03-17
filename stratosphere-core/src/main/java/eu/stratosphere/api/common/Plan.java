@@ -24,6 +24,8 @@ import eu.stratosphere.api.common.operators.Operator;
 import eu.stratosphere.util.Visitable;
 import eu.stratosphere.util.Visitor;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -57,6 +59,8 @@ public class Plan implements Visitable<Operator> {
 	 */
 	protected int maxNumberMachines;
 
+	protected HashMap<String, String> cacheFile = new HashMap<String, String>();
+
 	// ------------------------------------------------------------------------
 
 	/**
@@ -85,7 +89,7 @@ public class Plan implements Visitable<Operator> {
 	 * @param defaultParallelism The default degree of parallelism for the job.
 	 */
 	public Plan(Collection<GenericDataSink> sinks, String jobName, int defaultParallelism) {
-		this.sinks.addAll(sinks);
+		this.sinks = sinks;
 		this.jobName = jobName;
 		this.defaultParallelism = defaultParallelism;
 	}
@@ -286,5 +290,26 @@ public class Plan implements Visitable<Operator> {
 		for (GenericDataSink sink : this.sinks) {
 			sink.accept(visitor);
 		}
+	}
+
+	/**
+	 *  register cache files in program level
+	 * @param filePath The files must be stored in a place that can be accessed from all workers (most commonly HDFS)
+	 * @param name user defined name of that file
+	 */
+	public void registerCachedFile(String filePath, String name) throws RuntimeException{
+		if (!this.cacheFile.containsKey(name)) {
+			this.cacheFile.put(name, filePath);
+		} else {
+			throw new RuntimeException("cache file " + name + "already exists!");
+		}
+	}
+
+	/**
+	 * return the registered caches files
+	 * @return Set of (name, filePath) pairs
+	 */
+	public Set<Entry<String,String>> getCachedFiles() {
+		return this.cacheFile.entrySet();
 	}
 }
