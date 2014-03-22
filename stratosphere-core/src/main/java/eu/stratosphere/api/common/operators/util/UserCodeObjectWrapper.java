@@ -17,10 +17,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.SerializationUtils;
 
 import com.google.common.base.Preconditions;
+
+import eu.stratosphere.api.common.operators.util.FieldAnnotations.SerializableField;
 
 /**
  * This holds an actual object containing user defined code.
@@ -53,9 +56,6 @@ public class UserCodeObjectWrapper<T> implements UserCodeWrapper<T> {
 				} catch (Exception e) {
 					// we can ignore exceptions here.
 				}
-				if(customSerializer != null && customDeserializer != null) {
-					hasCustomSerialization = true;
-				}
 
 				for (Field f : current.getClass().getDeclaredFields()) {
 					f.setAccessible(true);
@@ -63,8 +63,21 @@ public class UserCodeObjectWrapper<T> implements UserCodeWrapper<T> {
 					if (f.getName().contains("$outer")) {
 						newCurrent = f.get(current);
 					}
-
-					if (!hasCustomSerialization && !Modifier.isTransient(f.getModifiers()) && !Modifier.isStatic(f.getModifiers()) && f.get(current) != null &&  !(f.get(current) instanceof Serializable)) {
+					
+					// check if field has SerializableField Annotation.
+					boolean hasSerializableFieldAnnotation = false;
+					Annotation[] annotations = f.getAnnotations();
+					for(Annotation a: annotations){
+						if(a.annotationType().equals(SerializableField.class)) {
+							hasSerializableFieldAnnotation = true;
+							break;
+						}
+					}
+					if(customSerializer != null && customDeserializer != null) {
+						hasCustomSerialization = true;
+					}
+					
+					if (!hasSerializableFieldAnnotation && !hasCustomSerialization && !Modifier.isTransient(f.getModifiers()) && !Modifier.isStatic(f.getModifiers()) && f.get(current) != null &&  !(f.get(current) instanceof Serializable)) {
 						throw new RuntimeException("User code object " +
 								userCodeObject + " contains non-serializable field " + f.getName() + " = " + f.get(current));
 					}
