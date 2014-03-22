@@ -803,4 +803,9 @@ public class StringValue implements Key, NormalizableKey, CharSequence, Copyable
 	public String getObjectValue() {
 		return this.getValue();
 	}
+
+	@Override
+	public void setObjectValue(String object) {
+		this.setValue(object);
+	}
 }
