@@ -2,19 +2,20 @@ package eu.stratosphere.api.common.io;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import eu.stratosphere.configuration.Configuration;
 import eu.stratosphere.types.Record;
 
-public class CollectionOutputFormat implements OutputFormat<Record> {
+public class ListOutputFormat implements OutputFormat<Record> {
 	private static final long serialVersionUID = 1L;
 	
-	private Collection<Record> coll;
+	public static List<Record> coll = new LinkedList<Record>();
 	
-	public CollectionOutputFormat(Collection<Record> out) {
-		this.coll = out;
+	public ListOutputFormat() {
 	}
-	public Collection<Record> getCollection() {
+	public List<Record> getCollection() {
 		return coll;
 	}
 	

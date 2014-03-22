@@ -1059,6 +1059,31 @@ public final class Record implements Value {
 		initFields(data, 0, len);
 	}
 	
+	@Override
+	public String toString() {
+		// for debugging purposes only:
+		StringBuffer sb = new StringBuffer();
+		sb.append("Record {size="+getNumFields()+"} readFields=[");
+		if(readFields != null) {
+			for(Value r : readFields) {
+				if(r == null) continue;
+				sb.append(r.toString());
+				sb.append(',');
+			}
+		}
+		sb.append(']');
+		sb.append(" writeFields=[");
+		if(writeFields != null) {
+			for(Value w : writeFields) {
+				if(w == null) continue;
+				sb.append(w.toString());
+				sb.append(',');
+			}
+		}
+		sb.append(']');
+		return sb.toString();
+	}
+	
 	private final void initFields(final byte[] data, final int begin, final int len) {
 		try {
 			// read number of fields, variable length encoded reverse at the back

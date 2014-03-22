@@ -162,4 +162,9 @@ public class IntValue implements Key, NormalizableKey, CopyableValue<IntValue>, 
 	public Integer getObjectValue() {
 		return this.value;
 	}
+
+	@Override
+	public void setObjectValue(Integer object) {
+		this.setValue(object);
+	}
 }
