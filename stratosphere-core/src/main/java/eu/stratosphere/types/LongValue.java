@@ -189,4 +189,9 @@ public class LongValue implements Key, NormalizableKey, CopyableValue<LongValue>
 	public Long getObjectValue() {
 		return this.value;
 	}
+
+	@Override
+	public void setObjectValue(Long object) {
+		this.setValue(object);
+	}
 }
