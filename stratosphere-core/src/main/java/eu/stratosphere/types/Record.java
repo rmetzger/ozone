@@ -527,7 +527,14 @@ public final class Record implements Value {
 	}
 	
 	public void concatenate(Record record) {
-		throw new UnsupportedOperationException();
+
+		int[] nPositions = new int[record.getNumFields()];
+		int[] targetNPositions = new int[record.getNumFields()];
+		for (int i = 0; i < nPositions.length; ++i) {
+		    nPositions[i] = i;
+		    targetNPositions[i] = i + this.getNumFields();
+		}
+		this.copyFrom(record, nPositions, targetNPositions);
 	}
 	
 	/**
@@ -1077,7 +1084,9 @@ public final class Record implements Value {
 			for(Value w : writeFields) {
 				if(w == null) continue;
 				sb.append(w.toString());
-				sb.append(',');
+				sb.append(" (");
+				sb.append(w.getClass().getSimpleName());
+				sb.append("),");
 			}
 		}
 		sb.append(']');
