@@ -538,8 +538,8 @@ public final class Record implements Value, CopyableValue<Record> {
 		int[] nPositions = new int[record.getNumFields()];
 		int[] targetNPositions = new int[record.getNumFields()];
 		for (int i = 0; i < nPositions.length; ++i) {
-		    nPositions[i] = i;
-		    targetNPositions[i] = i + this.getNumFields();
+			nPositions[i] = i;
+			targetNPositions[i] = i + this.getNumFields();
 		}
 		this.copyFrom(record, nPositions, targetNPositions);
 	}
@@ -1110,7 +1110,9 @@ public final class Record implements Value, CopyableValue<Record> {
 		sb.append("Record {size="+getNumFields()+"} readFields=[");
 		if(readFields != null) {
 			for(Value r : readFields) {
-				if(r == null) continue;
+				if(r == null){
+					continue;
+				}
 				sb.append(r.toString());
 				sb.append(',');
 			}
@@ -1119,7 +1121,9 @@ public final class Record implements Value, CopyableValue<Record> {
 		sb.append(" writeFields=[");
 		if(writeFields != null) {
 			for(Value w : writeFields) {
-				if(w == null) continue;
+				if(w == null) {
+					continue;
+				}
 				sb.append(w.toString());
 				sb.append(" (");
 				sb.append(w.getClass().getSimpleName());

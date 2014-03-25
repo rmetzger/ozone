@@ -21,6 +21,7 @@ import java.lang.reflect.Modifier;
 import com.google.common.base.Preconditions;
 
 import eu.stratosphere.api.common.NonSerializableUserCodeException;
+import eu.stratosphere.api.common.operators.util.FieldAnnotations.SerializableField;
 
 /**
  * This holds an actual object containing user defined code.

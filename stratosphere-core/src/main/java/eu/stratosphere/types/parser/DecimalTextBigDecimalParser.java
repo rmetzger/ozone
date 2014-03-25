@@ -10,19 +10,32 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  **********************************************************************************************************************/
+
 package eu.stratosphere.types.parser;
 
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-import eu.stratosphere.types.DateValue;
+import eu.stratosphere.types.DecimalValue;
 
-public class DateParser extends FieldParser<DateValue> {
+/**
+ * Parses a text field into a {@link DecimalValue}
+ */
+public class DecimalTextBigDecimalParser extends FieldParser<DecimalValue> {
 
-	private DateValue result;
-	private SimpleDateFormat format = null;
+	private DecimalValue result;
+
+	// optional fields if the user wants to convert the input to a certain scale (using a rounding mode).
+	private int scale;
+	private RoundingMode rounding = null;
+
+	public void enforceScale(int scale, RoundingMode rounding) {
+		this.scale = scale;
+		this.rounding = rounding;
+	}
 
 	@Override
-	public int parseField(byte[] bytes, int startPos, int limit, char delim, DateValue reusable) {
+	public int parseField(byte[] bytes, int startPos, int limit, char delim, DecimalValue reusable) {
 
 		int i = startPos;
 		final byte delByte = (byte) delim;
@@ -32,30 +45,22 @@ public class DateParser extends FieldParser<DateValue> {
 		}
 
 		String str = new String(bytes, startPos, i-startPos);
-		try {
-			if (format != null) {
-				this.result = new DateValue(str,format); //specified format;
-			} else {
-				this.result = new DateValue(str); //ISO 8061
-			}
-			return (i == limit) ? limit : i+1;
+		BigDecimal bd = new BigDecimal(str);
+		if(rounding != null) {
+			bd = bd.setScale(scale, rounding);
 		}
-		catch (NumberFormatException e) {
-			return -1;
-		}
-	}
-
-	public void setFormat(String format) {
-		this.format = new SimpleDateFormat(format);
+		reusable.setValue(bd);
+		this.result = reusable;
+		return (i == limit) ? limit : i+1;
 	}
 
 	@Override
-	public DateValue createValue() {
-		return new DateValue();
+	public DecimalValue createValue() {
+		return new DecimalValue();
 	}
 
 	@Override
-	public DateValue getLastResult() {
-		return result;
+	public DecimalValue getLastResult() {
+		return this.result;
 	}
 }
