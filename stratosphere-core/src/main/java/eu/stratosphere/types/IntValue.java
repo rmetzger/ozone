@@ -27,7 +27,7 @@ import eu.stratosphere.core.memory.MemorySegment;
  * 
  * @see eu.stratosphere.types.Key
  */
-public class IntValue implements Key, NormalizableKey, ResettableValue<IntValue>, CopyableValue<IntValue>, JavaValue<IntValue> {
+public class IntValue implements NormalizableKey<IntValue>, ResettableValue<IntValue>, CopyableValue<IntValue>, JavaValue<Integer> {
 	private static final long serialVersionUID = 1L;
 	
 	private int value;

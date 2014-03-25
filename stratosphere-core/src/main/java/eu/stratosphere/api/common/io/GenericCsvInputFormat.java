@@ -109,12 +109,14 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 	}
 
 	public FieldParser<?> getFieldParser(int i) {
+		instantiateParsers();
 		return this.fieldParsers[i];
 	}
 
 	// --------------------------------------------------------------------------------------------
 	
 	protected FieldParser<?>[] getFieldParsers() {
+		instantiateParsers();
 		return this.fieldParsers;
 	}
 	
@@ -231,25 +233,23 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 		this.fieldIncluded = includedMask;
 	}
 
-	// --------------------------------------------------------------------------------------------
-	//  Runtime methods
-	// --------------------------------------------------------------------------------------------
-	
-	@Override
-	public void open(FileInputSplit split) throws IOException {
-		super.open(split);
-		
+	private void instantiateParsers() {
+		// re-create field parsers if more fields have been added.
+		if(fieldParsers != null) {
+			return;
+		}
+
 		// instantiate the parsers
 		@SuppressWarnings("unchecked")
 		FieldParser<Object>[] parsers = new FieldParser[fieldTypes.length];
-		
+
 		for (int i = 0; i < fieldTypes.length; i++) {
 			if (fieldTypes[i] != null) {
 				Class<? extends FieldParser<?>> parserType = FieldParser.getParserForType(fieldTypes[i]);
 				if (parserType == null) {
 					throw new RuntimeException("No parser available for type '" + fieldTypes[i].getName() + "'.");
 				}
-				
+
 
 				@SuppressWarnings("unchecked")
 				FieldParser<Object> p = (FieldParser<Object>) InstantiationUtil.instantiate(parserType, FieldParser.class);
@@ -257,7 +257,17 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 			}
 		}
 		this.fieldParsers = parsers;
-		
+	}
+
+	// --------------------------------------------------------------------------------------------
+	//  Runtime methods
+	// --------------------------------------------------------------------------------------------
+
+	@Override
+	public void open(FileInputSplit split) throws IOException {
+		super.open(split);
+		instantiateParsers();
+
 		// skip the first line, if we are at the beginning of a file and have the option set
 		if (this.skipFirstLineAsHeader && this.splitStart == 0) {
 			readLine(); // read and ignore

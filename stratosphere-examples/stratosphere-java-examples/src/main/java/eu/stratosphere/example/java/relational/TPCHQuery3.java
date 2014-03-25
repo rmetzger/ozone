@@ -26,10 +26,13 @@ import eu.stratosphere.api.java.ExecutionEnvironment;
 import eu.stratosphere.api.java.functions.FilterFunction;
 import eu.stratosphere.api.java.functions.JoinFunction;
 import eu.stratosphere.api.java.functions.ReduceFunction;
+import eu.stratosphere.api.java.io.CsvOutputFormat;
 import eu.stratosphere.api.java.tuple.Tuple2;
 import eu.stratosphere.api.java.tuple.Tuple3;
 import eu.stratosphere.api.java.tuple.Tuple4;
 import eu.stratosphere.api.java.tuple.Tuple5;
+import eu.stratosphere.core.fs.FileSystem.WriteMode;
+import eu.stratosphere.core.fs.Path;
 
 /**
  *	This program implements a modified version of the TPC-H query 3. The
@@ -293,7 +296,11 @@ public class TPCHQuery3 {
 		if (resultPath == null) {
 			joined.print();
 		} else {
-			joined.writeAsCsv(resultPath, "\n", "|");
+			CsvOutputFormat<ShippingPriorityItem> csvOut = 
+					new CsvOutputFormat<ShippingPriorityItem>(new Path(resultPath), "\n", "|");
+			csvOut.setWriteMode(WriteMode.OVERWRITE);
+			joined.output(csvOut);
+			//joined.writeAsCsv(resultPath, "\n", "|");
 		}
 		
 		env.execute();
