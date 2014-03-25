@@ -14,6 +14,8 @@
 package eu.stratosphere.types.parser;
 
 import eu.stratosphere.types.ByteValue;
+import eu.stratosphere.types.DoubleValue;
+import eu.stratosphere.types.FloatValue;
 import eu.stratosphere.types.IntValue;
 import eu.stratosphere.types.LongValue;
 import eu.stratosphere.types.ShortValue;
@@ -115,5 +117,6 @@ public abstract class FieldParser<T> {
 		PARSERS.put(FloatValue.class, DecimalTextFloatParser.class);
 		PARSERS.put(DoubleValue.class, DecimalTextDoubleParser.class);
 		PARSERS.put(DateValue.class, DateParser.class);
+		PARSERS.put(DecimalValue.class, DecimalTextBigDecimalParser.class);
 	}
 }

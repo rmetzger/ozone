@@ -13,8 +13,12 @@
 
 package eu.stratosphere.api.common.io;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
+
 import eu.stratosphere.core.fs.FileInputSplit;
 import eu.stratosphere.core.fs.Path;
 import eu.stratosphere.types.parser.FieldParser;
@@ -106,11 +110,11 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 	public void setSkipFirstLineAsHeader(boolean skipFirstLine) {
 		this.skipFirstLineAsHeader = skipFirstLine;
 	}
-
+	
 	public FieldParser<?> getFieldParser(int i) {
 		return this.fieldParsers[i];
 	}
-
+	
 	// --------------------------------------------------------------------------------------------
 	
 	protected FieldParser<?>[] getFieldParsers() {
