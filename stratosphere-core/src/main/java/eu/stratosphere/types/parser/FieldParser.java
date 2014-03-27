@@ -158,5 +158,6 @@ public abstract class FieldParser<T> {
 		PARSERS.put(StringValue.class, VarLengthStringParser.class);
 		PARSERS.put(FloatValue.class, DecimalTextFloatParser.class);
 		PARSERS.put(DoubleValue.class, DecimalTextDoubleParser.class);
+		PARSERS.put(DateValue.class, DateParser.class);
 	}
 }
