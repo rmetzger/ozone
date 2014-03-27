@@ -24,23 +24,23 @@ import eu.stratosphere.api.java.typeutils.TypeInformation;
  * @param <OUT> The data type of the returned data set.
  */
 public abstract class SingleInputOperator<IN, OUT, O extends SingleInputOperator<IN, OUT, O>> extends Operator<OUT, O> {
-	
+
 	private final DataSet<IN> input;
-	
-	
+
+
 	protected SingleInputOperator(DataSet<IN> input, TypeInformation<OUT> resultType) {
 		super(input.getExecutionEnvironment(), resultType);
 		this.input = input;
 	}
-	
+
 	public DataSet<IN> getInput() {
 		return this.input;
 	}
-	
+
 	public TypeInformation<IN> getInputType() {
 		return this.input.getType();
 	}
-	
-	
+
+
 	protected abstract UnaryNodeTranslation translateToDataFlow();
 }

@@ -17,7 +17,6 @@ import java.util.Iterator;
 
 import eu.stratosphere.api.common.functions.AbstractFunction;
 import eu.stratosphere.api.common.functions.GenericGroupReduce;
-import eu.stratosphere.api.java.record.operators.ReduceOperator;
 import eu.stratosphere.types.Record;
 import eu.stratosphere.util.Collector;
 
@@ -26,9 +25,9 @@ import eu.stratosphere.util.Collector;
  * {@link ReduceOperator}.
  */
 public abstract class ReduceFunction extends AbstractFunction implements GenericGroupReduce<Record, Record> {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * The central function to be implemented for a reducer. The function receives per call one
 	 * key and all the values that belong to that key. Each key is guaranteed to be processed by exactly

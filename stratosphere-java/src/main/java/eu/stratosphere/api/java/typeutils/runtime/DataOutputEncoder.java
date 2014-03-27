@@ -23,12 +23,12 @@ import org.apache.avro.util.Utf8;
 
 
 public final class DataOutputEncoder extends Encoder implements java.io.Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private transient DataOutput out;
-	
-	
+
+
 	public void setOut(DataOutput out) {
 		this.out = out;
 	}
@@ -40,10 +40,10 @@ public final class DataOutputEncoder extends Encoder implements java.io.Serializ
 	// --------------------------------------------------------------------------------------------
 	// primitives
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public void writeNull() {}
-	
+
 
 	@Override
 	public void writeBoolean(boolean b) throws IOException {
@@ -69,13 +69,13 @@ public final class DataOutputEncoder extends Encoder implements java.io.Serializ
 	public void writeDouble(double d) throws IOException {
 		out.writeDouble(d);
 	}
-	
+
 	@Override
 	public void writeEnum(int e) throws IOException {
 		out.writeInt(e);
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------------------------------
 	// bytes
 	// --------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ public final class DataOutputEncoder extends Encoder implements java.io.Serializ
 	public void writeFixed(byte[] bytes, int start, int len) throws IOException {
 		out.write(bytes, start, len);
 	}
-	
+
 	@Override
 	public void writeBytes(byte[] bytes, int start, int len) throws IOException {
 		out.writeInt(len);
@@ -92,17 +92,17 @@ public final class DataOutputEncoder extends Encoder implements java.io.Serializ
 			out.write(bytes, start, len);
 		}
 	}
-	
+
 	@Override
 	public void writeBytes(ByteBuffer bytes) throws IOException {
 		int num = bytes.remaining();
 		out.writeInt(num);
-		
+
 		if (num > 0) {
 			writeFixed(bytes);
 		}
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// strings
 	// --------------------------------------------------------------------------------------------
@@ -112,11 +112,11 @@ public final class DataOutputEncoder extends Encoder implements java.io.Serializ
 		byte[] bytes = Utf8.getBytesFor(str);
 		writeBytes(bytes, 0, bytes.length);
 	}
-	
+
 	@Override
 	public void writeString(Utf8 utf8) throws IOException {
 		writeBytes(utf8.getBytes(), 0, utf8.getByteLength());
-		
+
 	}
 
 	// --------------------------------------------------------------------------------------------
@@ -154,28 +154,29 @@ public final class DataOutputEncoder extends Encoder implements java.io.Serializ
 	// --------------------------------------------------------------------------------------------
 	// union
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public void writeIndex(int unionIndex) throws IOException {
 		out.writeInt(unionIndex);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// utils
 	// --------------------------------------------------------------------------------------------
-		
-	
+
+
 	public static final void writeVarLongCount(DataOutput out, long val) throws IOException {
-		if (val < 0)
+		if (val < 0) {
 			throw new IOException("Illegal count (must be non-negative): " + val);
-		
+		}
+
 		while ((val & ~0x7FL) != 0) {
 			out.write(((int) val) | 0x80);
 			val >>>= 7;
 		}
 		out.write((int) val);
 	}
-	
+
 	private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
 		// Read in size, and any hidden stuff
 		s.defaultReadObject();

@@ -22,7 +22,7 @@ import eu.stratosphere.api.common.operators.GenericDataSink;
 
 public class JavaPlan extends Plan {
 
-	
+
 	public JavaPlan(List<GenericDataSink> sinks) {
 		super(sinks);
 	}

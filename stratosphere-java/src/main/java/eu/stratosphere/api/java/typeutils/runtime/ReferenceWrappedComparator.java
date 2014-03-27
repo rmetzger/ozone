@@ -30,11 +30,11 @@ import eu.stratosphere.util.Reference;
 public class ReferenceWrappedComparator<T> extends TypeComparator<Reference<T>> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	
+
+
 	private final TypeComparator<T> comparator;
-	
-	
+
+
 	public ReferenceWrappedComparator(TypeComparator<T> comparator) {
 		this.comparator = comparator;
 	}
@@ -42,7 +42,7 @@ public class ReferenceWrappedComparator<T> extends TypeComparator<Reference<T>> 
 	public TypeComparator<T> getWrappedComparator() {
 		return this.comparator;
 	}
-	
+
 	@Override
 	public int hash(Reference<T> record) {
 		return comparator.hash(record.ref);
@@ -112,27 +112,27 @@ public class ReferenceWrappedComparator<T> extends TypeComparator<Reference<T>> 
 	public ReferenceWrappedComparator<T> duplicate() {
 		return new ReferenceWrappedComparator<T>(comparator.duplicate());
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------
-	
-	
+
+
 	public static final class ReferenceWrappedComparatorFactory<T> implements TypeComparatorFactory<Reference<T>>, java.io.Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 
 		private static final String CONFIG_KEY = "SER_DATA";
-		
+
 		private ReferenceWrappedComparator<T> comparator;
-		
-		
+
+
 		public ReferenceWrappedComparatorFactory() {}
-		
+
 		public ReferenceWrappedComparatorFactory(ReferenceWrappedComparator<T> comparator) {
 			this.comparator = comparator;
 		}
-		
+
 		@Override
 		public void writeParametersToConfig(Configuration config) {
 			try {

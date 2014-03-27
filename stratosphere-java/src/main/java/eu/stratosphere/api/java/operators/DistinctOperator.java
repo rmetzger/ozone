@@ -21,15 +21,16 @@ import eu.stratosphere.api.java.operators.translation.UnaryNodeTranslation;
  * @param <IN> The type of the data set made distinct by the operator.
  */
 public class DistinctOperator<IN> extends SingleInputOperator<IN, IN, DistinctOperator<IN>> {
-	
+
 	private final Keys<IN> keys;
-	
+
 	public DistinctOperator(DataSet<IN> input, Keys<IN> keys) {
 		super(input, input.getType());
-		
-		if (keys == null)
+
+		if (keys == null) {
 			throw new NullPointerException();
-		
+		}
+
 		this.keys = keys;
 	}
 

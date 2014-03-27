@@ -21,16 +21,17 @@ import eu.stratosphere.api.java.functions.GroupReduceFunction;
 import eu.stratosphere.api.java.functions.ReduceFunction;
 
 public class Grouping<T> {
-	
+
 	private final DataSet<T> dataSet;
-	
+
 	private final Keys<T> keys;
-	
+
 
 	public Grouping(DataSet<T> set, Keys<T> keys) {
-		if (set == null || keys == null)
+		if (set == null || keys == null) {
 			throw new NullPointerException();
-		
+		}
+
 		if (keys.isEmpty()) {
 			throw new InvalidProgramException("The grouping keys must not be empty.");
 		}
@@ -38,28 +39,28 @@ public class Grouping<T> {
 		this.dataSet = set;
 		this.keys = keys;
 	}
-	
-	
+
+
 	public DataSet<T> getDataSet() {
 		return this.dataSet;
 	}
-	
+
 	public Keys<T> getKeys() {
 		return this.keys;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	//  Operations / Transformations
 	// --------------------------------------------------------------------------------------------
-	
+
 	public AggregateOperator<T> aggregate(Aggregations agg, int field) {
 		return new AggregateOperator<T>(this, agg, field);
 	}
-	
+
 	public ReduceOperator<T> reduce(ReduceFunction<T> reducer) {
 		return new ReduceOperator<T>(this, reducer);
 	}
-	
+
 	public <R> ReduceGroupOperator<T, R> reduceGroup(GroupReduceFunction<T, R> reducer) {
 		return new ReduceGroupOperator<T, R>(this, reducer);
 	}

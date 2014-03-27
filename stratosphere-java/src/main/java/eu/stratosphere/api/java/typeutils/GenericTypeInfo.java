@@ -25,11 +25,11 @@ import eu.stratosphere.api.java.typeutils.runtime.AvroSerializer;
 public class GenericTypeInfo<T> extends TypeInformation<T> implements AtomicType<T> {
 
 	private final Class<T> typeClass;
-	
+
 	public GenericTypeInfo(Class<T> typeClass) {
 		this.typeClass = typeClass;
 	}
-	
+
 	@Override
 	public boolean isBasicType() {
 		return false;
@@ -50,7 +50,7 @@ public class GenericTypeInfo<T> extends TypeInformation<T> implements AtomicType
 	public Class<T> getTypeClass() {
 		return typeClass;
 	}
-	
+
 	@Override
 	public boolean isKeyType() {
 		return Comparable.class.isAssignableFrom(typeClass);
@@ -60,12 +60,12 @@ public class GenericTypeInfo<T> extends TypeInformation<T> implements AtomicType
 	public Serializer<T> createSerializer() {
 		return new AvroSerializer<T>(this.typeClass);
 	}
-	
+
 	@Override
 	public TypeComparator<T> createComparator(boolean sortOrderAscending) {
 		throw new UnsupportedOperationException("Generic type comparators are not yet implemented.");
 	}
-	
+
 	@Override
 	public String toString() {
 		return "GenericType<" + typeClass.getCanonicalName() + ">";

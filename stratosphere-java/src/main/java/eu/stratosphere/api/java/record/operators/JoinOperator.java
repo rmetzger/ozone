@@ -36,14 +36,14 @@ import eu.stratosphere.types.Key;
  * @see JoinStub
  */
 public class JoinOperator extends JoinOperatorBase<JoinFunction> implements RecordOperator {
-	
+
 	/**
 	 * The types of the keys that the operator operates on.
 	 */
 	private final Class<? extends Key>[] keyTypes;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * Creates a Builder with the provided {@link JoinFunction} implementation
 	 * 
@@ -55,7 +55,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 	public static Builder builder(JoinFunction udf, Class<? extends Key> keyClass, int keyColumn1, int keyColumn2) {
 		return new Builder(new UserCodeObjectWrapper<JoinFunction>(udf), keyClass, keyColumn1, keyColumn2);
 	}
-	
+
 	/**
 	 * Creates a Builder with the provided {@link JoinFunction} implementation
 	 * 
@@ -67,7 +67,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 	public static Builder builder(Class<? extends JoinFunction> udf, Class<? extends Key> keyClass, int keyColumn1, int keyColumn2) {
 		return new Builder(new UserCodeClassWrapper<JoinFunction>(udf), keyClass, keyColumn1, keyColumn2);
 	}
-	
+
 	/**
 	 * The private constructor that only gets invoked from the Builder.
 	 * @param builder
@@ -81,32 +81,32 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 		setBroadcastVariables(builder.broadcastInputs);
 		setSemanticProperties(FunctionAnnotation.readDualConstantAnnotations(builder.udf));
 	}
-	
+
 	@Override
 	public Class<? extends Key>[] getKeyClasses() {
 		return this.keyTypes;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-		
+
 	/**
 	 * Builder pattern, straight from Joshua Bloch's Effective Java (2nd Edition).
 	 */
 	public static class Builder {
-		
+
 		/* The required parameters */
 		private final UserCodeWrapper<JoinFunction> udf;
 		private final List<Class<? extends Key>> keyClasses;
 		private final List<Integer> keyColumns1;
 		private final List<Integer> keyColumns2;
-		
+
 		/* The optional parameters */
 		private List<Operator> inputs1;
 		private List<Operator> inputs2;
 		private Map<String, Operator> broadcastInputs;
 		private String name;
-		
-		
+
+
 		/**
 		 * Creates a Builder with the provided {@link JoinFunction} implementation
 		 * 
@@ -127,7 +127,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.inputs2 = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		/**
 		 * Creates a Builder with the provided {@link JoinFunction} implementation. This method is intended 
 		 * for special case sub-types only.
@@ -143,7 +143,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.inputs2 = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		private int[] getKeyColumnsArray1() {
 			int[] result = new int[keyColumns1.size()];
 			for (int i = 0; i < keyColumns1.size(); ++i) {
@@ -151,7 +151,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			}
 			return result;
 		}
-		
+
 		private int[] getKeyColumnsArray2() {
 			int[] result = new int[keyColumns2.size()];
 			for (int i = 0; i < keyColumns2.size(); ++i) {
@@ -159,7 +159,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			}
 			return result;
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		private Class<? extends Key>[] getKeyClassesArray() {
 			return keyClasses.toArray(new Class[keyClasses.size()]);
@@ -178,7 +178,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			keyColumns2.add(keyColumn2);
 			return this;
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union) for input 1.
 		 * 
@@ -191,7 +191,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union) for input 2.
 		 * 
@@ -204,7 +204,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets the first inputs.
 		 * 
@@ -214,7 +214,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.inputs1 = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Sets the second inputs.
 		 * 
@@ -224,7 +224,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.inputs2 = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Binds the result produced by a plan rooted at {@code root} to a 
 		 * variable used by the UDF wrapped in this operator.
@@ -233,7 +233,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.broadcastInputs.put(name, input);
 			return this;
 		}
-		
+
 		/**
 		 * Binds multiple broadcast variables.
 		 */
@@ -242,7 +242,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.broadcastInputs.putAll(inputs);
 			return this;
 		}
-		
+
 		/**
 		 * Sets the name of this operator.
 		 */
@@ -250,7 +250,7 @@ public class JoinOperator extends JoinOperatorBase<JoinFunction> implements Reco
 			this.name = name;
 			return this;
 		}
-		
+
 		/**
 		 * Creates and returns a JoinOperator from using the values given 
 		 * to the builder.

@@ -24,18 +24,18 @@ import eu.stratosphere.core.memory.MemorySegment;
 
 
 public final class TupleSingleFieldComparator<T extends Tuple, K> extends TypeComparator<T> 
-	implements java.io.Serializable
+implements java.io.Serializable
 {
 
 	private static final long serialVersionUID = 1L;
 
 
 	private final int keyPosition;
-	
+
 	private final TypeComparator<K> comparator;
-	
-	
-		
+
+
+
 	public TupleSingleFieldComparator(int keyPosition, TypeComparator<K> comparator) {
 		this.keyPosition = keyPosition;
 		this.comparator = comparator;
@@ -44,15 +44,15 @@ public final class TupleSingleFieldComparator<T extends Tuple, K> extends TypeCo
 	public int getKeyPosition() {
 		return this.keyPosition;
 	}
-	
+
 	public TypeComparator<K> getComparator() {
 		return this.comparator;
 	}
-	
+
 	@Override
 	public int hash(T value) {
 		return comparator.hash(value.<K>getField(keyPosition));
-		
+
 	}
 
 	@Override

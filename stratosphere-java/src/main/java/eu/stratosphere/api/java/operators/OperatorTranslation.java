@@ -33,43 +33,43 @@ import eu.stratosphere.api.java.operators.translation.UnaryNodeTranslation;
  * 
  */
 public class OperatorTranslation {
-	
+
 	/** The already translated operations */
 	private Map<DataSet<?>, Operator> translated = new HashMap<DataSet<?>, Operator>();
-	
-	
+
+
 	public JavaPlan translateToPlan(List<DataSink<?>> sinks, String jobName) {
 		List<GenericDataSink> planSinks = new ArrayList<GenericDataSink>();
-		
+
 		for (DataSink<?> sink : sinks) {
 			planSinks.add(translate(sink));
 		}
-		
+
 		return new JavaPlan(planSinks); 
 	}
-	
-	
+
+
 	private GenericDataSink translate(DataSink<?> sink) {
 		// translate the sink itself
 		GenericDataSink translatedSink = sink.translateToDataFlow();
-		
+
 		// translate the input recursively
 		Operator input = translate(sink.getDataSet());
 		translatedSink.setInput(input);
-		
+
 		return translatedSink;
 	}
-	
-	
+
+
 	private Operator translate(DataSet<?> dataSet) {
 		// check if we have already translated that data set (operation or source)
 		Operator previous = this.translated.get(dataSet);
 		if (previous != null) {
 			return previous;
 		}
-		
+
 		Operator dataFlowOp;
-		
+
 		if (dataSet instanceof DataSource) {
 			dataFlowOp = translateSource((DataSource<?>) dataSet);
 		}
@@ -82,19 +82,19 @@ public class OperatorTranslation {
 		else {
 			throw new RuntimeException("Error while creating the data flow plan for the program: Unknown operator or data set type.");
 		}
-		
+
 		this.translated.put(dataSet, dataFlowOp);
-		
+
 		// take care of broadcast variables
 		translateBcVariables(dataSet, dataFlowOp);
-		
+
 		return dataFlowOp;
 	}
-	
+
 	private GenericDataSource<?> translateSource(DataSource<?> source) {
 		return source.translateToDataFlow();
 	}
-	
+
 	private eu.stratosphere.api.common.operators.SingleInputOperator<?> translateSingleOp(SingleInputOperator<?, ?, ?> op) {
 		// translate the operation itself
 		UnaryNodeTranslation translated = op.translateToDataFlow();
@@ -102,35 +102,35 @@ public class OperatorTranslation {
 		// translate and connect the input
 		Operator input = translate(op.getInput());
 		translated.setInput(input);
-		
+
 		return translated.getOutputOperator();
 	}
-	
+
 	private eu.stratosphere.api.common.operators.DualInputOperator<?> translateBinaryOp(TwoInputOperator<?, ?, ?, ?> op) {
 		// translate the operation itself
 		BinaryNodeTranslation translated = op.translateToDataFlow();
-		
+
 		// translate its inputs
 		Operator input1 = translate(op.getInput1());
 		Operator input2 = translate(op.getInput2());
-		
+
 		// connect the inputs
 		translated.setInput1(input1);
 		translated.setInput2(input2);
-		
+
 		return translated.getOutputOperator();
 	}
-	
+
 	private void translateBcVariables(DataSet<?> setOrOp, Operator dataFlowOp) {
 		// check if this is actually an operator that could have broadcast variables
 		if (setOrOp instanceof UdfOperator) {
 			if (!(dataFlowOp instanceof AbstractUdfOperator<?>)) {
 				throw new RuntimeException("Error while creating the data flow plan for the program: A UDF operation was not translated to a UDF operator.");
 			}
-			
+
 			UdfOperator<?> udfOp = (UdfOperator<?>) setOrOp;
 			AbstractUdfOperator<?> udfDataFlowOp = (AbstractUdfOperator<?>) dataFlowOp;
-		
+
 			for (Map.Entry<String, DataSet<?>> bcVariable : udfOp.getBroadcastSets().entrySet()) {
 				Operator bcInput = translate(bcVariable.getValue());
 				udfDataFlowOp.setBroadcastVariable(bcVariable.getKey(), bcInput);

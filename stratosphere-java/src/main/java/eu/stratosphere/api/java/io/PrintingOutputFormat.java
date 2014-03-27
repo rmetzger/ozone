@@ -26,21 +26,21 @@ public class PrintingOutputFormat<T> implements OutputFormat<T> {
 
 	private static final boolean STD_OUT = false;
 	private static final boolean STD_ERR = true;
-	
-	
+
+
 	private boolean target; 
-	
+
 	private transient PrintStream stream;
-	
+
 	private transient String prefix;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * Instantiates a printing output format that prints to standard out.
 	 */
 	public PrintingOutputFormat() {}
-	
+
 	/**
 	 * Instantiates a printing output format that prints to standard out.
 	 * 
@@ -49,17 +49,17 @@ public class PrintingOutputFormat<T> implements OutputFormat<T> {
 	public PrintingOutputFormat(boolean stdErr) {
 		this.target = stdErr;
 	}
-	
-	
+
+
 	public void setTargetToStandardOut() {
 		this.target = STD_OUT;
 	}
-	
+
 	public void setTargetToStandardErr() {
 		this.target = STD_ERR;
 	}	
-	
-	
+
+
 	@Override
 	public void configure(Configuration parameters) {}
 
@@ -68,7 +68,7 @@ public class PrintingOutputFormat<T> implements OutputFormat<T> {
 	public void open(int taskNumber, int numTasks) {
 		// get the target stream
 		this.stream = this.target == STD_OUT ? System.out : System.err;
-		
+
 		// set the prefix if we have a >1 DOP
 		this.prefix = (numTasks > 1) ? (taskNumber + "> ") : null;
 	}
@@ -88,9 +88,9 @@ public class PrintingOutputFormat<T> implements OutputFormat<T> {
 		this.stream = null;
 		this.prefix = null;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public String toString() {
 		return "Print to " + (target == STD_OUT ? "System.out" : "System.err");

@@ -33,48 +33,48 @@ import eu.stratosphere.types.StringValue;
  */
 public class TextInputFormat extends DelimitedInputFormat {
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String CHARSET_NAME = "textformat.charset";
-	
+
 	public static final String FIELD_POS = "textformat.pos";
-	
+
 	public static final String DEFAULT_CHARSET_NAME = "UTF-8";
-	
+
 	private static final Log LOG = LogFactory.getLog(TextInputFormat.class);
-	
-	
+
+
 	protected final StringValue theString = new StringValue();
-	
-	
+
+
 	// all fields below here are set in configure / open, so we do not serialze them
-	
+
 	protected transient CharsetDecoder decoder;
-	
+
 	protected transient ByteBuffer byteWrapper;
-	
+
 	protected transient int pos;
-	
+
 	protected transient boolean ascii;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public void configure(Configuration parameters) {
 		super.configure(parameters);
-		
+
 		// get the charset for the decoding
 		String charsetName = parameters.getString(CHARSET_NAME, DEFAULT_CHARSET_NAME);
 		if (charsetName == null || !Charset.isSupported(charsetName)) {
 			throw new RuntimeException("Unsupported charset: " + charsetName);
 		}
-		
+
 		if (charsetName.equals("ISO-8859-1") || charsetName.equalsIgnoreCase("ASCII")) {
 			this.ascii = true;
 		} else {
 			this.decoder = Charset.forName(charsetName).newDecoder();
 			this.byteWrapper = ByteBuffer.allocate(1);
 		}
-		
+
 		// get the field position to write in the record
 		this.pos = parameters.getInteger(FIELD_POS, 0);
 		if (this.pos < 0) {
@@ -86,7 +86,7 @@ public class TextInputFormat extends DelimitedInputFormat {
 
 	public Record readRecord(Record reuse, byte[] bytes, int offset, int numBytes) {
 		StringValue str = this.theString;
-		
+
 		if (this.ascii) {
 			str.setValueAscii(bytes, offset, numBytes);
 		}
@@ -98,7 +98,7 @@ public class TextInputFormat extends DelimitedInputFormat {
 			}
 			byteWrapper.limit(offset + numBytes);
 			byteWrapper.position(offset);
-				
+
 			try {
 				CharBuffer result = this.decoder.decode(byteWrapper);
 				str.setValue(result);
@@ -110,7 +110,7 @@ public class TextInputFormat extends DelimitedInputFormat {
 				return null;
 			}
 		}
-		
+
 		reuse.clear();
 		reuse.setField(this.pos, str);
 		return reuse;

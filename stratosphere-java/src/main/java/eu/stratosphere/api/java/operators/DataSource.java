@@ -25,41 +25,42 @@ import eu.stratosphere.api.java.typeutils.TypeInformation;
  *
  */
 public class DataSource<OUT> extends DataSet<OUT> {
-	
+
 	private final InputFormat<OUT, ?> inputFormat;
-	
+
 	private String name;
 
 	// --------------------------------------------------------------------------------------------
-	
+
 	public DataSource(ExecutionEnvironment context, InputFormat<OUT, ?> inputFormat, TypeInformation<OUT> type) {
 		super(context, type);
-		
-		if (inputFormat == null)
+
+		if (inputFormat == null) {
 			throw new IllegalArgumentException("The input format may not be null.");
-		
+		}
+
 		this.inputFormat = inputFormat;
 	}
 
 	public InputFormat<OUT, ?> getInputFormat() {
 		return this.inputFormat;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public DataSource<OUT> name(String name) {
 		this.name = name;
 		return this;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	protected GenericDataSource<?> translateToDataFlow() {
 		String name = this.name != null ? this.name : this.inputFormat.toString();
 		if (name.length() > 100) {
 			name = name.substring(0, 100);
 		}
-		
+
 		PlanDataSource<OUT> source = new PlanDataSource<OUT>(this.inputFormat, name, getType());
 		return source;
 	}

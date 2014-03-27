@@ -26,64 +26,64 @@ import eu.stratosphere.types.Record;
  */
 public abstract class FixedLengthInputFormat extends FileInputFormat {
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * The config parameter which defines the fixed length of a record.
 	 */
 	public static final String RECORDLENGTH_PARAMETER_KEY = "pact.fix-input.record-length";
-	
+
 	/**
 	 * The default read buffer size = 1MB.
 	 */
 	private static final int DEFAULT_READ_BUFFER_SIZE = 1024 * 1024;
-	
+
 	/**
 	 * Buffer to read a batch of records from a file 
 	 */
 	private byte[] readBuffer;
-	
+
 	/**
 	 * The position in the stream
 	 */
 	private long streamPos;
-	
+
 	/**
 	 * The end position in the stream.
 	 */
 	private long streamEnd;
-	
+
 	/**
 	 * read position within the read buffer
 	 */
 	private int readBufferPos;
-	
+
 	/**
 	 * The limit of the data in the read buffer.
 	 */
 	private int readBufferLimit;
-	
+
 	/**
 	 * fixed length of all records
 	 */
 	private int recordLength;
-	
+
 	/**
 	 * size of the read buffer
 	 */
 	private int readBufferSize = DEFAULT_READ_BUFFER_SIZE;
-	
+
 	/**
 	 * The flag whether the stream is exhausted.
 	 */
 	private boolean exhausted;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * Constructor only sets the key and value classes
 	 */
 	protected FixedLengthInputFormat() {}
-	
+
 	/**
 	 * Reads a record out of the given buffer. This operation always consumes the standard number of
 	 * bytes, regardless of whether the produced record was valid.
@@ -94,7 +94,7 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 	 * @return True, is the record is valid, false otherwise.
 	 */
 	public abstract boolean readBytes(Record target, byte[] buffer, int startPos);
-	
+
 	/**
 	 * Returns the fixed length of a record.
 	 * 
@@ -103,7 +103,7 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 	public int getRecordLength() {
 		return this.recordLength;
 	}
-	
+
 	/**
 	 * Gets the size of the buffer internally used to parse record boundaries.
 	 * 
@@ -112,9 +112,9 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 	public int getReadBufferSize() {
 		return this.readBuffer.length;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 
 	@Override
 	public void configure(Configuration parameters) {
@@ -127,7 +127,7 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 			throw new IllegalArgumentException("The record length parameter must be set and larger than 0.");
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -137,7 +137,7 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 	public void open(FileInputSplit split) throws IOException {
 		// open input split using FileInputFormat
 		super.open(split);
-		
+
 		// adjust the stream positions for boundary splits
 		int recordOffset = (int) (this.splitStart % this.recordLength);
 		if(recordOffset != 0) {
@@ -147,14 +147,14 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 		this.streamPos = this.splitStart + recordOffset;
 		this.streamEnd = this.splitStart + this.splitLength;
 		this.streamEnd += this.streamEnd % this.recordLength;
-		
+
 		// adjust readBufferSize
 		this.readBufferSize += this.recordLength - (this.readBufferSize % this.recordLength);
-		
+
 		if (this.readBuffer == null || this.readBuffer.length != this.readBufferSize) {
 			this.readBuffer = new byte[this.readBufferSize];
 		}
-		
+
 		this.readBufferLimit = 0;
 		this.readBufferPos = 0;
 		this.exhausted = false;
@@ -173,13 +173,13 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 	}
 
 	// --------------------------------------------------------------------------------------------
-	
+
 
 	@Override
 	public boolean reachedEnd() {
 		return this.exhausted;
 	}
-	
+
 
 	@Override
 	public Record nextRecord(Record reuse) throws IOException {
@@ -188,22 +188,23 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 			// get another buffer
 			fillReadBuffer();
 			// check if source is exhausted
-			if (this.exhausted)
+			if (this.exhausted) {
 				return null;
+			}
 		}
 		else if (this.readBufferLimit - this.readBufferPos < this.recordLength) {
 			throw new IOException("Unable to read full record");
 		}
-		
+
 		boolean val = readBytes(reuse, this.readBuffer, this.readBufferPos);
-		
+
 		this.readBufferPos += this.recordLength;
 		if (this.readBufferPos >= this.readBufferLimit) {
 			fillReadBuffer();
 		}
 		return val ? reuse : null;
 	}
-	
+
 	/**
 	 * Fills the next read buffer from the file stream.
 	 * 
@@ -215,10 +216,10 @@ public abstract class FixedLengthInputFormat extends FileInputFormat {
 			this.exhausted = true;
 			return;
 		}
-		
+
 		// fill read buffer
 		int read = this.stream.read(this.readBuffer, 0, toRead);
-		
+
 		if (read <= 0) {
 			this.exhausted = true;
 		} else {

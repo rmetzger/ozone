@@ -54,22 +54,22 @@ public class Tuple2<T1, T2> extends Tuple {
 	@SuppressWarnings("unchecked")
 	public <T> T getField(int pos) {
 		switch(pos) {
-			case 0: return (T) this._1;
-			case 1: return (T) this._2;
-			default: throw new IndexOutOfBoundsException(String.valueOf(pos));
+		case 0: return (T) this._1;
+		case 1: return (T) this._2;
+		default: throw new IndexOutOfBoundsException(String.valueOf(pos));
 		}
 	}
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> void setField(T value, int pos) {
 		switch(pos) {
-			case 0:
-				this._1 = (T1) value;
-				break;
-			case 1:
-				this._2 = (T2) value;
-				break;
-			default: throw new IndexOutOfBoundsException(String.valueOf(pos));
+		case 0:
+			this._1 = (T1) value;
+			break;
+		case 1:
+			this._2 = (T2) value;
+			break;
+		default: throw new IndexOutOfBoundsException(String.valueOf(pos));
 		}
 	}
 
@@ -80,8 +80,8 @@ public class Tuple2<T1, T2> extends Tuple {
 	@Override
 	public String toString() {
 		return "(" + StringUtils.arrayAwareToString(this._1)
-			+ ", " + StringUtils.arrayAwareToString(this._2)
-			+ ")";
+				+ ", " + StringUtils.arrayAwareToString(this._2)
+				+ ")";
 	}
 
 	// -------------------------------------------------------------------------------------------------

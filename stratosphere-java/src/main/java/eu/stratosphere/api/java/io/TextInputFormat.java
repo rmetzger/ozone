@@ -22,48 +22,49 @@ import eu.stratosphere.core.fs.Path;
 
 
 public class TextInputFormat extends DelimitedInputFormat<String> {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String charsetName = "UTF-8";
-	
-//	private boolean skipInvalidLines;
-	
+
+	//	private boolean skipInvalidLines;
+
 	private transient Charset charset;
 
 	// --------------------------------------------------------------------------------------------
-	
+
 	public TextInputFormat(Path filePath) {
 		super(filePath);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------	
-	
+
 	public String getCharsetName() {
 		return charsetName;
 	}
-	
+
 	public void setCharsetName(String charsetName) {
-		if (charsetName == null)
+		if (charsetName == null) {
 			throw new IllegalArgumentException("Charset must not be null.");
-		
+		}
+
 		this.charsetName = charsetName;
 	}
-	
-//	public boolean isSkipInvalidLines() {
-//		return skipInvalidLines;
-//	}
-//	
-//	public void setSkipInvalidLines(boolean skipInvalidLines) {
-//		this.skipInvalidLines = skipInvalidLines;
-//	}
-	
+
+	//	public boolean isSkipInvalidLines() {
+	//		return skipInvalidLines;
+	//	}
+	//	
+	//	public void setSkipInvalidLines(boolean skipInvalidLines) {
+	//		this.skipInvalidLines = skipInvalidLines;
+	//	}
+
 	// --------------------------------------------------------------------------------------------
 
 	@Override
 	public void configure(Configuration parameters) {
 		super.configure(parameters);
-		
+
 		if (charsetName == null || !Charset.isSupported(charsetName)) {
 			throw new RuntimeException("Unsupported charset: " + charsetName);
 		}
@@ -76,9 +77,9 @@ public class TextInputFormat extends DelimitedInputFormat<String> {
 	public String readRecord(String reusable, byte[] bytes, int offset, int numBytes) {
 		return new String(bytes, offset, numBytes, this.charset);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public String toString() {
 		return "TextInputFormat (" + getFilePath() + ") - " + this.charsetName; // + (this.skipInvalidLines ? "(skipping invalid lines)" : "");

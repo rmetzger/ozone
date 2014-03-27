@@ -28,26 +28,26 @@ import eu.stratosphere.util.InstantiationUtil;
 public class AvroSerializer<T> extends Serializer<T> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private transient ReflectDatumWriter<T> writer;
 	private transient ReflectDatumReader<T> reader;
-	
+
 	private transient DataOutputEncoder encoder = new DataOutputEncoder();
 	private transient DataInputDecoder decoder = new DataInputDecoder();
 
 	private final Class<T> type;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public AvroSerializer(Class<T> type) {
 		this.type = type;
-		
+
 		this.writer = new ReflectDatumWriter<T>(type);
 		this.reader = new ReflectDatumReader<T>(type);
 	}
 
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public T createInstance() {
 		return InstantiationUtil.instantiate(type, Object.class);
@@ -79,20 +79,20 @@ public class AvroSerializer<T> extends Serializer<T> {
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
 		// write the core object, ignore the remainder
 		s.defaultWriteObject();
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// serialization
 	// --------------------------------------------------------------------------------------------
-	
+
 	private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
 		// read basic object and the type
 		s.defaultReadObject();
-		
+
 		this.reader = new ReflectDatumReader<T>(type);
 		this.writer = new ReflectDatumWriter<T>(type);
 		this.encoder = new DataOutputEncoder();

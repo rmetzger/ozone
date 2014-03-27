@@ -33,31 +33,31 @@ import eu.stratosphere.util.Reference;
 
 
 public abstract class WrappingFunction<T extends AbstractFunction> extends AbstractFunction {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	protected final T wrappedFunction;
-	
-	
+
+
 	protected WrappingFunction(T wrappedFunction) {
 		this.wrappedFunction = wrappedFunction;
 	}
 
-	
+
 	@Override
 	public void open(Configuration parameters) throws Exception {
 		this.wrappedFunction.open(parameters);
 	}
-	
+
 	@Override
 	public void close() throws Exception {
 		this.wrappedFunction.close();
 	}
-	
+
 	@Override
 	public void setRuntimeContext(RuntimeContext t) {
 		super.setRuntimeContext(t);
-		
+
 		if (t instanceof IterationRuntimeContext) {
 			this.wrappedFunction.setRuntimeContext(new WrappingIterationRuntimeContext(t));
 		}
@@ -65,14 +65,14 @@ public abstract class WrappingFunction<T extends AbstractFunction> extends Abstr
 			this.wrappedFunction.setRuntimeContext(new WrappingRuntimeContext(t));
 		}
 	}
-	
-	
-	
+
+
+
 	private static class WrappingRuntimeContext implements RuntimeContext {
 
 		protected final RuntimeContext context;
-		
-		
+
+
 		protected WrappingRuntimeContext(RuntimeContext context) {
 			this.context = context;
 		}
@@ -131,16 +131,16 @@ public abstract class WrappingFunction<T extends AbstractFunction> extends Abstr
 		@Override
 		public <RT> Collection<RT> getBroadcastVariable(String name) {
 			Collection<Reference<RT>> refColl = context.getBroadcastVariable(name);
-			
+
 			ArrayList<RT> list = new ArrayList<RT>(refColl.size());
 			for (Reference<RT> e : refColl) {
 				list.add(e.ref);
 			}
-			
+
 			return list;
 		}
 	}
-	
+
 	private static class WrappingIterationRuntimeContext extends WrappingRuntimeContext implements IterationRuntimeContext {
 
 		protected WrappingIterationRuntimeContext(RuntimeContext context) {
@@ -161,6 +161,6 @@ public abstract class WrappingFunction<T extends AbstractFunction> extends Abstr
 		public <T extends Value> T getPreviousIterationAggregate(String name) {
 			return ((IterationRuntimeContext) context).<T>getPreviousIterationAggregate(name);
 		}
-		
+
 	}
 }

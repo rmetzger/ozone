@@ -31,24 +31,24 @@ public class ArrayTypeInfo<T, C> extends TypeInformation<T> {
 	public static final ArrayTypeInfo<Float[], Float> FLOAT_ARRAY_TYPE_INFO = new ArrayTypeInfo<Float[], Float>(Float[].class);
 	public static final ArrayTypeInfo<Double[], Double> DOUBLE_ARRAY_TYPE_INFO = new ArrayTypeInfo<Double[], Double>(Double[].class);
 	public static final ArrayTypeInfo<Character[], Character> CHAR_ARRAY_TYPE_INFO = new ArrayTypeInfo<Character[], Character>(Character[].class);
-	
+
 	// --------------------------------------------------------------------------------------------
 
 	private final Class<T> arrayClass;
 	private final Class<C> componentClass;
-	
+
 	@SuppressWarnings("unchecked")
 	private ArrayTypeInfo(Class<T> arrayClass) {
 		if (!arrayClass.isArray()) {
 			throw new IllegalArgumentException();
 		}
-		
+
 		this.arrayClass = arrayClass;
 		this.componentClass = (Class<C>) arrayClass.getComponentType();
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public boolean isBasicType() {
 		return false;
@@ -68,34 +68,35 @@ public class ArrayTypeInfo<T, C> extends TypeInformation<T> {
 	public Class<T> getTypeClass() {
 		return this.arrayClass;
 	}
-	
+
 	public Class<C> getComponentTypeClass() {
 		return this.componentClass;
 	}
-	
+
 	@Override
 	public boolean isKeyType() {
 		return false;
 	}
-	
+
 	@Override
 	public Serializer<T> createSerializer() {
 		throw new UnsupportedOperationException("Array serialization is currently not implemented.");
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static <X, C> ArrayTypeInfo<X, C> getInfoFor(Class<X> type) {
-		if (type == null)
+		if (type == null) {
 			throw new NullPointerException();
-		
+		}
+
 		@SuppressWarnings("unchecked")
 		ArrayTypeInfo<X, C> info = (ArrayTypeInfo<X, C>) TYPES.get(type);
 		return info;
 	}
-	
+
 	private static final Map<Class<?>, ArrayTypeInfo<?, ?>> TYPES = new HashMap<Class<?>, ArrayTypeInfo<?, ?>>();
-	
+
 	static {
 		TYPES.put(String[].class, STRING_ARRAY_TYPE_INFO);
 		TYPES.put(Boolean[].class, BOOLEAN_ARRAY_TYPE_INFO);

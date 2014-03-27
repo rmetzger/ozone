@@ -37,37 +37,37 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 	 * The configuration key to set the record delimiter encoding.
 	 */
 	private static final String RECORD_DELIMITER_ENCODING = "pact.output.delimited.delimiter-encoding";
-	
+
 	/**
 	 * The configuration key for the entry that defines the write-buffer size.
 	 */
 	public static final String WRITE_BUFFER_SIZE = "pact.output.delimited.buffersize";
-	
+
 	/**
 	 * The default write-buffer size. 64 KiByte. 
 	 */
 	private static final int DEFAULT_WRITE_BUFFER_SIZE = 64 * 1024;
-	
+
 	/**
 	 * The minimal write-buffer size, 1 KiByte.
 	 */
 	private static final int MIN_WRITE_BUFFER_SIZE = 1024;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	private byte[] delimiter;
-	
+
 	private byte[] buffer;
-	
+
 	private byte[] targetArray = new byte[64];
-	
+
 	private int pos;
-	
+
 	private int bufferSize;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
-	
+
+
 	/**
 	 * Calls the super classes to configure themselves and reads the config parameters for the delimiter and
 	 * the write buffer size.
@@ -79,7 +79,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 	public void configure(Configuration config)
 	{
 		super.configure(config);
-		
+
 		final String delim = config.getString(RECORD_DELIMITER, "\n");
 		final String charsetName = config.getString(RECORD_DELIMITER_ENCODING, null);		
 		if (delim == null) {
@@ -89,21 +89,21 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 			this.delimiter = charsetName == null ? delim.getBytes() : delim.getBytes(charsetName);
 		} catch (UnsupportedEncodingException useex) {
 			throw new IllegalArgumentException("The charset with the name '" + charsetName + 
-				"' is not supported on this TaskManager instance.", useex);
+					"' is not supported on this TaskManager instance.", useex);
 		}
-		
+
 		this.bufferSize = config.getInteger(WRITE_BUFFER_SIZE, DEFAULT_WRITE_BUFFER_SIZE);
 		if (this.bufferSize < MIN_WRITE_BUFFER_SIZE) {
 			throw new IllegalArgumentException("The write buffer size must not be less than " + MIN_WRITE_BUFFER_SIZE
-				+ " bytes.");
+					+ " bytes.");
 		}
 	}
-	
+
 	@Override
 	public void open(int taskNumber, int numTasks) throws IOException
 	{
 		super.open(taskNumber, numTasks);
-		
+
 		if (this.buffer == null) {
 			this.buffer = new byte[this.bufferSize];
 		}
@@ -112,16 +112,16 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 		}
 		this.pos = 0;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 
 	@Override
 	public void close() throws IOException {
 		if (this.stream != null) {
 			this.stream.write(this.buffer, 0, this.pos);
 		}
-		
+
 		// close file stream
 		super.close();
 	}
@@ -143,8 +143,8 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 	 *                   throw it such that the engine recognizes the situation as a fault.
 	 */
 	public abstract int serializeRecord(Record rec, byte[] target) throws Exception;
-	
-	
+
+
 
 	@Override
 	public void writeRecord(Record record) throws IOException
@@ -163,7 +163,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 		catch (Exception ex) {
 			throw new IOException("Error while serializing the record to bytes: " + ex.getMessage(), ex);
 		}
-		
+
 		if (this.bufferSize - this.pos > size + this.delimiter.length) {
 			System.arraycopy(this.targetArray, 0, this.buffer, this.pos, size);
 			System.arraycopy(this.delimiter, 0, this.buffer, pos + size, this.delimiter.length);
@@ -183,7 +183,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 					this.stream.write(this.buffer, 0, this.bufferSize);
 				}
 			}
-			
+
 			// copy the delimiter (piecewise)
 			off = 0;
 			while (off < this.delimiter.length) {
@@ -201,7 +201,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 	}
 
 	// ============================================================================================
-	
+
 	/**
 	 * Creates a configuration builder that can be used to set the input format's parameters to the config in a fluent
 	 * fashion.
@@ -211,16 +211,16 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 	public static ConfigBuilder configureDelimitedFormat(FileDataSink target) {
 		return new ConfigBuilder(target.getParameters());
 	}
-	
+
 	/**
 	 * A builder used to set parameters to the input format's configuration in a fluent way.
 	 */
 	protected static abstract class AbstractConfigBuilder<T> extends FileOutputFormat.AbstractConfigBuilder<T>
 	{
 		private static final String NEWLINE_DELIMITER = "\n";
-		
+
 		// --------------------------------------------------------------------
-		
+
 		/**
 		 * Creates a new builder for the given configuration.
 		 * 
@@ -229,9 +229,9 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 		protected AbstractConfigBuilder(Configuration config) {
 			super(config);
 		}
-		
+
 		// --------------------------------------------------------------------
-		
+
 		/**
 		 * Sets the delimiter to be a single character, namely the given one. The character must be within
 		 * the value range <code>0</code> to <code>127</code>.
@@ -249,7 +249,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 			T ret = (T) this;
 			return ret;
 		}
-		
+
 		/**
 		 * Sets the delimiter to be the given string. The string will be converted to bytes for more efficient
 		 * comparison during input parsing. The conversion will be done using the platforms default charset.
@@ -263,7 +263,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 			T ret = (T) this;
 			return ret;
 		}
-		
+
 		/**
 		 * Sets the delimiter to be the given string. The string will be converted to bytes for more efficient
 		 * comparison during input parsing. The conversion will be done using the charset with the given name.
@@ -281,7 +281,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 			T ret = (T) this;
 			return ret;
 		}
-		
+
 		/**
 		 * Sets the size of the write buffer.
 		 * 
@@ -295,7 +295,7 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 			return ret;
 		}
 	}
-	
+
 	/**
 	 * A builder used to set parameters to the input format's configuration in a fluent way.
 	 */
@@ -309,6 +309,6 @@ public abstract class DelimitedOutputFormat extends FileOutputFormat {
 		protected ConfigBuilder(Configuration targetConfig) {
 			super(targetConfig);
 		}
-		
+
 	}
 }

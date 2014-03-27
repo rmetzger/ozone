@@ -27,10 +27,10 @@ public class TupleUnwrappingIterator<T, K> implements Iterator<T>, java.io.Seria
 
 	private static final long serialVersionUID = 1L;
 
-	
+
 	private Iterator<Reference<Tuple2<K, T>>> iterator;
 
-	
+
 	public void set(Iterator<Reference<Tuple2<K, T>>> iterator) {
 		this.iterator = iterator;
 	}

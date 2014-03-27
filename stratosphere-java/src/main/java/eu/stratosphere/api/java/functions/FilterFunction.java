@@ -19,7 +19,7 @@ import eu.stratosphere.api.common.functions.GenericFilter;
 
 
 public abstract class FilterFunction<T> extends AbstractFunction implements GenericFilter<T> {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@Override

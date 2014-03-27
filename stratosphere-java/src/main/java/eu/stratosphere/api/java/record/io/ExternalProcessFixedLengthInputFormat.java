@@ -41,48 +41,48 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 	 * The config parameter which defines the fixed length of a record.
 	 */
 	public static final String RECORDLENGTH_PARAMETER_KEY = "pact.input.recordLength";
-	
+
 	/**
 	 * The default read buffer size = 1MB.
 	 */
 	private static final int DEFAULT_TARGET_READ_BUFFER_SIZE = 1024 * 1024;
-	
+
 	/**
 	 * Buffer to read a batch of records from a file 
 	 */
 	private byte[] readBuffer;
-	
+
 	/**
 	 * read position within the read buffer
 	 */
 	private int readBufferReadPos;
-	
+
 	/**
 	 * fill marker within the read buffer 
 	 */
 	private int readBufferFillPos;
-	
+
 	/**
 	 * remaining space within the read buffer
 	 */
 	private int readBufferRemainSpace;
-	
+
 	/**
 	 * target size of the read buffer
 	 */
 	private int targetReadBufferSize = DEFAULT_TARGET_READ_BUFFER_SIZE;
-	
+
 	/**
 	 * fixed length of all records
 	 */
 	protected int recordLength;
-	
+
 	/**
 	 * Flags to indicate the end of the split
 	 */
 	private boolean noMoreStreamInput;
 	private boolean noMoreRecordBuffers;
-	
+
 	/**
 	 * Reads a record out of the given buffer. This operation always consumes the standard number of
 	 * bytes, regardless of whether the produced record was valid.
@@ -93,22 +93,22 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 	 * @return True, is the record is valid, false otherwise.
 	 */
 	public abstract boolean readBytes(Record target, byte[] buffer, int startPos);
-	
+
 
 	@Override
 	public void configure(Configuration parameters)
 	{
 		// configure parent
 		super.configure(parameters);
-		
+
 		// read own parameters
 		this.recordLength = parameters.getInteger(RECORDLENGTH_PARAMETER_KEY, 0);
 		if (recordLength < 1) {
 			throw new IllegalArgumentException("The record length parameter must be set and larger than 0.");
 		}
-		
+
 	}
-	
+
 	/**
 	 * Sets the target size of the buffer to be used to read from the stdout stream. 
 	 * The actual size depends on the record length since it is chosen such that records are not split.
@@ -120,13 +120,13 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 	{
 		this.targetReadBufferSize = targetReadBufferSize;
 	}
-	
+
 
 	@Override
 	public void open(GenericInputSplit split) throws IOException {
-		
+
 		super.open(split);
-		
+
 		// compute readBufferSize
 		if(recordLength > this.targetReadBufferSize) {
 			// read buffer is at least as big as record
@@ -138,7 +138,7 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 			// extent default read buffer size such that records are not split
 			this.readBuffer = new byte[(recordLength - (this.targetReadBufferSize % recordLength)) + this.targetReadBufferSize];
 		}
-		
+
 		// initialize read buffer positions
 		this.readBufferReadPos = 0;
 		this.readBufferFillPos = 0;
@@ -146,15 +146,15 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 		// initialize end flags
 		this.noMoreStreamInput = false;
 		this.noMoreRecordBuffers = false;
-		
+
 	}
-	
+
 
 	@Override
 	public boolean reachedEnd() throws IOException {
 		return noMoreRecordBuffers;
 	}
-	
+
 
 	@Override
 	public Record nextRecord(Record reuse) throws IOException {
@@ -168,9 +168,9 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 
 		// update read buffer read marker
 		this.readBufferReadPos += this.recordLength;
-		
+
 		return this.readBytes(reuse, readBuffer, (this.readBufferReadPos-this.recordLength)) ? reuse : null;
-		
+
 	}
 
 	/**
@@ -182,7 +182,7 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 	 */
 	private boolean fillReadBuffer() throws IOException {
 		// TODO: Add reading from error stream of external process. Otherwise the InputFormat might get deadlocked!
-		
+
 		// stream was completely processed
 		if(noMoreStreamInput) {
 			if(this.readBufferReadPos == this.readBufferFillPos) {
@@ -192,7 +192,7 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 				throw new RuntimeException("External process produced incomplete record");
 			}
 		}
-		
+
 		// the buffer was completely filled and processed
 		if(this.readBufferReadPos == this.readBuffer.length && 
 				this.readBufferRemainSpace == 0) {
@@ -201,12 +201,12 @@ public abstract class ExternalProcessFixedLengthInputFormat<T extends ExternalPr
 			this.readBufferRemainSpace = this.readBuffer.length;
 			this.readBufferReadPos = 0;
 		}
-		
+
 		// as long as not at least one record is complete
 		while(this.readBufferFillPos - this.readBufferReadPos < this.recordLength) {
 			// read from stdout
 			int readCnt = super.extProcOutStream.read(this.readBuffer, this.readBufferFillPos, this.readBufferRemainSpace);
-			
+
 			if(readCnt == -1) {
 				// the is nothing more to read
 				this.noMoreStreamInput = true;

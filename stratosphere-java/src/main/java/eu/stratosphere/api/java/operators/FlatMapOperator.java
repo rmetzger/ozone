@@ -26,16 +26,17 @@ import eu.stratosphere.api.java.typeutils.TypeExtractor;
  * @param <OUT> The type of the data set created by the operator.
  */
 public class FlatMapOperator<IN, OUT> extends SingleInputUdfOperator<IN, OUT, FlatMapOperator<IN, OUT>> {
-	
+
 	protected final FlatMapFunction<IN, OUT> function;
-	
-	
+
+
 	public FlatMapOperator(DataSet<IN> input, FlatMapFunction<IN, OUT> function) {
 		super(input, TypeExtractor.getFlatMapReturnTypes(function));
-		
-		if (function == null)
+
+		if (function == null) {
 			throw new NullPointerException("FlatMap function must not be null.");
-		
+		}
+
 		this.function = function;
 	}
 

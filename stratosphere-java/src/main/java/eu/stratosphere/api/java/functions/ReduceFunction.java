@@ -22,22 +22,22 @@ import eu.stratosphere.util.Collector;
 
 
 public abstract class ReduceFunction<T> extends AbstractFunction implements GenericGroupReduce<T, T> {
-	
+
 	private static final long serialVersionUID = 1L;
 
 
 	public abstract T reduce(T value1, T value2) throws Exception;
-	
-	
+
+
 	@Override
 	public final void reduce(Iterator<T> values, Collector<T> out) throws Exception {
 		T curr = values.next();
-		
+
 		while (values.hasNext()) {
 			curr = reduce(curr, values.next());
 		}
 	}
-	
+
 	@Override
 	public void combine(Iterator<T> values, Collector<T> out) throws Exception {
 		reduce(values, out);

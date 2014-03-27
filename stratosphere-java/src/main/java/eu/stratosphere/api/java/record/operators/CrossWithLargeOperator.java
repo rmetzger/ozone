@@ -27,7 +27,7 @@ import eu.stratosphere.api.java.record.functions.CrossFunction;
  * @see CrossFunction
  */
 public class CrossWithLargeOperator extends CrossOperator implements CrossWithLarge {
-	
+
 	/**
 	 * Creates a Builder with the provided {@link CrossFunction} implementation.
 	 * 
@@ -36,7 +36,7 @@ public class CrossWithLargeOperator extends CrossOperator implements CrossWithLa
 	public static Builder builder(CrossFunction udf) {
 		return new Builder(new UserCodeObjectWrapper<CrossFunction>(udf));
 	}
-	
+
 	/**
 	 * Creates a Builder with the provided {@link CrossFunction} implementation.
 	 * 
@@ -45,7 +45,7 @@ public class CrossWithLargeOperator extends CrossOperator implements CrossWithLa
 	public static Builder builder(Class<? extends CrossFunction> udf) {
 		return new Builder(new UserCodeClassWrapper<CrossFunction>(udf));
 	}
-	
+
 	/**
 	 * The private constructor that only gets invoked from the Builder.
 	 * @param builder
@@ -53,14 +53,14 @@ public class CrossWithLargeOperator extends CrossOperator implements CrossWithLa
 	protected CrossWithLargeOperator(Builder builder) {
 		super(builder);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 
 	/**
 	 * Builder pattern, straight from Joshua Bloch's Effective Java (2nd Edition).
 	 */
 	public static class Builder extends CrossOperator.Builder {
-		
+
 		/**
 		 * Creates a Builder with the provided {@link CrossFunction} implementation.
 		 * 
@@ -69,7 +69,7 @@ public class CrossWithLargeOperator extends CrossOperator implements CrossWithLa
 		private Builder(UserCodeWrapper<CrossFunction> udf) {
 			super(udf);
 		}
-		
+
 		/**
 		 * Creates and returns a CrossOperator from using the values given 
 		 * to the builder.

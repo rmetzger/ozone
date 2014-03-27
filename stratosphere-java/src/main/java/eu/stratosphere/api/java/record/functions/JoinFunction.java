@@ -15,7 +15,6 @@ package eu.stratosphere.api.java.record.functions;
 
 import eu.stratosphere.api.common.functions.AbstractFunction;
 import eu.stratosphere.api.common.functions.GenericJoiner;
-import eu.stratosphere.api.java.record.operators.JoinOperator;
 import eu.stratosphere.types.Record;
 import eu.stratosphere.util.Collector;
 
@@ -24,9 +23,9 @@ import eu.stratosphere.util.Collector;
  * It resembles an equality join of both inputs on their key fields.
  */
 public abstract class JoinFunction extends AbstractFunction implements GenericJoiner<Record, Record, Record> {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * This method must be implemented to provide a user implementation of a join.
 	 * It is called for each two records that share the same key and come from different inputs.

@@ -26,9 +26,9 @@ public class ReferenceWrappingCollector<T> implements Collector<T>, java.io.Seri
 	private static final long serialVersionUID = 1L;
 
 	private final Reference<T> ref = new Reference<T>();
-	
+
 	private Collector<Reference<T>> delegate;
-	
+
 	public void set(Collector<Reference<T>> delegate) {
 		this.delegate = delegate;
 	}
@@ -38,7 +38,7 @@ public class ReferenceWrappingCollector<T> implements Collector<T>, java.io.Seri
 		ref.ref = value;
 		this.delegate.collect(ref);
 	}
-	
+
 	@Override
 	public void close() {}
 }

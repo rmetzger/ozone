@@ -17,7 +17,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import eu.stratosphere.api.common.io.InputFormat;
 import eu.stratosphere.core.io.GenericInputSplit;
 import eu.stratosphere.core.io.StringRecord;
 
@@ -33,10 +32,10 @@ public class ExternalProcessInputSplit extends GenericInputSplit {
 
 	// command to be executed for this input split
 	private String extProcessCommand;
-	
+
 	// default constructor for deserialization
 	public ExternalProcessInputSplit() { }
-	
+
 	/**
 	 * Instantiates an ExternalProcessInputSplit
 	 * 
@@ -47,7 +46,7 @@ public class ExternalProcessInputSplit extends GenericInputSplit {
 		super(splitNumber, numSplits);
 		this.extProcessCommand = extProcCommand;
 	}
-	
+
 	/**
 	 * Returns the command to be executed to derive the input for this split
 	 * 
@@ -56,8 +55,8 @@ public class ExternalProcessInputSplit extends GenericInputSplit {
 	public String getExternalProcessCommand() {
 		return this.extProcessCommand;
 	}
-	
-	
+
+
 	@Override
 	public void read(DataInput in) throws IOException {
 		super.read(in);

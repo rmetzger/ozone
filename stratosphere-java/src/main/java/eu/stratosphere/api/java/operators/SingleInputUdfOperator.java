@@ -28,54 +28,54 @@ import eu.stratosphere.configuration.Configuration;
  * @param <OUT> The data type of the returned data set.
  */
 public abstract class SingleInputUdfOperator<IN, OUT, O extends SingleInputUdfOperator<IN, OUT, O>>
-	extends SingleInputOperator<IN, OUT, O> implements UdfOperator<O>
+extends SingleInputOperator<IN, OUT, O> implements UdfOperator<O>
 {
 	private Configuration parameters;
-	
+
 	private Map<String, DataSet<?>> broadcastVariables;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	protected SingleInputUdfOperator(DataSet<IN> input, TypeInformation<OUT> resultType) {
 		super(input, resultType);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Fluent API methods
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public O withParameters(Configuration parameters) {
 		this.parameters = parameters;
-		
+
 		@SuppressWarnings("unchecked")
 		O returnType = (O) this;
 		return returnType;
 	}
-	
+
 	@Override
 	public O withBroadcastSet(DataSet<?> data, String name) {
 		if (this.broadcastVariables == null) {
 			this.broadcastVariables = new HashMap<String, DataSet<?>>();
 		}
-		
+
 		this.broadcastVariables.put(name, data);
-		
+
 		@SuppressWarnings("unchecked")
 		O returnType = (O) this;
 		return returnType;
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------------------------------
 	// Accessors
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public Map<String, DataSet<?>> getBroadcastSets() {
 		return this.broadcastVariables == null ? Collections.<String, DataSet<?>>emptyMap() : this.broadcastVariables;
 	}
-	
+
 	@Override
 	public Configuration getParameters() {
 		return this.parameters;

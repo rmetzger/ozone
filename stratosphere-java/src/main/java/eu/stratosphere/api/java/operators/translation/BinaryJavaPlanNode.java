@@ -23,6 +23,6 @@ import eu.stratosphere.api.java.typeutils.TypeInformation;
 public interface BinaryJavaPlanNode<I1, I2, T> extends JavaPlanNode<T> {
 
 	TypeInformation<I1> getInputType1();
-	
+
 	TypeInformation<I2> getInputType2();
 }

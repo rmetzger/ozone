@@ -23,25 +23,25 @@ import eu.stratosphere.types.Value;
 
 
 public abstract class TypeInformation<T> {
-	
+
 	public abstract boolean isBasicType();
 
 	public abstract boolean isTupleType();
-	
+
 	public abstract int getArity();
-	
+
 	public abstract Class<T> getTypeClass();
-	
+
 	public abstract boolean isKeyType();
-	
+
 	public abstract Serializer<T> createSerializer();
-	
+
 	protected static final Log LOG = LogFactory.getLog(TypeInformation.class);
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Static Utilities
 	// --------------------------------------------------------------------------------------------
-	
+
 	@SuppressWarnings("unchecked")
 	public static <X> TypeInformation<X> getForClass(Class<X> clazz) {
 		// check for basic types
@@ -51,20 +51,20 @@ public abstract class TypeInformation<T> {
 				return basicTypeInfo;
 			}
 		}
-		
+
 		// check for subclasses of Value
 		if (Value.class.isAssignableFrom(clazz)) {
 			Class<? extends Value> valueClass = clazz.asSubclass(Value.class);
 			return (TypeInformation<X>) ValueTypeInfo.getValueTypeInfo(valueClass);
 		}
-		
+
 		// check for subclasses of Tuple
 		if (Tuple.class.isAssignableFrom(clazz)) {
 			LOG.warn("TypeInformation extraction from class for Tuples not supported.");
 		}
-		
+
 		// return a generic type
 		return new GenericTypeInfo<X>(clazz);
 	}	
-	
+
 }

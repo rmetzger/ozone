@@ -25,16 +25,16 @@ import eu.stratosphere.util.Reference;
  *
  */
 public class PlanFilterOperator<T> extends FlatMapOperatorBase<GenericFlatMap<Reference<T>, Reference<T>>>
-	implements UnaryJavaPlanNode<T, T>
+implements UnaryJavaPlanNode<T, T>
 {
 	private final TypeInformation<T> type;
-	
-	
+
+
 	public PlanFilterOperator(FilterFunction<T> udf, String name, TypeInformation<T> type) {
 		super(new ReferenceWrappingFilter<T>(udf), name);
 		this.type = type;
 	}
-	
+
 	@Override
 	public TypeInformation<T> getReturnType() {
 		return this.type;
@@ -44,16 +44,16 @@ public class PlanFilterOperator<T> extends FlatMapOperatorBase<GenericFlatMap<Re
 	public TypeInformation<T> getInputType() {
 		return this.type;
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static final class ReferenceWrappingFilter<T> extends WrappingFunction<FilterFunction<T>>
-		implements GenericFlatMap<Reference<T>, Reference<T>>
+	implements GenericFlatMap<Reference<T>, Reference<T>>
 	{
 
 		private static final long serialVersionUID = 1L;
-		
+
 		private ReferenceWrappingFilter(FilterFunction<T> wrapped) {
 			super(wrapped);
 		}

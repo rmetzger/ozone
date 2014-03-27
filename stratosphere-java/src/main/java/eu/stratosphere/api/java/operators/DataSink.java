@@ -22,61 +22,64 @@ import eu.stratosphere.api.java.typeutils.TypeInformation;
 
 
 public class DataSink<T> {
-	
+
 	private final OutputFormat<T> format;
-	
+
 	private final TypeInformation<T> type;
-	
+
 	private final DataSet<T> data;
-	
+
 	private String name;
-	
-	
+
+
 	public DataSink(DataSet<T> data, OutputFormat<T> format, TypeInformation<T> type) {
-		if (format == null)
+		if (format == null) {
 			throw new IllegalArgumentException("The output format must not be null.");
-		if (type == null)
+		}
+		if (type == null) {
 			throw new IllegalArgumentException("The input type information must not be null.");
-		if (data == null)
+		}
+		if (data == null) {
 			throw new IllegalArgumentException("The data set must not be null.");
-		
-		
+		}
+
+
 		this.format = format;
 		this.data = data;
 		this.type = type;
 	}
 
-	
+
 	public OutputFormat<T> getFormat() {
 		return format;
 	}
-	
+
 	public TypeInformation<T> getType() {
 		return type;
 	}
-	
+
 	public DataSet<T> getDataSet() {
 		return data;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public DataSink<T> name(String name) {
 		this.name = name;
 		return this;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	protected GenericDataSink translateToDataFlow() {
 		// select the name (or create a default one)
 		String name = this.name != null ? this.name : this.format.toString();
 		PlanDataSink<T> sink = new PlanDataSink<T>(this.format, name, this.type);
 		return sink;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public String toString() {
 		return "DataSink '" + (this.name == null ? "<unnamed>" : this.name) + "' (" + this.format.toString() + ")";

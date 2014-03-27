@@ -24,20 +24,20 @@ import eu.stratosphere.util.Reference;
  *
  */
 public class PlanMapOperator<T, O> extends PlainMapOperatorBase<GenericMap<Reference<T>, Reference<O>>>
-	implements UnaryJavaPlanNode<T, O>
+implements UnaryJavaPlanNode<T, O>
 {
 
 	private final TypeInformation<T> inType;
-	
+
 	private final TypeInformation<O> outType;
-	
-	
+
+
 	public PlanMapOperator(MapFunction<T, O> udf, String name, TypeInformation<T> inType, TypeInformation<O> outType) {
 		super(new ReferenceWrappingMapper<T, O>(udf), name);
 		this.inType = inType;
 		this.outType = outType;
 	}
-	
+
 	@Override
 	public TypeInformation<O> getReturnType() {
 		return this.outType;
@@ -47,18 +47,18 @@ public class PlanMapOperator<T, O> extends PlainMapOperatorBase<GenericMap<Refer
 	public TypeInformation<T> getInputType() {
 		return this.inType;
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static final class ReferenceWrappingMapper<IN, OUT> extends WrappingFunction<MapFunction<IN, OUT>>
-		implements GenericMap<Reference<IN>, Reference<OUT>>
+	implements GenericMap<Reference<IN>, Reference<OUT>>
 	{
 
 		private static final long serialVersionUID = 1L;
-		
+
 		private final Reference<OUT> ref = new Reference<OUT>();
-		
+
 		private ReferenceWrappingMapper(MapFunction<IN, OUT> wrapped) {
 			super(wrapped);
 		}

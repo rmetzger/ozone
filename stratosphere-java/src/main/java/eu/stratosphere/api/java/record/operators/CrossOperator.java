@@ -44,7 +44,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 	public static Builder builder(CrossFunction udf) {
 		return new Builder(new UserCodeObjectWrapper<CrossFunction>(udf));
 	}
-	
+
 	/**
 	 * Creates a Builder with the provided {@link CrossFunction} implementation.
 	 * 
@@ -53,7 +53,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 	public static Builder builder(Class<? extends CrossFunction> udf) {
 		return new Builder(new UserCodeClassWrapper<CrossFunction>(udf));
 	}
-	
+
 	/**
 	 * The private constructor that only gets invoked from the Builder.
 	 * @param builder
@@ -65,29 +65,29 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 		setBroadcastVariables(builder.broadcastInputs);
 		setSemanticProperties(FunctionAnnotation.readDualConstantAnnotations(builder.udf));
 	}
-	
+
 
 	@Override
 	public Class<? extends Key>[] getKeyClasses() {
 		return emptyClassArray();
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 
 	/**
 	 * Builder pattern, straight from Joshua Bloch's Effective Java (2nd Edition).
 	 */
 	public static class Builder {
-		
+
 		/* The required parameters */
 		private final UserCodeWrapper<CrossFunction> udf;
-		
+
 		/* The optional parameters */
 		private List<Operator> inputs1;
 		private List<Operator> inputs2;
 		private Map<String, Operator> broadcastInputs;
 		private String name;
-		
+
 		/**
 		 * Creates a Builder with the provided {@link CrossFunction} implementation.
 		 * 
@@ -99,7 +99,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			this.inputs2 = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union) for input 1.
 		 * 
@@ -112,7 +112,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union) for input 2.
 		 * 
@@ -125,7 +125,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets the first inputs.
 		 * 
@@ -135,7 +135,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			this.inputs1 = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Sets the second inputs.
 		 * 
@@ -145,7 +145,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			this.inputs2 = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Binds the result produced by a plan rooted at {@code root} to a 
 		 * variable used by the UDF wrapped in this operator.
@@ -154,7 +154,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			this.broadcastInputs.put(name, input);
 			return this;
 		}
-		
+
 		/**
 		 * Binds multiple broadcast variables.
 		 */
@@ -163,7 +163,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			this.broadcastInputs.putAll(inputs);
 			return this;
 		}
-		
+
 		/**
 		 * Sets the name of this operator.
 		 * 
@@ -173,7 +173,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			this.name = name;
 			return this;
 		}
-		
+
 		/**
 		 * Creates and returns a CrossOperator from using the values given 
 		 * to the builder.
@@ -184,7 +184,7 @@ public class CrossOperator extends CrossOperatorBase<CrossFunction> implements R
 			setNameIfUnset();
 			return new CrossOperator(this);
 		}
-		
+
 		protected void setNameIfUnset() {
 			if (name == null) {
 				name = udf.getUserCodeClass().getName();
