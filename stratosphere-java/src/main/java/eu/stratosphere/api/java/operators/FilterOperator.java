@@ -24,16 +24,17 @@ import eu.stratosphere.api.java.operators.translation.UnaryNodeTranslation;
  * @param <IN> The type of the data set filtered by the operator.
  */
 public class FilterOperator<IN> extends SingleInputUdfOperator<IN, IN, FilterOperator<IN>> {
-	
+
 	protected final FilterFunction<IN> function;
-	
-	
+
+
 	public FilterOperator(DataSet<IN> input, FilterFunction<IN> function) {
 		super(input, input.getType());
-		
-		if (function == null)
+
+		if (function == null) {
 			throw new NullPointerException("Filter function must not be null.");
-		
+		}
+
 		this.function = function;
 	}
 

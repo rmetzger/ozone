@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.stratosphere.api.common.io.statistics.BaseStatistics;
-import eu.stratosphere.api.java.record.io.ExternalProcessInputFormat;
-import eu.stratosphere.api.java.record.io.ExternalProcessInputSplit;
 import eu.stratosphere.configuration.Configuration;
 import eu.stratosphere.core.io.GenericInputSplit;
 import eu.stratosphere.types.IntValue;
@@ -32,32 +30,33 @@ import eu.stratosphere.util.OperatingSystem;
 public class ExternalProcessInputFormatTest {
 
 	private ExternalProcessInputFormat<ExternalProcessInputSplit> format;
-	
+
 	private final String neverEndingCommand = "cat /dev/urandom";
 	private final String thousandRecordsCommand = "dd if=/dev/zero bs=8 count=1000";
 	private final String failingCommand = "ls /I/do/not/exist";
-	
+
 	@Before
 	public void prepare() {
 		format = new MyExternalProcessTestInputFormat();
 	}
-	
+
 	@Test
 	public void testOpen() {
-		
-		if(OperatingSystem.isWindows())
+
+		if(OperatingSystem.isWindows()) {
 			return;
-		
+		}
+
 		Configuration config = new Configuration();
 		ExternalProcessInputSplit split = new ExternalProcessInputSplit(1, 1, this.neverEndingCommand);
-		
+
 		boolean processDestroyed = false;
 		try {
 			format.configure(config);
 			format.open(split);
-			
+
 			String[] cmd = {"/bin/sh","-c","ps aux | grep -v grep | grep \"cat /dev/urandom\" | wc -l"};
-			
+
 			byte[] wcOut = new byte[128];
 			Process p = Runtime.getRuntime().exec(cmd);
 			p.getInputStream().read(wcOut);
@@ -75,16 +74,17 @@ public class ExternalProcessInputFormatTest {
 			Assert.assertTrue(processDestroyed);
 		}
 	}
-	
+
 	@Test
 	public void testCheckExitCode() {
-		
-		if(OperatingSystem.isWindows())
+
+		if(OperatingSystem.isWindows()) {
 			return;
-		
+		}
+
 		Configuration config = new Configuration();
 		ExternalProcessInputSplit split = new ExternalProcessInputSplit(1, 1, failingCommand);
-		
+
 		format.configure(config);
 		boolean invalidExitCode = false;
 		try {
@@ -101,7 +101,7 @@ public class ExternalProcessInputFormatTest {
 			}
 		}
 		Assert.assertTrue(invalidExitCode);
-		
+
 		invalidExitCode = false;
 		config.setString(ExternalProcessInputFormat.ALLOWEDEXITCODES_PARAMETER_KEY,"0,1,2");
 		format.configure(config);
@@ -119,20 +119,21 @@ public class ExternalProcessInputFormatTest {
 			}
 		}
 		Assert.assertTrue(!invalidExitCode);
-		
+
 	}
-	
+
 	@Test
 	public void testUserCodeTermination() {
-		
-		if(OperatingSystem.isWindows())
+
+		if(OperatingSystem.isWindows()) {
 			return;
-		
+		}
+
 		Configuration config = new Configuration();
 		config.setInteger(MyExternalProcessTestInputFormat.FAILCOUNT_PARAMETER_KEY, 100);
 		ExternalProcessInputSplit split = new ExternalProcessInputSplit(1, 1, this.neverEndingCommand);
 		Record record = new Record();
-	    	    
+
 		boolean userException = false;
 		boolean processDestroyed = false;
 		try {
@@ -157,13 +158,14 @@ public class ExternalProcessInputFormatTest {
 			Assert.assertTrue(userException && processDestroyed);
 		}
 	}
-	
+
 	@Test
 	public void testReadStream() {
-		
-		if(OperatingSystem.isWindows())
+
+		if(OperatingSystem.isWindows()) {
 			return;
-		
+		}
+
 		Configuration config = new Configuration();
 		ExternalProcessInputSplit split = new ExternalProcessInputSplit(1, 1, this.thousandRecordsCommand);
 		Record record = new Record();
@@ -185,31 +187,31 @@ public class ExternalProcessInputFormatTest {
 		}
 		Assert.assertTrue("Expected read count was 1000, actual read count was "+cnt, cnt == 1000);
 	}
-	
+
 	private final class MyExternalProcessTestInputFormat extends ExternalProcessInputFormat<ExternalProcessInputSplit> {
 		private static final long serialVersionUID = 1L;
 
 		public static final String FAILCOUNT_PARAMETER_KEY = "test.failingCount";
-		
+
 		private byte[] buf = new byte[8];
-		
+
 		private long cnt = 0;
 		private int failCnt;
 		private boolean end;
-		
+
 		@Override
 		public void configure(Configuration parameters) {
 			super.configure(parameters);
 			failCnt = parameters.getInteger(FAILCOUNT_PARAMETER_KEY, Integer.MAX_VALUE);
 		}
-		
+
 		@Override
 		public void open(GenericInputSplit split) throws IOException {
 			super.open(split);
-			
+
 			this.end = false;
 		}
-		
+
 		@Override
 		public ExternalProcessInputSplit[] createInputSplits(int minNumSplits) {
 			return null;
@@ -227,42 +229,42 @@ public class ExternalProcessInputFormatTest {
 
 		@Override
 		public Record nextRecord(Record reuse) throws IOException {
-			
+
 			if(cnt > failCnt) {
 				throw new RuntimeException("This is a test exception!");
 			}
-			
+
 			int totalReadCnt = 0;
-			
+
 			do {
 				int readCnt = super.extProcOutStream.read(buf, totalReadCnt, buf.length-totalReadCnt);
-				
+
 				if(readCnt == -1) {
 					this.end = true;
 					return null;
 				} else {
 					totalReadCnt += readCnt;
 				}
-				
+
 			} while(totalReadCnt != 8);
-				
+
 			int v1 = 0;
 			v1 = v1        | (0xFF & buf[0]);
 			v1 = (v1 << 8) | (0xFF & buf[1]);
 			v1 = (v1 << 8) | (0xFF & buf[2]);
 			v1 = (v1 << 8) | (0xFF & buf[3]);
-			
+
 			int v2 = 0;
 			v2 = v2        | (0xFF & buf[4]);
 			v2 = (v2 << 8) | (0xFF & buf[5]);
 			v2 = (v2 << 8) | (0xFF & buf[6]);
 			v2 = (v2 << 8) | (0xFF & buf[7]);
-			
+
 			reuse.setField(0,new IntValue(v1));
 			reuse.setField(1,new IntValue(v2));
-			
+
 			this.cnt++;
-			
+
 			return reuse;
 		}
 

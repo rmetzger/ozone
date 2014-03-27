@@ -40,14 +40,14 @@ import eu.stratosphere.types.Key;
  * @see CoGroupFunction
  */
 public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implements RecordOperator {
-	
+
 	/**
 	 * The types of the keys that the operator groups on.
 	 */
 	private final Class<? extends Key>[] keyTypes;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * Creates a Builder with the provided {@link CoGroupFunction} implementation.
 	 * 
@@ -59,7 +59,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 	public static Builder builder(CoGroupFunction udf, Class<? extends Key> keyClass, int keyColumn1, int keyColumn2) {
 		return new Builder(new UserCodeObjectWrapper<CoGroupFunction>(udf), keyClass, keyColumn1, keyColumn2);
 	}
-	
+
 	/**
 	 * Creates a Builder with the provided {@link CoGroupFunction} implementation.
 	 * 
@@ -73,7 +73,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 	{
 		return new Builder(new UserCodeClassWrapper<CoGroupFunction>(udf), keyClass, keyColumn1, keyColumn2);
 	}
-	
+
 	/**
 	 * The private constructor that only gets invoked from the Builder.
 	 * @param builder
@@ -90,46 +90,46 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 	}
 
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public Class<? extends Key>[] getKeyClasses() {
 		return this.keyTypes;
 	}
-	
+
 	// ---------------------------------------------------------------------------------------
-	
+
 	@Override
 	public boolean isCombinableFirst() {
 		return super.isCombinableFirst() || getUserCodeWrapper().getUserCodeAnnotation(CombinableFirst.class) != null;
 	}
-	
+
 	@Override
 	public boolean isCombinableSecond() {
 		return super.isCombinableSecond() || getUserCodeWrapper().getUserCodeAnnotation(CombinableSecond.class) != null;
 	}
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public static @interface CombinableFirst {};
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public static @interface CombinableSecond {};
-	
+
 	// --------------------------------------------------------------------------------------------
 
-	
+
 	/**
 	 * Builder pattern, straight from Joshua Bloch's Effective Java (2nd Edition).
 	 */
 	public static class Builder {
-		
+
 		/* The required parameters */
 		private final UserCodeWrapper<CoGroupFunction> udf;
 		private final List<Class<? extends Key>> keyClasses;
 		private final List<Integer> keyColumns1;
 		private final List<Integer> keyColumns2;
-		
+
 		/* The optional parameters */
 		private List<Operator> inputs1;
 		private List<Operator> inputs2;
@@ -137,7 +137,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 		private Ordering secondaryOrder1;
 		private Ordering secondaryOrder2;
 		private String name;
-		
+
 		/**
 		 * Creates a Builder with the provided {@link CoGroupFunction} implementation.
 		 * 
@@ -160,7 +160,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.inputs2 = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		/**
 		 * Creates a Builder with the provided {@link JoinFunction} implementation. This method is intended 
 		 * for special case sub-types only.
@@ -176,7 +176,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.inputs2 = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		private int[] getKeyColumnsArray1() {
 			int[] result = new int[keyColumns1.size()];
 			for (int i = 0; i < keyColumns1.size(); ++i) {
@@ -184,7 +184,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			}
 			return result;
 		}
-		
+
 		private int[] getKeyColumnsArray2() {
 			int[] result = new int[keyColumns2.size()];
 			for (int i = 0; i < keyColumns2.size(); ++i) {
@@ -192,7 +192,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			}
 			return result;
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		private Class<? extends Key>[] getKeyClassesArray() {
 			return keyClasses.toArray(new Class[keyClasses.size()]);
@@ -220,7 +220,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.secondaryOrder1 = order;
 			return this;
 		}
-		
+
 		/**
 		 * Sets the order of the elements within a group for the second input.
 		 * 
@@ -230,7 +230,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.secondaryOrder2 = order;
 			return this;
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union) for input 1.
 		 * 
@@ -243,7 +243,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union) for input 2.
 		 * 
@@ -256,7 +256,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets the first inputs.
 		 * 
@@ -266,7 +266,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.inputs1 = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Sets the second inputs.
 		 * 
@@ -276,7 +276,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.inputs2 = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Binds the result produced by a plan rooted at {@code root} to a 
 		 * variable used by the UDF wrapped in this operator.
@@ -285,7 +285,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.broadcastInputs.put(name, input);
 			return this;
 		}
-		
+
 		/**
 		 * Binds multiple broadcast variables.
 		 */
@@ -294,7 +294,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.broadcastInputs.putAll(inputs);
 			return this;
 		}
-		
+
 		/**
 		 * Sets the name of this operator.
 		 * 
@@ -304,7 +304,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			this.name = name;
 			return this;
 		}
-		
+
 		/**
 		 * Creates and returns a CoGroupOperator from using the values given 
 		 * to the builder.
@@ -315,7 +315,7 @@ public class CoGroupOperator extends CoGroupOperatorBase<CoGroupFunction> implem
 			if (keyClasses.size() <= 0) {
 				throw new IllegalStateException("At least one key attribute has to be set.");
 			}
-			
+
 			if (name == null) {
 				name = udf.getUserCodeClass().getName();
 			}

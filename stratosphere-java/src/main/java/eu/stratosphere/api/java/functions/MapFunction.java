@@ -22,6 +22,6 @@ public abstract class MapFunction<IN, OUT> extends AbstractFunction implements G
 
 	private static final long serialVersionUID = 1L;
 
-	
+
 	public abstract OUT map(IN value) throws Exception;
 }

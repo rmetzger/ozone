@@ -27,18 +27,18 @@ import eu.stratosphere.util.Reference;
  *
  */
 public class PlanReduceOperator<T> extends GroupReduceOperatorBase<GenericGroupReduce<Reference<T>,Reference<T>>>
-	implements UnaryJavaPlanNode<T, T>
+implements UnaryJavaPlanNode<T, T>
 {
 
 	private final TypeInformation<T> type;
-	
-	
+
+
 	public PlanReduceOperator(ReduceFunction<T> udf, int[] logicalGroupingFields, String name, TypeInformation<T> type) {
 		super(new ReferenceWrappingReducer<T>(udf), logicalGroupingFields, name);
 		this.type = type;
 	}
-	
-	
+
+
 	@Override
 	public TypeInformation<T> getReturnType() {
 		return this.type;
@@ -48,18 +48,18 @@ public class PlanReduceOperator<T> extends GroupReduceOperatorBase<GenericGroupR
 	public TypeInformation<T> getInputType() {
 		return this.type;
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static final class ReferenceWrappingReducer<T> extends WrappingFunction<ReduceFunction<T>>
-		implements GenericGroupReduce<Reference<T>, Reference<T>>
+	implements GenericGroupReduce<Reference<T>, Reference<T>>
 	{
 
 		private static final long serialVersionUID = 1L;
-		
+
 		private final Reference<T> ref = new Reference<T>();
-		
+
 		private ReferenceWrappingReducer(ReduceFunction<T> wrapped) {
 			super(wrapped);
 		}
@@ -68,11 +68,11 @@ public class PlanReduceOperator<T> extends GroupReduceOperatorBase<GenericGroupR
 		@Override
 		public void reduce(Iterator<Reference<T>> values, Collector<Reference<T>> out) throws Exception {
 			T curr = values.next().ref;
-			
+
 			while (values.hasNext()) {
 				curr = this.wrappedFunction.reduce(curr, values.next().ref);
 			}
-			
+
 			ref.ref = curr;
 			out.collect(ref);
 		}

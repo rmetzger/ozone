@@ -84,7 +84,7 @@ public class CsvOutputFormat extends FileOutputFormat {
 	private String charsetName;
 
 	private boolean lenient;
-	
+
 	private boolean ctorInstantiation = false;
 
 	// --------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ public class CsvOutputFormat extends FileOutputFormat {
 		setTypes(types);
 		ctorInstantiation = true;
 	}
-	
+
 	public void setTypes(Class<? extends Value>... types) {
 		this.classes = types;
 		this.numFields = types.length;
@@ -167,16 +167,16 @@ public class CsvOutputFormat extends FileOutputFormat {
 			}
 			this.recordPositions[i] = i;
 		}
-		
+
 		if (this.fieldDelimiter == null) {
 			this.fieldDelimiter = ",";
 		}
-		
+
 		if (this.recordDelimiter == null) {
 			this.recordDelimiter = "\n";
 		}
 	}
-	
+
 	public void setLenient(boolean lenient) {
 		this.lenient = lenient;
 	}
@@ -186,18 +186,18 @@ public class CsvOutputFormat extends FileOutputFormat {
 		super.configure(parameters);
 
 		int configNumFields = parameters.getInteger(NUM_FIELDS_PARAMETER, -1);
-		
+
 		if (ctorInstantiation) {
 			if (configNumFields > 0) {
 				throw new IllegalStateException("CsvOutputFormat instantiated via both parameters and config.");
 			}				
 			return;										//already configured, no further actions required
 		}
-		
+
 		if (configNumFields < 1) {			
 			throw new IllegalStateException("CsvOutputFormat not configured via parameters or config.");			
 		}
-		
+
 		this.numFields = configNumFields;
 
 		@SuppressWarnings("unchecked")
@@ -252,7 +252,7 @@ public class CsvOutputFormat extends FileOutputFormat {
 	{
 		super.open(taskNumber, numTasks);
 		this.wrt = this.charsetName == null ? new OutputStreamWriter(new BufferedOutputStream(this.stream, 4096)) :
-				new OutputStreamWriter(new BufferedOutputStream(this.stream, 4096), this.charsetName);
+			new OutputStreamWriter(new BufferedOutputStream(this.stream, 4096), this.charsetName);
 	}
 
 	@Override

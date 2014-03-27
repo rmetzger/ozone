@@ -31,33 +31,33 @@ public class PlanDataSource<T> extends GenericDataSource<InputFormat<Reference<T
 
 	public PlanDataSource(InputFormat<T, ?> format, String name, TypeInformation<T> producedType) {
 		super(createWrapper(format), name);
-		
+
 		this.producedType = producedType;
 	}
-	
+
 
 	@Override
 	public TypeInformation<T> getReturnType() {
 		return producedType;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private static <T, S extends InputSplit> ReferenceWrappingInputFormat<T, S> createWrapper(InputFormat<T, ?> format) {
 		return new ReferenceWrappingInputFormat<T, S>((InputFormat<T, S>) format);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static final class ReferenceWrappingInputFormat<T, S extends InputSplit> implements InputFormat<Reference<T>, S> {
 
 		private static final long serialVersionUID = 1L;
 
 		private final InputFormat<T, S> format;
-		
+
 		private final Reference<T> ref = new Reference<T>();
-		
-		
+
+
 		public ReferenceWrappingInputFormat(InputFormat<T, S> format) {
 			this.format = format;
 		}

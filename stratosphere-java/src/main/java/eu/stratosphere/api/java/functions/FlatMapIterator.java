@@ -26,9 +26,9 @@ public abstract class FlatMapIterator<IN, OUT> extends FlatMapFunction<IN, OUT> 
 
 	public abstract Iterator<OUT> flatMap(IN value) throws Exception;
 
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public final void flatMap(IN value, Collector<OUT> out) throws Exception {
 		for (Iterator<OUT> iter = flatMap(value); iter.hasNext(); ) {

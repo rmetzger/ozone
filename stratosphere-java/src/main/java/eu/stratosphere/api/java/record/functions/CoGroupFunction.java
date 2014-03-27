@@ -17,7 +17,6 @@ import java.util.Iterator;
 
 import eu.stratosphere.api.common.functions.AbstractFunction;
 import eu.stratosphere.api.common.functions.GenericCoGrouper;
-import eu.stratosphere.api.java.record.operators.CoGroupOperator;
 import eu.stratosphere.types.Record;
 import eu.stratosphere.util.Collector;
 
@@ -43,7 +42,7 @@ public abstract class CoGroupFunction extends AbstractFunction implements Generi
 	 */
 	@Override
 	public abstract void coGroup(Iterator<Record> records1, Iterator<Record> records2, Collector<Record> out) throws Exception;
-	
+
 	/**
 	 * This method must be overridden by CoGoup UDFs that want to make use of the combining feature
 	 * on their first input. In addition, the extending class must be annotated as CombinableFirst.
@@ -61,7 +60,7 @@ public abstract class CoGroupFunction extends AbstractFunction implements Generi
 	public void combineFirst(Iterator<Record> records, Collector<Record> out) throws Exception {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	/**
 	 * This method must be overridden by CoGoup UDFs that want to make use of the combining feature
 	 * on their second input. In addition, the extending class must be annotated as CombinableSecond.

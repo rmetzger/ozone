@@ -24,8 +24,8 @@ public class ReferenceUnWrappingIterator<T> implements Iterator<T>, java.io.Seri
 	private static final long serialVersionUID = 1L;
 
 	private Iterator<Reference<T>> input;
-	
-	
+
+
 	public void set(Iterator<Reference<T>> input) {
 		this.input = input;
 	}

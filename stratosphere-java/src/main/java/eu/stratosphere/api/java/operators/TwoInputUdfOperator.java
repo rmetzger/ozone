@@ -29,53 +29,53 @@ import eu.stratosphere.configuration.Configuration;
  * @param <OUT> The data type of the returned data set.
  */
 public abstract class TwoInputUdfOperator<IN1, IN2, OUT, O extends TwoInputUdfOperator<IN1, IN2, OUT, O>>
-	extends TwoInputOperator<IN1, IN2, OUT, O> implements UdfOperator<O>
+extends TwoInputOperator<IN1, IN2, OUT, O> implements UdfOperator<O>
 {
 	private Configuration parameters;
-	
+
 	private Map<String, DataSet<?>> broadcastVariables;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	protected TwoInputUdfOperator(DataSet<IN1> input1, DataSet<IN2> input2, TypeInformation<OUT> resultType) {
 		super(input1, input2, resultType);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Fluent API methods
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public O withParameters(Configuration parameters) {
 		this.parameters = parameters;
-		
+
 		@SuppressWarnings("unchecked")
 		O returnType = (O) this;
 		return returnType;
 	}
-	
+
 	@Override
 	public O withBroadcastSet(DataSet<?> data, String name) {
 		if (this.broadcastVariables == null) {
 			this.broadcastVariables = new HashMap<String, DataSet<?>>();
 		}
-		
+
 		this.broadcastVariables.put(name, data);
-		
+
 		@SuppressWarnings("unchecked")
 		O returnType = (O) this;
 		return returnType;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Accessors
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public Map<String, DataSet<?>> getBroadcastSets() {
 		return this.broadcastVariables == null ? Collections.<String, DataSet<?>>emptyMap() : this.broadcastVariables;
 	}
-	
+
 	@Override
 	public Configuration getParameters() {
 		return this.parameters;

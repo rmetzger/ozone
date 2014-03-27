@@ -15,7 +15,6 @@ package eu.stratosphere.api.java.record.functions;
 
 import eu.stratosphere.api.common.functions.AbstractFunction;
 import eu.stratosphere.api.common.functions.GenericCrosser;
-import eu.stratosphere.api.java.record.operators.CrossOperator;
 import eu.stratosphere.types.Record;
 import eu.stratosphere.util.Collector;
 
@@ -23,9 +22,9 @@ import eu.stratosphere.util.Collector;
  * The CrossFunction is the base class for functions that are invoked by a {@link CrossOperator}.
  */
 public abstract class CrossFunction extends AbstractFunction implements GenericCrosser<Record, Record, Record> {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * This method must be implemented to provide a user implementation of a cross.
 	 * It is called for each element of the Cartesian product of both input sets.

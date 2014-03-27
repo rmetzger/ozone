@@ -13,7 +13,11 @@
 
 package eu.stratosphere.api.java.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,19 +27,18 @@ import org.apache.log4j.Level;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import eu.stratosphere.api.java.io.TextInputFormat;
 import eu.stratosphere.configuration.Configuration;
 import eu.stratosphere.core.fs.FileInputSplit;
 import eu.stratosphere.core.fs.Path;
 import eu.stratosphere.util.LogUtils;
 
 public class TextInputFormatTest {
-	
+
 	@BeforeClass
 	public static void initialize() {
 		LogUtils.initializeDefaultConsoleLogger(Level.WARN);
 	}
-	
+
 	/**
 	 * The TextInputFormat seems to fail reading more than one record. I guess its
 	 * an off by one error.
@@ -47,38 +50,38 @@ public class TextInputFormatTest {
 	public void testPositionBug() {
 		final String FIRST = "First line";
 		final String SECOND = "Second line";
-		
+
 		try {
 			// create input file
 			File tempFile = File.createTempFile("TextInputFormatTest", "tmp");
 			tempFile.deleteOnExit();
 			tempFile.setWritable(true);
-			
+
 			PrintStream ps = new  PrintStream(tempFile);
 			ps.println(FIRST);
 			ps.println(SECOND);
 			ps.close();
-			
+
 			TextInputFormat inputFormat = new TextInputFormat(new Path(tempFile.toURI().toString()));
-			
+
 			Configuration parameters = new Configuration(); 
 			inputFormat.configure(parameters);
-			
+
 			FileInputSplit[] splits = inputFormat.createInputSplits(1);
 			assertTrue("expected at least one input split", splits.length >= 1);
-			
+
 			inputFormat.open(splits[0]);
-			
+
 			String result = "";
-			
+
 			result = inputFormat.nextRecord("");
 			assertNotNull("Expecting first record here", result);
 			assertEquals(FIRST, result);
-			
+
 			result = inputFormat.nextRecord(result);
 			assertNotNull("Expecting second record here", result);
 			assertEquals(SECOND, result);
-			
+
 			result = inputFormat.nextRecord(result);
 			assertNull("The input file is over", result);
 		}

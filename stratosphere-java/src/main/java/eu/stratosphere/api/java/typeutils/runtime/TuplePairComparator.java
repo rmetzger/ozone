@@ -24,34 +24,34 @@ import eu.stratosphere.api.java.tuple.Tuple;
 public class TuplePairComparator<T1 extends Tuple, T2 extends Tuple> extends TypePairComparator<T1, T2> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final int[] keyFields1, keyFields2;
 	private final TypeComparator<Object>[] comparators1;
 	private final TypeComparator<Object>[] comparators2;
-	
+
 	@SuppressWarnings("unchecked")
 	public TuplePairComparator(int[] keyFields1, int[] keyFields2, TypeComparator<Object>[] comparators1, TypeComparator<Object>[] comparators2) {
-		
+
 		if(keyFields1.length != keyFields2.length 
-			|| keyFields1.length != comparators1.length
-			|| keyFields2.length != comparators2.length) {
-			
+				|| keyFields1.length != comparators1.length
+				|| keyFields2.length != comparators2.length) {
+
 			throw new IllegalArgumentException("Number of key fields and comparators differ.");
 		}
-		
+
 		int numKeys = keyFields1.length;
-		
+
 		this.keyFields1 = keyFields1;
 		this.keyFields2 = keyFields2;
 		this.comparators1 = new TypeComparator[numKeys];
 		this.comparators2 = new TypeComparator[numKeys];
-		
+
 		for(int i = 0; i < numKeys; i++) {
 			this.comparators1[i] = comparators1[i].duplicate();
 			this.comparators2[i] = comparators2[i].duplicate();
 		}
 	}
-	
+
 	@Override
 	public void setReference(T1 reference) {
 		for(int i=0; i < this.comparators1.length; i++) {
@@ -81,6 +81,6 @@ public class TuplePairComparator<T1 extends Tuple, T2 extends Tuple> extends Typ
 		return 0;
 	}
 
-	
-	
+
+
 }

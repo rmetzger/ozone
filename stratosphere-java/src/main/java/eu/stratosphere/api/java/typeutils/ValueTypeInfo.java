@@ -26,12 +26,12 @@ public class ValueTypeInfo<T extends Value> extends TypeInformation<T> implement
 
 	private final Class<T> type;
 
-	
+
 	public ValueTypeInfo(Class<T> type) {
 		this.type = type;
 	}
-	
-	
+
+
 	@Override
 	public int getArity() {
 		return 1;
@@ -53,8 +53,8 @@ public class ValueTypeInfo<T extends Value> extends TypeInformation<T> implement
 	public boolean isTupleType() {
 		return false;
 	}
-	
-	
+
+
 	@Override
 	public boolean isKeyType() {
 		return Key.class.isAssignableFrom(type);
@@ -70,23 +70,23 @@ public class ValueTypeInfo<T extends Value> extends TypeInformation<T> implement
 			throw new UnsupportedOperationException("Serialization is not yet implemented for Value types that are not CopyableValue subclasses.");
 		}
 	}
-	
+
 	private static <X extends CopyableValue<X>> Serializer<X> createCopyableSerializer(Class<X> clazz) {
 		Serializer<X> ser = new CopyableValueSerializer<X>(clazz);
 		return ser;
 	}
-	
+
 	@Override
 	public TypeComparator<T> createComparator(boolean sortOrderAscending) {
 		throw new UnsupportedOperationException("Value comparators not yet implemented.");
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ValueType<" + type.getName() + ">";
 	}
-	
-	
+
+
 	static final <X extends Value> TypeInformation<X> getValueTypeInfo(Class<X> typeClass) {
 		if (Value.class.isAssignableFrom(typeClass)) {
 			return new ValueTypeInfo<X>(typeClass);

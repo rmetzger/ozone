@@ -28,7 +28,7 @@ public class TextOutputFormat<T> extends FileOutputFormat<T> {
 	private static final long serialVersionUID = 1L;
 
 	private String charsetName;
-	
+
 	private transient Charset charset;
 
 	// --------------------------------------------------------------------------------------------
@@ -36,34 +36,35 @@ public class TextOutputFormat<T> extends FileOutputFormat<T> {
 	public TextOutputFormat(Path outputPath) {
 		this(outputPath, "UTF-8");
 	}
-	
+
 	public TextOutputFormat(Path outputPath, String charset) {
 		super(outputPath);
 		this.charsetName = charset;
 	}
-	
-	
+
+
 	public String getCharsetName() {
 		return charsetName;
 	}
-	
+
 	public void setCharsetName(String charsetName) throws IllegalCharsetNameException, UnsupportedCharsetException {
-		if (charsetName == null)
+		if (charsetName == null) {
 			throw new NullPointerException();
-		
+		}
+
 		if (!Charset.isSupported(charsetName)) {
 			throw new UnsupportedCharsetException("The charset " + charsetName + " is not supported.");
 		}
-		
+
 		this.charsetName = charsetName;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public void open(int taskNumber, int numTasks) throws IOException {
 		super.open(taskNumber, numTasks);
-		
+
 		try {
 			this.charset = Charset.forName(charsetName);
 		}
@@ -74,15 +75,15 @@ public class TextOutputFormat<T> extends FileOutputFormat<T> {
 			throw new IOException("The charset " + charsetName + " is not supported.", e);
 		}
 	}
-	
+
 	@Override
 	public void writeRecord(T record) throws IOException {
 		byte[] bytes = record.toString().getBytes(charset);
 		this.stream.write(bytes);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public String toString() {
 		return "TextOutputFormat (" + getOutputFilePath() + ") - " + this.charsetName;

@@ -31,19 +31,19 @@ public class PlanDataSink<T> extends GenericDataSink {
 		super(new ReferenceWrappingOutputFormat<T>(format), name);
 		this.inputDataType = inputDataType;
 	}
-	
+
 	public TypeInformation<T> getType() {
 		return this.inputDataType;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static final class ReferenceWrappingOutputFormat<T> implements OutputFormat<Reference<T>> {
 
 		private static final long serialVersionUID = 1L;
-		
-		
+
+
 		private final OutputFormat<T> format;
 
 
@@ -66,7 +66,7 @@ public class PlanDataSink<T> extends GenericDataSink {
 		@Override
 		public void writeRecord(Reference<T> record) throws IOException {
 			format.writeRecord(record.ref);
-			
+
 		}
 
 		@Override

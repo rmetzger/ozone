@@ -20,9 +20,9 @@ import eu.stratosphere.api.common.functions.AbstractFunction;
 
 
 public abstract class ReduceWithKeyFunction<K, IN, OUT> extends AbstractFunction {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public abstract OUT reduce(K Key, Iterator<IN> values) throws Exception;
-	
+
 }

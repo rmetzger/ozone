@@ -28,10 +28,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import eu.stratosphere.api.java.record.io.CsvOutputFormat;
 import eu.stratosphere.configuration.Configuration;
-import eu.stratosphere.core.fs.Path;
 import eu.stratosphere.core.fs.FileSystem.WriteMode;
+import eu.stratosphere.core.fs.Path;
 import eu.stratosphere.types.IntValue;
 import eu.stratosphere.types.Record;
 import eu.stratosphere.types.StringValue;
@@ -39,20 +38,20 @@ import eu.stratosphere.types.StringValue;
 public class CsvOutputFormatTest {
 
 	protected Configuration config;
-	
+
 	protected File tempFile;
-	
+
 	private final CsvOutputFormat format = new CsvOutputFormat();
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Before
 	public void setup() throws IOException {
 		this.tempFile = File.createTempFile("test_output", "tmp");
 		this.format.setOutputFilePath(new Path(tempFile.toURI()));
 		this.format.setWriteMode(WriteMode.OVERWRITE);
 	}
-	
+
 	@After
 	public void setdown() throws Exception {
 		if (this.format != null) {
@@ -62,13 +61,13 @@ public class CsvOutputFormatTest {
 			this.tempFile.delete();
 		}
 	}
-	
+
 	@Test
 	public void testConfigure() 
 	{
 		try {
 			Configuration config = new Configuration();
-			
+
 			// check missing number of fields
 			boolean validConfig = true;
 			try {
@@ -79,7 +78,7 @@ public class CsvOutputFormatTest {
 				validConfig = false;
 			}
 			assertFalse(validConfig);
-			
+
 			// check missing file parser
 			config.setInteger(CsvOutputFormat.NUM_FIELDS_PARAMETER, 2);
 			validConfig = true;
@@ -91,7 +90,7 @@ public class CsvOutputFormatTest {
 				validConfig = false;
 			}
 			assertFalse(validConfig);
-			
+
 			// check valid config
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 0, StringValue.class);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, IntValue.class);
@@ -102,7 +101,7 @@ public class CsvOutputFormatTest {
 				validConfig = false;
 			}
 			assertTrue(validConfig);
-			
+
 			// check invalid file parser config
 			config.setInteger(CsvOutputFormat.NUM_FIELDS_PARAMETER, 3);
 			validConfig = true;
@@ -112,7 +111,7 @@ public class CsvOutputFormatTest {
 				validConfig = false;
 			}
 			assertFalse(validConfig);
-			
+
 			// check valid config
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 2, StringValue.class);
 			validConfig = true;
@@ -122,7 +121,7 @@ public class CsvOutputFormatTest {
 				validConfig = false;
 			}
 			assertTrue(validConfig);
-			
+
 			// check valid config
 			config.setString(CsvOutputFormat.FIELD_DELIMITER_PARAMETER, "|");
 			validConfig = true;
@@ -133,7 +132,7 @@ public class CsvOutputFormatTest {
 				System.out.println(iae.getMessage());
 			}
 			assertTrue(validConfig);
-			
+
 			// check invalid text pos config
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 1, 0);
 			validConfig = true;
@@ -143,7 +142,7 @@ public class CsvOutputFormatTest {
 				validConfig = false;
 			}
 			assertFalse(validConfig);
-			
+
 			// check valid text pos config
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 0, 3);
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 2, 9);
@@ -159,7 +158,7 @@ public class CsvOutputFormatTest {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testWriteNoRecPosNoLenient()
 	{
@@ -169,35 +168,35 @@ public class CsvOutputFormatTest {
 			config.setInteger(CsvOutputFormat.NUM_FIELDS_PARAMETER, 2);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 0, StringValue.class);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, IntValue.class);
-			
+
 			format.configure(config);
-			
+
 			try {
 				format.open(0, 1);
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
-			
+
 			Record r = new Record(2);
-			
+
 			try {
 				r.setField(0, new StringValue("Hello World"));
 				r.setField(1, new IntValue(42));
 				format.writeRecord(r);
-				
+
 				r.setField(0, new StringValue("AbCdE"));
 				r.setField(1, new IntValue(13));
 				format.writeRecord(r);
-				
+
 				format.close();
-				
+
 				BufferedReader dis = new BufferedReader(new FileReader(tempFile));
-				
+
 				assertTrue((dis.readLine()+"\n").equals("Hello World|42\n"));
 				assertTrue((dis.readLine()+"\n").equals("AbCdE|13\n"));
-				
+
 				dis.close();
-				
+
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
@@ -206,7 +205,7 @@ public class CsvOutputFormatTest {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testWriteNoRecPosNoLenientFail()
 	{
@@ -216,43 +215,43 @@ public class CsvOutputFormatTest {
 			config.setInteger(CsvOutputFormat.NUM_FIELDS_PARAMETER, 2);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 0, StringValue.class);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, IntValue.class);
-			
+
 			format.configure(config);
-			
+
 			try {
 				format.open(0, 1);
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
-			
+
 			Record r = new Record(2);
-			
+
 			boolean success = true;
-			
+
 			try {
 				r.setField(0, new StringValue("Hello World"));
 				r.setField(1, new IntValue(42));
 				format.writeRecord(r);
-				
+
 				r.setNull(0);
 				r.setField(1, new IntValue(13));
 				format.writeRecord(r);
-				
+
 				format.close();
-							
+
 			} catch (IOException e) {
 				success = false;
 			} catch (RuntimeException re) {
 				success = false;
 			}
-			
+
 			assertFalse(success);
 		}
 		catch (Exception ex) {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testWriteNoRecPosLenient()
 	{
@@ -263,35 +262,35 @@ public class CsvOutputFormatTest {
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 0, StringValue.class);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, IntValue.class);
 			config.setBoolean(CsvOutputFormat.LENIENT_PARSING, true);
-			
+
 			format.configure(config);
-			
+
 			try {
 				format.open(0, 1);
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
-			
+
 			Record r = new Record(2);
-			
+
 			try {
 				r.setField(0, new StringValue("Hello World"));
 				r.setField(1, new IntValue(42));
 				format.writeRecord(r);
-				
+
 				r.setNull(0);
 				r.setField(1, new IntValue(13));
 				format.writeRecord(r);
-				
+
 				format.close();
-				
+
 				BufferedReader dis = new BufferedReader(new FileReader(tempFile));
-				
+
 				assertTrue((dis.readLine()+"\n").equals("Hello World|42\n"));
 				assertTrue((dis.readLine()+"\n").equals("|13\n"));
-				
+
 				dis.close();
-				
+
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
@@ -300,7 +299,7 @@ public class CsvOutputFormatTest {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testWriteRecPosNoLenient()
 	{
@@ -312,37 +311,37 @@ public class CsvOutputFormatTest {
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 0, 2);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, StringValue.class);
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 1, 0);
-			
+
 			format.configure(config);
-			
+
 			try {
 				format.open(0, 1);
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
-			
+
 			Record r = new Record(2);
-			
+
 			try {
 				r.setField(0, new StringValue("Hello World"));
 				r.setField(1, new IntValue(42));
 				r.setField(2, new StringValue("Hello User"));
 				format.writeRecord(r);
-				
+
 				r.setField(0, new StringValue("AbCdE"));
 				r.setField(1, new IntValue(13));
 				r.setField(2, new StringValue("ZyXvW"));
 				format.writeRecord(r);
-				
+
 				format.close();
-				
+
 				BufferedReader dis = new BufferedReader(new FileReader(tempFile));
-				
+
 				assertTrue((dis.readLine()+"\n").equals("Hello User|Hello World\n"));
 				assertTrue((dis.readLine()+"\n").equals("ZyXvW|AbCdE\n"));
-				
+
 				dis.close();
-				
+
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
@@ -351,7 +350,7 @@ public class CsvOutputFormatTest {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testWriteRecPosNoLenientFail()
 	{
@@ -363,46 +362,46 @@ public class CsvOutputFormatTest {
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 0, 2);
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, StringValue.class);
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 1, 0);
-			
+
 			format.configure(config);
-			
+
 			try {
 				format.open(0, 1);
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
-			
+
 			Record r = new Record(2);
-			
+
 			boolean success = true;
-			
+
 			try {
 				r.setField(0, new StringValue("Hello World"));
 				r.setField(1, new IntValue(42));
 				r.setField(2, new StringValue("Hello User"));
 				format.writeRecord(r);
-	
+
 				r = new Record();
-				
+
 				r.setField(0, new StringValue("AbCdE"));
 				r.setField(1, new IntValue(13));
 				format.writeRecord(r);
-				
+
 				format.close();
-				
+
 			} catch (IOException e) {
 				success = false;
 			} catch (RuntimeException re) {
 				success = false;
 			}
-			
+
 			assertFalse(success);
 		}
 		catch (Exception ex) {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testWriteRecPosLenient()
 	{
@@ -415,38 +414,38 @@ public class CsvOutputFormatTest {
 			config.setClass(CsvOutputFormat.FIELD_TYPE_PARAMETER_PREFIX + 1, StringValue.class);
 			config.setInteger(CsvOutputFormat.RECORD_POSITION_PARAMETER_PREFIX + 1, 0);
 			config.setBoolean(CsvOutputFormat.LENIENT_PARSING, true);
-			
+
 			format.configure(config);
-			
+
 			try {
 				format.open(0, 1);
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
-			
+
 			Record r = new Record(2);
-			
+
 			try {
 				r.setField(0, new StringValue("Hello World"));
 				r.setField(1, new IntValue(42));
 				r.setField(2, new StringValue("Hello User"));
 				format.writeRecord(r);
-	
+
 				r = new Record();
-				
+
 				r.setField(0, new StringValue("AbCdE"));
 				r.setField(1, new IntValue(13));
 				format.writeRecord(r);
-				
+
 				format.close();
-				
+
 				BufferedReader dis = new BufferedReader(new FileReader(tempFile));
-				
+
 				assertTrue((dis.readLine()+"\n").equals("Hello User|Hello World\n"));
 				assertTrue((dis.readLine()+"\n").equals("|AbCdE\n"));
-				
+
 				dis.close();
-				
+
 			} catch (IOException e) {
 				fail(e.getMessage());
 			}
@@ -455,6 +454,6 @@ public class CsvOutputFormatTest {
 			Assert.fail("Test failed due to a " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		}
 	}
-		
+
 }
 

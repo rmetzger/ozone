@@ -33,17 +33,18 @@ public class CollectionInputFormat<T> extends GenericInputFormat<T> implements U
 	private final Collection<T> dataSet; // input data as collection
 
 	private transient Iterator<T> iterator;
-	
 
-	
+
+
 	public CollectionInputFormat(Collection<T> dataSet) {
-		if (dataSet == null)
+		if (dataSet == null) {
 			throw new NullPointerException();
-		
+		}
+
 		this.dataSet = dataSet;
 	}
 
-	
+
 	@Override
 	public boolean reachedEnd() throws IOException {
 		return !this.iterator.hasNext();
@@ -52,37 +53,37 @@ public class CollectionInputFormat<T> extends GenericInputFormat<T> implements U
 	@Override
 	public void open(GenericInputSplit split) throws IOException {
 		super.open(split);
-		
+
 		this.iterator = this.dataSet.iterator();
 	}
-	
+
 	@Override
 	public T nextRecord(T record) throws IOException {
 		return this.iterator.next();
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public String toString() {
 		return this.dataSet.toString();
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	public static <X> void checkCollection(Collection<X> elements, Class<X> viewedAs) {
 		if (elements == null || viewedAs == null) {
 			throw new NullPointerException();
 		}
-		
+
 		for (X elem : elements) {
 			if (elem == null) {
 				throw new IllegalArgumentException("The collection must not contain null elements.");
 			}
-			
+
 			if (!viewedAs.isAssignableFrom(elem.getClass())) {
 				throw new IllegalArgumentException("The elements in the collection are not all subclasses of " + 
-							viewedAs.getCanonicalName());
+						viewedAs.getCanonicalName());
 			}
 		}
 	}

@@ -31,8 +31,8 @@ public abstract class Operator<OUT, O extends Operator<OUT, O>> extends DataSet<
 	protected Operator(ExecutionEnvironment context, TypeInformation<OUT> resultType) {
 		super(context, resultType);
 	}
-	
-	
+
+
 	public TypeInformation<OUT> getResultType() {
 		return getType();
 	}

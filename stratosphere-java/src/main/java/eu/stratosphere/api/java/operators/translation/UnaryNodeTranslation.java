@@ -20,16 +20,16 @@ import eu.stratosphere.api.common.operators.SingleInputOperator;
 
 
 public class UnaryNodeTranslation {
-	
+
 	private final SingleInputOperator<?> inputOperator;
-	
+
 	private final SingleInputOperator<?> outputOperator;
 
-	
+
 	public UnaryNodeTranslation(SingleInputOperator<?> operator) {
 		this(operator, operator);
 	}
-	
+
 	public UnaryNodeTranslation(SingleInputOperator<?> inputOperator, SingleInputOperator<?> outputOperator) {
 		this.inputOperator = inputOperator;
 		this.outputOperator = outputOperator;
@@ -38,7 +38,7 @@ public class UnaryNodeTranslation {
 	public void setInput(Operator op) {
 		inputOperator.setInput(op);
 	}
-	
+
 	public SingleInputOperator<?> getOutputOperator() {
 		return outputOperator;
 	}

@@ -21,6 +21,6 @@ import eu.stratosphere.types.Record;
  * file streams.
  */
 public abstract class FileOutputFormat extends eu.stratosphere.api.common.io.FileOutputFormat<Record> {
-	
+
 	private static final long serialVersionUID = 3832934435044920834L;
 }

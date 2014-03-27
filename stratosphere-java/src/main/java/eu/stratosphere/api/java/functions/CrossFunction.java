@@ -20,14 +20,14 @@ import eu.stratosphere.util.Collector;
 
 
 public abstract class CrossFunction<IN1, IN2, OUT> extends AbstractFunction implements GenericCrosser<IN1, IN2, OUT>{
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 
 	public abstract OUT cross(IN1 first, IN2 second) throws Exception;
-	
-	
-	
+
+
+
 	@Override
 	public final void cross(IN1 record1, IN2 record2, Collector<OUT> out) throws Exception {
 		out.collect(cross(record1, record2));

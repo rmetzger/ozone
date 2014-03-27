@@ -21,23 +21,23 @@ import eu.stratosphere.api.common.operators.SingleInputOperator;
 
 
 public class BinaryNodeTranslation {
-	
+
 	private final SingleInputOperator<?> input1Operator;
-	
+
 	private final SingleInputOperator<?> input2Operator;
-	
+
 	private final DualInputOperator<?> binaryInputOperator;
-	
+
 	private final DualInputOperator<?> outputOperator;
 
-	
+
 	public BinaryNodeTranslation(DualInputOperator<?> operator) {
 		this.input1Operator = null;
 		this.input2Operator = null;
 		this.binaryInputOperator = operator;
 		this.outputOperator = operator;
 	}
-	
+
 	public BinaryNodeTranslation(SingleInputOperator<?> input1, SingleInputOperator<?> input2, DualInputOperator<?>  output) {
 		this.input1Operator = input1;
 		this.input2Operator = input2;
@@ -45,7 +45,7 @@ public class BinaryNodeTranslation {
 		this.outputOperator = output;
 	}
 
-	
+
 	public void setInput1(Operator op) {
 		if (input1Operator == null) {
 			binaryInputOperator.setFirstInput(op);
@@ -53,7 +53,7 @@ public class BinaryNodeTranslation {
 			input1Operator.setInput(op);
 		}
 	}
-	
+
 	public void setInput2(Operator op) {
 		if (input2Operator == null) {
 			binaryInputOperator.setSecondInput(op);
@@ -61,7 +61,7 @@ public class BinaryNodeTranslation {
 			input2Operator.setInput(op);
 		}
 	}
-	
+
 	public DualInputOperator<?> getOutputOperator() {
 		return outputOperator;
 	}

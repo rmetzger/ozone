@@ -23,9 +23,9 @@ import eu.stratosphere.util.Collector;
  * By definition, the mapper is called for each individual input record.
  */
 public abstract class MapFunction extends AbstractFunction implements GenericCollectorMap<Record, Record> {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * This method must be implemented to provide a user implementation of a mapper.
 	 * It is called for each individual record.

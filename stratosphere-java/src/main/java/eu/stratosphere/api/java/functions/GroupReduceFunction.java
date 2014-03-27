@@ -26,21 +26,21 @@ import eu.stratosphere.util.Collector;
 
 
 public abstract class GroupReduceFunction<IN, OUT> extends AbstractFunction implements GenericGroupReduce<IN, OUT> {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public abstract void reduce(Iterator<IN> values, Collector<OUT> out) throws Exception;
-	
+
 	@Override
 	public void combine(Iterator<IN> values, Collector<IN> out) throws Exception {
 		@SuppressWarnings("unchecked")
 		Collector<OUT> c = (Collector<OUT>) out;
 		reduce(values, c);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public static @interface Combinable {};

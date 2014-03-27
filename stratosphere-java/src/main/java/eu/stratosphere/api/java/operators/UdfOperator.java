@@ -21,20 +21,20 @@ import eu.stratosphere.configuration.Configuration;
 
 
 public interface UdfOperator<O extends UdfOperator<O>> {
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Accessors
 	// --------------------------------------------------------------------------------------------
-	
+
 	Configuration getParameters();
-	
+
 	Map<String, DataSet<?>> getBroadcastSets();
-	
+
 	// --------------------------------------------------------------------------------------------
 	// Fluent API methods
 	// --------------------------------------------------------------------------------------------
-	
+
 	O withParameters(Configuration parameters);
-	 
+
 	O withBroadcastSet(DataSet<?> data, String name);
 }

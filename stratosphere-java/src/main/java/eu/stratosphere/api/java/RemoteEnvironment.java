@@ -20,38 +20,40 @@ import eu.stratosphere.api.common.PlanExecutor;
 
 
 public class RemoteEnvironment extends ExecutionEnvironment {
-	
+
 	private final String host;
-	
+
 	private final int port;
-	
+
 	private final String[] jarFiles;
-	
-	
+
+
 	public RemoteEnvironment(String host, int port, String... jarFiles) {
 		super();
-		
-		if (host == null)
+
+		if (host == null) {
 			throw new NullPointerException("Host must not be null.");
-		
-		if (port < 1 || port >= 0xffff)
+		}
+
+		if (port < 1 || port >= 0xffff) {
 			throw new IllegalArgumentException("Port out of range");
-		
+		}
+
 		this.host = host;
 		this.port = port;
 		this.jarFiles = jarFiles;
 	}
-	
-	
+
+
 	@Override
 	public JobExecutionResult execute(String jobName) throws Exception {
 		Plan p = createPlan(jobName);
 		p.setDefaultParallelism(getDegreeOfParallelism());
-		
+
 		PlanExecutor executor = PlanExecutor.createRemoteExecutor(host, port, jarFiles);
 		return executor.executePlan(p);
 	}
-	
+
 	@Override
 	public String getExecutionPlan() throws Exception {
 		throw new UnsupportedOperationException("Execution plan can currently not be fetched from remote/cluster execution context.");

@@ -39,16 +39,16 @@ import eu.stratosphere.types.Key;
  * @see ReduceFunction
  */
 public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> implements RecordOperator {
-	
+
 	private static final String DEFAULT_NAME = "<Unnamed Reducer>";		// the default name for contracts
-	
+
 	/**
 	 * The types of the keys that the contract operates on.
 	 */
 	private final Class<? extends Key>[] keyTypes;
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * Creates a Builder with the provided {@link ReduceFunction} implementation.
 	 * 
@@ -57,7 +57,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 	public static Builder builder(ReduceFunction udf) {
 		return new Builder(new UserCodeObjectWrapper<ReduceFunction>(udf));
 	}
-	
+
 	/**
 	 * Creates a Builder with the provided {@link ReduceFunction} implementation.
 	 * 
@@ -77,7 +77,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 	public static Builder builder(Class<? extends ReduceFunction> udf) {
 		return new Builder(new UserCodeClassWrapper<ReduceFunction>(udf));
 	}
-	
+
 	/**
 	 * Creates a Builder with the provided {@link ReduceFunction} implementation.
 	 * 
@@ -88,7 +88,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 	public static Builder builder(Class<? extends ReduceFunction> udf, Class<? extends Key> keyClass, int keyColumn) {
 		return new Builder(new UserCodeClassWrapper<ReduceFunction>(udf), keyClass, keyColumn);
 	}
-	
+
 	/**
 	 * The private constructor that only gets invoked from the Builder.
 	 * @param builder
@@ -101,22 +101,22 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 		setBroadcastVariables(builder.broadcastInputs);
 		setSemanticProperties(FunctionAnnotation.readSingleConstantAnnotations(builder.udf));
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 
 	@Override
 	public Class<? extends Key>[] getKeyClasses() {
 		return this.keyTypes;
 	}
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 	@Override
 	public boolean isCombinable() {
 		return super.isCombinable() || getUserCodeWrapper().getUserCodeAnnotation(Combinable.class) != null;
 	}
-	
+
 	/**
 	 * This annotation marks reduce stubs as eligible for the usage of a combiner.
 	 * 
@@ -156,26 +156,26 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public static @interface Combinable {};
-	
+
 	// --------------------------------------------------------------------------------------------
-	
+
 
 	/**
 	 * Builder pattern, straight from Joshua Bloch's Effective Java (2nd Edition).
 	 */
 	public static class Builder {
-		
+
 		/* The required parameters */
 		private final UserCodeWrapper<ReduceFunction> udf;
 		private final List<Class<? extends Key>> keyClasses;
 		private final List<Integer> keyColumns;
-		
+
 		/* The optional parameters */
 		private Ordering secondaryOrder = null;
 		private List<Operator> inputs;
 		private Map<String, Operator> broadcastInputs;
 		private String name = DEFAULT_NAME;
-		
+
 		/**
 		 * Creates a Builder with the provided {@link ReduceFunction} implementation.
 		 * 
@@ -188,7 +188,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.inputs = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		/**
 		 * Creates a Builder with the provided {@link ReduceFunction} implementation.
 		 * 
@@ -205,7 +205,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.inputs = new ArrayList<Operator>();
 			this.broadcastInputs = new HashMap<String, Operator>();
 		}
-		
+
 		private int[] getKeyColumnsArray() {
 			int[] result = new int[keyColumns.size()];
 			for (int i = 0; i < keyColumns.size(); ++i) {
@@ -213,7 +213,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			}
 			return result;
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		private Class<? extends Key>[] getKeyClassesArray() {
 			return keyClasses.toArray(new Class[keyClasses.size()]);
@@ -230,7 +230,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			keyColumns.add(keyColumn);
 			return this;
 		}
-		
+
 		/**
 		 * Sets the order of the elements within a group.
 		 * 
@@ -240,7 +240,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.secondaryOrder = order;
 			return this;
 		}
-		
+
 		/**
 		 * Sets one or several inputs (union).
 		 * 
@@ -253,7 +253,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			}
 			return this;
 		}
-		
+
 		/**
 		 * Sets the inputs.
 		 * 
@@ -263,7 +263,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.inputs = inputs;
 			return this;
 		}
-		
+
 		/**
 		 * Binds the result produced by a plan rooted at {@code root} to a 
 		 * variable used by the UDF wrapped in this operator.
@@ -272,7 +272,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.broadcastInputs.put(name, input);
 			return this;
 		}
-		
+
 		/**
 		 * Binds multiple broadcast variables.
 		 */
@@ -281,7 +281,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.broadcastInputs.putAll(inputs);
 			return this;
 		}
-		
+
 		/**
 		 * Sets the name of this operator.
 		 * 
@@ -291,7 +291,7 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 			this.name = name;
 			return this;
 		}
-		
+
 		/**
 		 * Creates and returns a ReduceOperator from using the values given 
 		 * to the builder.

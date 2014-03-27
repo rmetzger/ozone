@@ -18,7 +18,7 @@ package eu.stratosphere.api.java.aggregation;
  *
  */
 public enum Aggregations {
-	
+
 	SUM,
 	MIN,
 	MAX,

@@ -27,13 +27,13 @@ import eu.stratosphere.util.InstantiationUtil;
 public class CopyableValueSerializer<T extends CopyableValue<T>> extends Serializer<T> {
 
 	private static final long serialVersionUID = 1L;
-	
-	
+
+
 	private final Class<T> valueClass;
-	
+
 	private final T instance;
-	
-	
+
+
 	public CopyableValueSerializer(Class<T> valueClass) {
 		this.valueClass = valueClass;
 		this.instance = createInstance();

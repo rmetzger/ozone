@@ -21,6 +21,6 @@ import eu.stratosphere.api.common.typeutils.TypeComparator;
  *
  */
 public interface AtomicType<T> {
-	
+
 	TypeComparator<T> createComparator(boolean sortOrderAscending);
 }

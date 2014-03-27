@@ -24,24 +24,24 @@ import eu.stratosphere.api.java.functions.KeySelector;
  *
  */
 public class ReflectKeyExtractorGenerator {
-	
-	
+
+
 	public static <IN, KEY> KeySelector<IN, KEY> generateKeyExtractor(TypeInformation<IN> type, String expression) {
 		return null;
 	}
-	
-	
+
+
 	@SuppressWarnings("unused")
 	private static final class DirectReflectKeyAccessor<IN, KEY> extends KeySelector<IN, KEY> implements Serializable {
 		private static final long serialVersionUID = 1L;
-		
+
 		private final Field field;
-		
+
 		private DirectReflectKeyAccessor(Field field) {
 			this.field = field;
 			this.field.setAccessible(true);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public KEY getKey(IN value) {

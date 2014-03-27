@@ -33,11 +33,11 @@ import eu.stratosphere.util.Reference;
 public class ReferenceWrappedSerializer<T> extends TypeSerializer<Reference<T>> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	
+
+
 	private final Serializer<T> serializer;
-	
-	
+
+
 	public ReferenceWrappedSerializer(Serializer<T> serializer) {
 		this.serializer = serializer;
 	}
@@ -81,29 +81,29 @@ public class ReferenceWrappedSerializer<T> extends TypeSerializer<Reference<T>> 
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		this.serializer.copy(source, target);
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------------------------------
 	// --------------------------------------------------------------------------------------------
-	
-	
+
+
 	public static final class ReferenceWrappedSerializerFactory<T> implements TypeSerializerFactory<Reference<T>>, java.io.Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 
 		private static final String CONFIG_KEY = "SER_DATA";
-		
+
 		private ReferenceWrappedSerializer<T> serializer;
-		
-		
+
+
 		public ReferenceWrappedSerializerFactory() {}
-		
+
 		public ReferenceWrappedSerializerFactory(ReferenceWrappedSerializer<T> serializer) {
 			this.serializer = serializer;
 		}
-		
-		
+
+
 		@Override
 		public void writeParametersToConfig(Configuration config) {
 			try {

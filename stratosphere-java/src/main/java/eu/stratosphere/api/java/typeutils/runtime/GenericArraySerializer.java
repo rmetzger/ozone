@@ -31,17 +31,17 @@ public class GenericArraySerializer<C> extends Serializer<C[]> {
 	private static final long serialVersionUID = 1L;
 
 	private final Class<C> componentClass;
-	
+
 	private final Serializer<C> componentSerializer;
-	
-	
-	
+
+
+
 	public GenericArraySerializer(Class<C> componentClass, Serializer<C> componentSerializer) {
 		this.componentClass = componentClass;
 		this.componentSerializer = componentSerializer;
 	}
 
-	
+
 	@Override
 	public C[] createInstance() {
 		return create(0);
@@ -52,7 +52,7 @@ public class GenericArraySerializer<C> extends Serializer<C[]> {
 		if (reuse.length != from.length) {
 			reuse = create(from.length);
 		}
-		
+
 		System.arraycopy(from, 0, reuse, 0, from.length);
 		return reuse;
 	}
@@ -79,11 +79,11 @@ public class GenericArraySerializer<C> extends Serializer<C[]> {
 	@Override
 	public C[] deserialize(C[] reuse, DataInputView source) throws IOException {
 		int len = source.readInt();
-		
+
 		if (reuse.length != len) {
 			reuse = create(len);
 		}
-		
+
 		for (int i = 0; i < len; i++) {
 			boolean isNonNull = source.readBoolean();
 			if (isNonNull) {
@@ -92,7 +92,7 @@ public class GenericArraySerializer<C> extends Serializer<C[]> {
 				reuse[i] = null;
 			}
 		}
-		
+
 		return reuse;
 	}
 
@@ -100,17 +100,17 @@ public class GenericArraySerializer<C> extends Serializer<C[]> {
 	public void copy(DataInputView source, DataOutputView target) throws IOException {
 		int len = source.readInt();
 		target.writeInt(len);
-		
+
 		for (int i = 0; i < len; i++) {
 			boolean isNonNull = source.readBoolean();
 			target.writeBoolean(isNonNull);
-			
+
 			if (isNonNull) {
 				componentSerializer.copy(source, target);
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private final C[] create(int len) {
 		return (C[]) Array.newInstance(componentClass, len);
