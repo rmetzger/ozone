@@ -162,7 +162,7 @@ public class ApplicationMaster {
 		AMRMClient<ContainerRequest> rmClient = AMRMClient.createAMRMClient();
 		rmClient.init(conf);
 		rmClient.start();
-
+		
 		NMClient nmClient = NMClient.createNMClient();
 		nmClient.init(conf);
 		nmClient.start();

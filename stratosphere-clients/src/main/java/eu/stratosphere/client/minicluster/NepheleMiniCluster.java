@@ -33,38 +33,38 @@ import eu.stratosphere.nephele.jobmanager.JobManager.ExecutionMode;
 
 
 public class NepheleMiniCluster {
-	
+
 	private static final Log LOG = LogFactory.getLog(NepheleMiniCluster.class);
-	
+
 	private static final int DEFAULT_JM_RPC_PORT = 6498;
-	
+
 	private static final int DEFAULT_TM_RPC_PORT = 6501;
-	
+
 	private static final int DEFAULT_TM_DATA_PORT = 7501;
-	
+
 	private static final boolean DEFAULT_VISUALIZER_ENABLED = true;
 
 	// --------------------------------------------------------------------------------------------
-	
+
 	private final Object startStopLock = new Object();
-	
+
 	private int jobManagerRpcPort = DEFAULT_JM_RPC_PORT;
-	
+
 	private int taskManagerRpcPort = DEFAULT_TM_RPC_PORT;
-	
+
 	private int taskManagerDataPort = DEFAULT_TM_DATA_PORT;
-	
+
 	private String configDir;
 
 	private String hdfsConfigFile;
 
 	private boolean visualizerEnabled = DEFAULT_VISUALIZER_ENABLED;
-	
+
 	private boolean defaultOverwriteFiles = false;
-	
+
 	private boolean defaultAlwaysCreateDirectory = false;
 
-	
+
 	private Thread runner;
 
 	private JobManager jobManager;
@@ -76,7 +76,7 @@ public class NepheleMiniCluster {
 	public int getJobManagerRpcPort() {
 		return jobManagerRpcPort;
 	}
-	
+
 	public void setJobManagerRpcPort(int jobManagerRpcPort) {
 		this.jobManagerRpcPort = jobManagerRpcPort;
 	}
@@ -96,7 +96,7 @@ public class NepheleMiniCluster {
 	public void setTaskManagerDataPort(int taskManagerDataPort) {
 		this.taskManagerDataPort = taskManagerDataPort;
 	}
-	
+
 	public String getConfigDir() {
 		return configDir;
 	}
@@ -108,47 +108,47 @@ public class NepheleMiniCluster {
 	public String getHdfsConfigFile() {
 		return hdfsConfigFile;
 	}
-	
+
 	public void setHdfsConfigFile(String hdfsConfigFile) {
 		this.hdfsConfigFile = hdfsConfigFile;
 	}
-	
+
 	public boolean isVisualizerEnabled() {
 		return visualizerEnabled;
 	}
-	
+
 	public void setVisualizerEnabled(boolean visualizerEnabled) {
 		this.visualizerEnabled = visualizerEnabled;
 	}
-	
+
 	public boolean isDefaultOverwriteFiles() {
 		return defaultOverwriteFiles;
 	}
-	
+
 	public void setDefaultOverwriteFiles(boolean defaultOverwriteFiles) {
 		this.defaultOverwriteFiles = defaultOverwriteFiles;
 	}
-	
+
 	public boolean isDefaultAlwaysCreateDirectory() {
 		return defaultAlwaysCreateDirectory;
 	}
-	
+
 	public void setDefaultAlwaysCreateDirectory(boolean defaultAlwaysCreateDirectory) {
 		this.defaultAlwaysCreateDirectory = defaultAlwaysCreateDirectory;
 	}
 
-	
+
 	// ------------------------------------------------------------------------
 	// Life cycle and Job Submission
 	// ------------------------------------------------------------------------
-	
+
 	public JobClient getJobClient(JobGraph jobGraph) throws Exception {
 		Configuration configuration = jobGraph.getJobConfiguration();
 		configuration.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		configuration.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, jobManagerRpcPort);
 		return new JobClient(jobGraph, configuration);
 	}
-	
+
 	public void start() throws Exception {
 		synchronized (startStopLock) {
 			// set up the global configuration
@@ -159,16 +159,19 @@ public class NepheleMiniCluster {
 					taskManagerDataPort, hdfsConfigFile, visualizerEnabled, defaultOverwriteFiles, defaultAlwaysCreateDirectory);
 				GlobalConfiguration.includeConfiguration(conf);
 			}
-			
+			Configuration c = new Configuration();
+			c.setInteger("taskmanager.setup.periodictaskinterval", 100);
+			GlobalConfiguration.includeConfiguration(c);
+
 			// force the input/output format classes to load the default values from the configuration.
 			// we need to do this here, because the format classes may have been initialized before the mini cluster was started
 			initializeIOFormatClasses();
-			
+
 			// before we start the jobmanager, we need to make sure that there are no lingering IPC threads from before
 			// check that all threads are done before we return
 			Thread[] allThreads = new Thread[Thread.activeCount()];
 			int numThreads = Thread.enumerate(allThreads);
-			
+
 			for (int i = 0; i < numThreads; i++) {
 				Thread t = allThreads[i];
 				String name = t.getName();
@@ -176,7 +179,7 @@ public class NepheleMiniCluster {
 					t.join();
 				}
 			}
-			
+
 			// start the job manager
 			jobManager = new JobManager(ExecutionMode.LOCAL);
 			runner = new Thread("JobManager Task Loop") {
@@ -188,7 +191,7 @@ public class NepheleMiniCluster {
 			};
 			runner.setDaemon(true);
 			runner.start();
-	
+
 			waitForJobManagerToBecomeReady();
 		}
 	}
@@ -199,7 +202,7 @@ public class NepheleMiniCluster {
 				jobManager.shutdown();
 				jobManager = null;
 			}
-	
+
 			if (runner != null) {
 				runner.interrupt();
 				runner.join();
@@ -211,20 +214,21 @@ public class NepheleMiniCluster {
 	// ------------------------------------------------------------------------
 	// Network utility methods
 	// ------------------------------------------------------------------------
-	
+
 	private void waitForJobManagerToBecomeReady() throws InterruptedException {
 		Map<InstanceType, InstanceTypeDescription> instanceMap;
 		while ((instanceMap = jobManager.getMapOfAvailableInstanceTypes()) == null || instanceMap.isEmpty()) {
+			LOG.info("waiting");
 			Thread.sleep(100);
 		}
 	}
-	
+
 	private static void initializeIOFormatClasses() {
 		try {
 			Method im = FileInputFormat.class.getDeclaredMethod("initDefaultsFromConfiguration");
 			im.setAccessible(true);
 			im.invoke(null);
-			
+
 			Method om = FileOutputFormat.class.getDeclaredMethod("initDefaultsFromConfiguration");
 			om.setAccessible(true);
 			om.invoke(null);
@@ -233,33 +237,33 @@ public class NepheleMiniCluster {
 			LOG.error("Cannot (re) initialize the globally loaded defaults. Some classes might mot follow the specified default behavior.");
 		}
 	}
-	
+
 	public static Configuration getMiniclusterDefaultConfig(int jobManagerRpcPort, int taskManagerRpcPort,
 			int taskManagerDataPort, String hdfsConfigFile, boolean visualization,
 			boolean defaultOverwriteFiles, boolean defaultAlwaysCreateDirectory)
 	{
 		final Configuration config = new Configuration();
-		
+
 		// addresses and ports
 		config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, "localhost");
 		config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, jobManagerRpcPort);
 		config.setInteger(ConfigConstants.TASK_MANAGER_IPC_PORT_KEY, taskManagerRpcPort);
 		config.setInteger(ConfigConstants.TASK_MANAGER_DATA_PORT_KEY, taskManagerDataPort);
-		
+
 		// with the low dop, we can use few RPC handlers
 		config.setInteger(ConfigConstants.JOB_MANAGER_IPC_HANDLERS_KEY, 2);
-		
+
 		// polling interval
 		config.setInteger(ConfigConstants.JOBCLIENT_POLLING_INTERVAL_KEY, 2);
-		
+
 		// enable / disable features
 		config.setBoolean("jobmanager.visualization.enable", visualization);
-		
+
 		// hdfs
 		if (hdfsConfigFile != null) {
 			config.setString(ConfigConstants.HDFS_DEFAULT_CONFIG, hdfsConfigFile);
 		}
-		
+
 		// file system behavior
 		config.setBoolean(ConfigConstants.FILESYSTEM_DEFAULT_OVERWRITE_KEY, defaultOverwriteFiles);
 		config.setBoolean(ConfigConstants.FILESYSTEM_OUTPUT_ALWAYS_CREATE_DIRECTORY_KEY, defaultAlwaysCreateDirectory);

@@ -149,7 +149,7 @@ public class TaskManager implements TaskOperationProtocol {
 	 * {@link GlobalConfiguration}, which must be loaded prior to instantiating the task manager.
 	 */
 	public TaskManager(final int taskManagersPerJVM) throws Exception {
-		LOG.info("Current user "+UserGroupInformation.getCurrentUser().getShortUserName());
+		//LOG.info("Current user "+UserGroupInformation.getCurrentUser().getShortUserName());
 		LOG.info("user property: "+System.getProperty("user.name"));
 		// IMPORTANT! At this point, the GlobalConfiguration must have been read!
 		final String address = GlobalConfiguration.getString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, null);
