@@ -44,22 +44,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.api.ApplicationConstants;
-import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
-import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
-import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
-import org.apache.hadoop.yarn.api.records.YarnClusterMetrics;
-import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.client.api.YarnClientApplication;
-import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -283,12 +267,12 @@ public class Client {
 		conf = Utils.initializeYarnConfiguration();
 		
 		// intialize HDFS
-	    LOG.info("Copy App Master jar from local filesystem and add to local environment");
-	    // Copy the application master jar to the filesystem 
-	    // Create a local resource to point to the destination jar path 
-	    final FileSystem fs = FileSystem.get(conf);
-	    
-	    // Create yarnClient
+		LOG.info("Copy App Master jar from local filesystem and add to local environment");
+		// Copy the application master jar to the filesystem 
+		// Create a local resource to point to the destination jar path 
+		final FileSystem fs = FileSystem.get(conf);
+		
+		// Create yarnClient
 		final YarnClient yarnClient = YarnClient.createYarnClient();
 		yarnClient.init(conf);
 		yarnClient.start();
@@ -391,7 +375,7 @@ public class Client {
 		fs.setPermission(paths[2], permission); // set permission for path.
 		Utils.setTokensFor(amContainer, paths, this.conf);
 		
-         
+		
 		amContainer.setLocalResources(localResources);
 		fs.close();
 
@@ -421,10 +405,10 @@ public class Client {
 		appContext.setQueue(queue);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-		   @Override
-		   public void run() {
-		    try {
-		    	LOG.info("Killing the Stratosphere-YARN application.");
+		@Override
+		public void run() {
+			try {
+				LOG.info("Killing the Stratosphere-YARN application.");
 				yarnClient.killApplication(appId);
 				LOG.info("Deleting files in "+paths[2]);
 				FileSystem shutFS = FileSystem.get(conf);
@@ -433,10 +417,10 @@ public class Client {
 			} catch (Exception e) {
 				LOG.warn("Exception while killing the YARN application", e);
 			}
-		    LOG.info("YARN Client is shutting down");
-		    yarnClient.stop();
-		   }
-		  });
+			LOG.info("YARN Client is shutting down");
+			yarnClient.stop();
+		}
+		});
 		
 		LOG.info("Submitting application master " + appId);
 		yarnClient.submitApplication(appContext);
@@ -459,7 +443,9 @@ public class Client {
 			}
 			if(!told) {
 				System.err.print(el[i++]+"\r");
-				if(i == el.length) i = 0;
+				if(i == el.length) {
+					i = 0;
+				}
 				Thread.sleep(500); // wait for the application to switch to RUNNING
 			} else {
 				Thread.sleep(5000);
