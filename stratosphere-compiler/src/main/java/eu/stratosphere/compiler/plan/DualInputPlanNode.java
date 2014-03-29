@@ -25,7 +25,6 @@ import java.util.NoSuchElementException;
 import eu.stratosphere.api.common.operators.util.FieldList;
 import eu.stratosphere.api.common.typeutils.TypeComparatorFactory;
 import eu.stratosphere.api.common.typeutils.TypePairComparatorFactory;
-import eu.stratosphere.compiler.costs.Costs;
 import eu.stratosphere.compiler.dag.OptimizerNode;
 import eu.stratosphere.compiler.dag.TwoInputNode;
 import eu.stratosphere.pact.runtime.shipping.ShipStrategyType;
@@ -185,8 +184,9 @@ public class DualInputPlanNode extends PlanNode {
 					} else if (this.hasLeft == 1) {
 						this.hasLeft = 0;
 						return DualInputPlanNode.this.input2.getSource();
-					} else
+					} else {
 						throw new NoSuchElementException();
+					}
 				}
 				@Override
 				public void remove() {
@@ -224,8 +224,9 @@ public class DualInputPlanNode extends PlanNode {
 				} else if (this.hasLeft == 1) {
 					this.hasLeft = 0;
 					return DualInputPlanNode.this.input2;
-				} else
+				} else {
 					throw new NoSuchElementException();
+				}
 			}
 			@Override
 			public void remove() {

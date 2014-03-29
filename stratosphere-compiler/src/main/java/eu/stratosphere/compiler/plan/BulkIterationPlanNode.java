@@ -141,8 +141,9 @@ public class BulkIterationPlanNode extends SingleInputPlanNode implements Iterat
 	public void acceptForStepFunction(Visitor<PlanNode> visitor) {
 		this.rootOfStepFunction.accept(visitor);
 		
-		if(this.rootOfTerminationCriterion != null)
+		if(this.rootOfTerminationCriterion != null) {
 			this.rootOfTerminationCriterion.accept(visitor);
+		}
 		
 	}
 

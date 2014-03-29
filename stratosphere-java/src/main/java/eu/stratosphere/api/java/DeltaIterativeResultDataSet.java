@@ -33,14 +33,14 @@ public class DeltaIterativeResultDataSet<T, U> extends DataSet<T> {
 	private TypeInformation<U> typeWS;
 
 	DeltaIterativeResultDataSet(ExecutionEnvironment context,
-	                       TypeInformation<T> typeSS,
-	                       TypeInformation<U> typeWS,
-	                       DeltaIterativeDataSet<T, U> iterationHead,
-	                       DeltaIterativeDataSet<T, U> iterationHeadSolutionSet,
-	                       DataSet<T> nextSolutionSet,
-	                       DataSet<U> nextWorkset,
-	                       int [] keyPositions,
-	                       int maxIterations)
+								TypeInformation<T> typeSS,
+								TypeInformation<U> typeWS,
+								DeltaIterativeDataSet<T, U> iterationHead,
+								DeltaIterativeDataSet<T, U> iterationHeadSolutionSet,
+								DataSet<T> nextSolutionSet,
+								DataSet<U> nextWorkset,
+								int [] keyPositions,
+								int maxIterations)
 	{
 		super(context, typeSS);
 		this.iterationHead = iterationHead;

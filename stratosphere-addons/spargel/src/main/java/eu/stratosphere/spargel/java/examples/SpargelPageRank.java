@@ -31,52 +31,52 @@ import eu.stratosphere.util.Collector;
  */
 @SuppressWarnings("serial")
 public class SpargelPageRank {
-	
+
 	private static final double BETA = 0.85;
 
-	
+
 	public static void main(String[] args) throws Exception {
 		final int numVertices = 100;
-		
+
 		ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-		
+
 		// enumerate some sample edges and assign an initial uniform probability (rank)
 		DataSet<Tuple2<Long, Double>> intialRanks = env.generateSequence(1, numVertices)
-		                        .map(new MapFunction<Long, Tuple2<Long, Double>>() {
-		                        	public Tuple2<Long, Double> map(Long value) {
-		                        		return new Tuple2<Long, Double>(value, 1.0/numVertices);
-		                        	}
-		                        });
-		
+								.map(new MapFunction<Long, Tuple2<Long, Double>>() {
+									public Tuple2<Long, Double> map(Long value) {
+										return new Tuple2<Long, Double>(value, 1.0/numVertices);
+									}
+								});
+
 		// generate some random edges. the transition probability on each edge is 1/num-out-edges of the source vertex
 		DataSet<Tuple3<Long, Long, Double>> edgesWithProbability = env.generateSequence(1, numVertices)
-		                        .flatMap(new FlatMapFunction<Long, Tuple3<Long, Long, Double>>() {
-		                        	public void flatMap(Long value, Collector<Tuple3<Long, Long, Double>> out) {
-		                        		int numOutEdges = (int) (Math.random() * (numVertices / 2));
-		                        		for (int i = 0; i < numOutEdges; i++) {
-		                        			long target = (long) (Math.random() * numVertices) + 1;
-		                        			out.collect(new Tuple3<Long, Long, Double>(value, target, 1.0/numOutEdges));
-		                        		}
-		                        	}
-		                        });
-		
+								.flatMap(new FlatMapFunction<Long, Tuple3<Long, Long, Double>>() {
+									public void flatMap(Long value, Collector<Tuple3<Long, Long, Double>> out) {
+										int numOutEdges = (int) (Math.random() * (numVertices / 2));
+										for (int i = 0; i < numOutEdges; i++) {
+											long target = (long) (Math.random() * numVertices) + 1;
+											out.collect(new Tuple3<Long, Long, Double>(value, target, 1.0/numOutEdges));
+										}
+									}
+								});
+
 		DataSet<Tuple2<Long, Double>> result = intialRanks.runOperation(
 			VertexCentricIteration.withValuedEdges(edgesWithProbability,
 						new VertexRankUpdater(numVertices, BETA), new RankMessenger(), 20));
-		
+
 		result.print();
 		env.execute("Spargel PageRank");
 	}
-	
+
 	/**
 	 * Function that updates the rank of a vertex by summing up the partial ranks from all incoming messages
 	 * and then applying the dampening formula.
 	 */
 	public static final class VertexRankUpdater extends VertexUpdateFunction<Long, Double, Double> {
-		
+
 		private final long numVertices;
 		private final double beta;
-		
+
 		public VertexRankUpdater(long numVertices, double beta) {
 			this.numVertices = numVertices;
 			this.beta = beta;
@@ -88,19 +88,19 @@ public class SpargelPageRank {
 			for (double msg : inMessages) {
 				rankSum += msg;
 			}
-			
+
 			// apply the dampening factor / random jump
 			double newRank = (beta * rankSum) + (1-BETA)/numVertices;
 			setNewVertexValue(newRank);
 		}
 	}
-	
+
 	/**
 	 * Distributes the rank of a vertex among all target vertices according to the transition probability,
 	 * which is associated with an edge as the edge value.
 	 */
 	public static final class RankMessenger extends MessagingFunction<Long, Double, Double, Double> {
-		
+
 		@Override
 		public void sendMessages(Long vertexId, Double newRank) {
 			for (OutgoingEdge<Long, Double> edge : getOutgoingEdges()) {

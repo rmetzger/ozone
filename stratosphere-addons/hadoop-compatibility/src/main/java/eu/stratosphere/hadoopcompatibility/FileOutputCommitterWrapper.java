@@ -66,7 +66,7 @@ public class FileOutputCommitterWrapper extends FileOutputCommitter implements S
 	}
 
 	private Path getFinalPath(Path jobOutputDir, Path taskOutput,
-							  Path taskOutputPath) throws IOException {
+							Path taskOutputPath) throws IOException {
 		URI taskOutputUri = taskOutput.toUri();
 		URI relativePath = taskOutputPath.toUri().relativize(taskOutputUri);
 		if (taskOutputUri == relativePath) {//taskOutputPath is not a parent of taskOutput
@@ -80,9 +80,9 @@ public class FileOutputCommitterWrapper extends FileOutputCommitter implements S
 		}
 	}
 	private void moveTaskOutputs(JobConf conf, TaskAttemptID taskAttemptID,
-								 FileSystem fs,
-								 Path jobOutputDir,
-								 Path taskOutput)
+								FileSystem fs,
+								Path jobOutputDir,
+								Path taskOutput)
 		throws IOException {
 		if (fs.isFile(taskOutput)) {
 			Path finalOutputPath = getFinalPath(jobOutputDir, taskOutput,

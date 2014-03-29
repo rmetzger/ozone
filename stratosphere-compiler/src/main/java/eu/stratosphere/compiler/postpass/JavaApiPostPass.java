@@ -27,7 +27,12 @@ import eu.stratosphere.api.common.typeutils.TypeComparatorFactory;
 import eu.stratosphere.api.common.typeutils.TypePairComparatorFactory;
 import eu.stratosphere.api.common.typeutils.TypeSerializer;
 import eu.stratosphere.api.common.typeutils.TypeSerializerFactory;
-import eu.stratosphere.api.java.operators.translation.*;
+import eu.stratosphere.api.java.operators.translation.BinaryJavaPlanNode;
+import eu.stratosphere.api.java.operators.translation.JavaPlanNode;
+import eu.stratosphere.api.java.operators.translation.PlanBulkIterationOperator;
+import eu.stratosphere.api.java.operators.translation.PlanDataSource;
+import eu.stratosphere.api.java.operators.translation.PlanDeltaIterationOperator;
+import eu.stratosphere.api.java.operators.translation.UnaryJavaPlanNode;
 import eu.stratosphere.api.java.typeutils.AtomicType;
 import eu.stratosphere.api.java.typeutils.CompositeType;
 import eu.stratosphere.api.java.typeutils.TypeInformation;
@@ -36,14 +41,25 @@ import eu.stratosphere.api.java.typeutils.runtime.RuntimePairComparatorFactory;
 import eu.stratosphere.api.java.typeutils.runtime.RuntimeSerializerFactory;
 import eu.stratosphere.compiler.CompilerException;
 import eu.stratosphere.compiler.CompilerPostPassException;
-import eu.stratosphere.compiler.plan.*;
+import eu.stratosphere.compiler.plan.BulkIterationPlanNode;
+import eu.stratosphere.compiler.plan.BulkPartialSolutionPlanNode;
+import eu.stratosphere.compiler.plan.Channel;
+import eu.stratosphere.compiler.plan.DualInputPlanNode;
+import eu.stratosphere.compiler.plan.NAryUnionPlanNode;
+import eu.stratosphere.compiler.plan.OptimizedPlan;
+import eu.stratosphere.compiler.plan.PlanNode;
+import eu.stratosphere.compiler.plan.SingleInputPlanNode;
+import eu.stratosphere.compiler.plan.SinkPlanNode;
+import eu.stratosphere.compiler.plan.SolutionSetPlanNode;
+import eu.stratosphere.compiler.plan.SourcePlanNode;
+import eu.stratosphere.compiler.plan.WorksetIterationPlanNode;
+import eu.stratosphere.compiler.plan.WorksetPlanNode;
 import eu.stratosphere.compiler.util.NoOpUnaryUdfOp;
 
 public class JavaApiPostPass implements OptimizerPostPass {
 	
 	private final Set<PlanNode> alreadyDone = new HashSet<PlanNode>();
 
-	
 	@Override
 	public void postPass(OptimizedPlan plan) {
 		for (SinkPlanNode sink : plan.getDataSinks()) {
@@ -121,11 +137,13 @@ public class JavaApiPostPass implements OptimizerPostPass {
 					traverseChannel(sn.getInput());
 					return;
 				}
-				else
+				else {
 					throw new RuntimeException("Wrong operator type found in post pass.");
+				}
 			}
 			
 			UnaryJavaPlanNode<?, ?> javaNode = (UnaryJavaPlanNode<?, ?>) sn.getOptimizerNode().getPactContract();
+			
 			
 			// parameterize the node's driver strategy
 			if (sn.getDriverStrategy().requiresComparator()) {
@@ -134,6 +152,7 @@ public class JavaApiPostPass implements OptimizerPostPass {
 			}
 			
 			// done, we can now propagate our info down
+			
 			traverseChannel(sn.getInput());
 			
 			// don't forget the broadcast inputs
@@ -170,10 +189,106 @@ public class JavaApiPostPass implements OptimizerPostPass {
 			}
 			
 		}
+//			DualInputPlanNode dn = (DualInputPlanNode) node;
+//			
+//			// get the nodes current schema
+//			T schema1;
+//			T schema2;
+//			if (dn.postPassHelper1 == null) {
+//				schema1 = createEmptySchema();
+//				schema2 = createEmptySchema();
+//				dn.postPassHelper1 = schema1;
+//				dn.postPassHelper2 = schema2;
+//			} else {
+//				schema1 = (T) dn.postPassHelper1;
+//				schema2 = (T) dn.postPassHelper2;
+//			}
+//
+//			schema1.increaseNumConnectionsThatContributed();
+//			schema2.increaseNumConnectionsThatContributed();
+//			TwoInputNode optNode = dn.getTwoInputNode();
+//			
+//			// add the parent schema to the schema
+//			if (propagateParentSchemaDown) {
+//				addSchemaToSchema(parentSchema, schema1, optNode, 0);
+//				addSchemaToSchema(parentSchema, schema2, optNode, 1);
+//			}
+//			
+//			// check whether all outgoing channels have not yet contributed. come back later if not.
+//			if (schema1.getNumConnectionsThatContributed() < dn.getOutgoingChannels().size()) {
+//				return;
+//			}
+//			
+//			// add the nodes local information
+//			try {
+//				getDualInputNodeSchema(dn, schema1, schema2);
+//			} catch (ConflictingFieldTypeInfoException e) {
+//				throw new CompilerPostPassException(getConflictingTypeErrorMessage(e, optNode.getPactContract().getName()));
+//			}
+//			
+//			// parameterize the node's driver strategy
+//			if (createUtilities) {
+//				if (dn.getDriverStrategy().requiresComparator()) {
+//					// set the individual comparators
+//					try {
+//						dn.setComparator1(createComparator(dn.getKeysForInput1(), dn.getSortOrders(), schema1));
+//						dn.setComparator2(createComparator(dn.getKeysForInput2(), dn.getSortOrders(), schema2));
+//					} catch (MissingFieldTypeInfoException e) {
+//						throw new CompilerPostPassException("Could not set up runtime strategy for node '" + 
+//								optNode.getPactContract().getName() + "'. Missing type information for field " + e.getFieldNumber());
+//					}
+//					
+//					// set the pair comparator
+//					try {
+//						dn.setPairComparator(createPairComparator(dn.getKeysForInput1(), dn.getKeysForInput2(), 
+//							dn.getSortOrders(), schema1, schema2));
+//					} catch (MissingFieldTypeInfoException e) {
+//						throw new CompilerPostPassException("Could not set up runtime strategy for node '" + 
+//								optNode.getPactContract().getName() + "'. Missing type information for field " + e.getFieldNumber());
+//					}
+//					
+//				}
+//			}
+//			
+//			// done, we can now propagate our info down
+//			try {
+//				propagateToChannel(schema1, dn.getInput1(), createUtilities);
+//			} catch (MissingFieldTypeInfoException e) {
+//				throw new CompilerPostPassException("Could not set up runtime strategy for the first input channel to node '"
+//					+ optNode.getPactContract().getName() + "'. Missing type information for field " + e.getFieldNumber());
+//			}
+//			try {
+//				propagateToChannel(schema2, dn.getInput2(), createUtilities);
+//			} catch (MissingFieldTypeInfoException e) {
+//				throw new CompilerPostPassException("Could not set up runtime strategy for the second input channel to node '"
+//					+ optNode.getPactContract().getName() + "'. Missing type information for field " + e.getFieldNumber());
+//			}
+//			
+//			// don't forget the broadcast inputs
+//			for (Channel c: dn.getBroadcastInputs()) {
+//				try {
+//					propagateToChannel(createEmptySchema(), c, createUtilities);
+//				} catch (MissingFieldTypeInfoException e) {
+//					throw new CompilerPostPassException("Could not set up runtime strategy for broadcast channel in node '" +
+//						optNode.getPactContract().getName() + "'. Missing type information for field " + e.getFieldNumber());
+//				}
+//			}
+//		}
+//		else if (node instanceof NAryUnionPlanNode) {
+//			// only propagate the info down
+//			try {
+//				for (Iterator<Channel> channels = node.getInputs(); channels.hasNext(); ) {
+//					propagateToChannel(parentSchema, channels.next(), createUtilities);
+//				}
+//			} catch (MissingFieldTypeInfoException ex) {
+//				throw new CompilerPostPassException("Could not set up runtime strategy for the input channel to " +
+//						" a union node. Missing type information for field " + ex.getFieldNumber());
+//			}
+//		}
 		// catch the sources of the iterative step functions
 		else if (node instanceof BulkPartialSolutionPlanNode ||
-				 node instanceof SolutionSetPlanNode ||
-				 node instanceof WorksetPlanNode)
+				node instanceof SolutionSetPlanNode ||
+				node instanceof WorksetPlanNode)
 		{
 			// Do nothing :D
 		}
