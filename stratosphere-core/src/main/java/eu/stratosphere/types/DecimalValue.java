@@ -19,15 +19,15 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class DecimalValue implements Value {
+public class DecimalValue implements Value, JavaValue<BigDecimal> {
 	private static final long serialVersionUID = 1L;
-	
+
 	private BigDecimal value;
 	private byte[] landingZone;
-	
+
 	public DecimalValue() {
 	}
-	
+
 	@Override
 	public void write(DataOutput out) throws IOException {
 		final byte[] bytes = value.unscaledValue().toByteArray();
@@ -47,14 +47,24 @@ public class DecimalValue implements Value {
 		in.readFully(landingZone);
 		value = new BigDecimal(new BigInteger(landingZone), scale);
 	}
-	
+
 	public BigDecimal getValue() {
 		return value;
 	}
-	
+
 	public void setValue(BigDecimal d) {
 		this.value = d;
 	}
-	
-	
+
+	@Override
+	public BigDecimal getObjectValue() {
+		return value;
+	}
+
+	@Override
+	public void setObjectValue(BigDecimal object) {
+		this.value = object;
+	}
+
+
 }

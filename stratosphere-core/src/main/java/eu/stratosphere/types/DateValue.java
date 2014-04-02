@@ -32,7 +32,7 @@ import java.util.Date;
  * specific language governing permissions and limitations under the License.
  **********************************************************************************************************************/
 
-public class DateValue implements Value {
+public class DateValue implements Value, JavaValue<Date> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -90,5 +90,13 @@ public class DateValue implements Value {
 	@Override
 	public void read(DataInput in) throws IOException {
 		setDate(in.readLong());
+	}
+	@Override
+	public Date getObjectValue() {
+		return date;
+	}
+	@Override
+	public void setObjectValue(Date object) {
+		this.date = object;
 	}
 }
