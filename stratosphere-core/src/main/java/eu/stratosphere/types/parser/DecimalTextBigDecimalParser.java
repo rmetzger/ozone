@@ -22,28 +22,28 @@ import eu.stratosphere.types.DecimalValue;
  * Parses a text field into a {@link DecimalValue}
  */
 public class DecimalTextBigDecimalParser extends FieldParser<DecimalValue> {
-	
+
 	private DecimalValue result;
-	
+
 	// optional fields if the user wants to convert the input to a certain scale (using a rounding mode).
 	private int scale;
 	private RoundingMode rounding = null;
-	
+
 	public void enforceScale(int scale, RoundingMode rounding) {
 		this.scale = scale;
 		this.rounding = rounding;
 	}
-	
+
 	@Override
 	public int parseField(byte[] bytes, int startPos, int limit, char delim, DecimalValue reusable) {
-		
+
 		int i = startPos;
 		final byte delByte = (byte) delim;
-		
+
 		while (i < limit && bytes[i] != delByte) {
 			i++;
 		}
-		
+
 		String str = new String(bytes, startPos, i-startPos);
 		BigDecimal bd = new BigDecimal(str);
 		if(rounding != null) {
@@ -53,7 +53,7 @@ public class DecimalTextBigDecimalParser extends FieldParser<DecimalValue> {
 		this.result = reusable;
 		return (i == limit) ? limit : i+1;
 	}
-	
+
 	@Override
 	public DecimalValue createValue() {
 		return new DecimalValue();
