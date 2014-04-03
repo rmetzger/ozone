@@ -65,6 +65,11 @@ public class DecimalValue implements Value, JavaValue<BigDecimal> {
 	public void setObjectValue(BigDecimal object) {
 		this.value = object;
 	}
+	
+	@Override
+	public String toString() {
+		return value.toString();
+	}
 
 
 }
