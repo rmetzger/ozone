@@ -97,7 +97,6 @@ public class ApplicationMaster {
 		final String logDirs =  envs.get(Environment.LOG_DIRS.key());
 		final String ownHostname = envs.get(Environment.NM_HOST.key());
 		final String appId = envs.get(Client.ENV_APP_ID);
-		final String localDirs = envs.get(Environment.LOCAL_DIRS.key());
 		final String clientHomeDir = envs.get(Client.ENV_CLIENT_HOME_DIR);
 		final String applicationMasterHost = envs.get(Environment.NM_HOST.key());
 		final String remoteStratosphereJarPath = envs.get(Client.STRATOSPHERE_JAR_PATH);
@@ -132,8 +131,8 @@ public class ApplicationMaster {
 		    	output.append(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY+": "+ownHostname+"\n");
 		    } else if(line.contains(ConfigConstants.JOB_MANAGER_WEB_ROOT_PATH_KEY)) {
 		    	output.append(ConfigConstants.JOB_MANAGER_WEB_ROOT_PATH_KEY+": "+"\n");
-		    } else if(localDirs != null && line.contains(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY)) {
-		    	output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
+		   // } else if(localDirs != null && line.contains(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY)) {
+		   // 	output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
 		    } else {
 		    	output.append(line+"\n");
 		    }
@@ -142,9 +141,9 @@ public class ApplicationMaster {
 		output.append(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY+": "+ownHostname+"\n");
 		output.append(ConfigConstants.JOB_MANAGER_WEB_ROOT_PATH_KEY+": "+localWebInterfaceDir+"\n");
 		output.append(ConfigConstants.JOB_MANAGER_WEB_LOG_PATH_KEY+": "+logDirs+"\n");
-		if(localDirs != null) {
-			output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
-		}
+//		if(localDirs != null) {
+//			output.append(ConfigConstants.TASK_MANAGER_TMP_DIR_KEY+": "+localDirs+"\n");
+//		}
 		output.close();
 		br.close();
 		File newConf = new File(currDir+"/stratosphere-conf-modified.yaml");
