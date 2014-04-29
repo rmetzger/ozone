@@ -311,7 +311,17 @@
 					</formats>
 				</configuration>
 			</plugin>
-
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-checkstyle-plugin</artifactId>
+        		<version>2.12.1</version>
+        		<configuration>
+        			<suppressionsLocation>src/main/maven/suppressions.xml</suppressionsLocation>
+					<suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
+          			<configLocation>src/main/maven/checkstyle.xml</configLocation>
+					<logViolationsToConsole>true</logViolationsToConsole>
+        		</configuration>
+      		</plugin>
 		</plugins>
 	</reporting>
 
@@ -342,7 +352,6 @@
 						<exclude>**/stratosphere-bin/conf/slaves</exclude>
 						<!-- Administrative files in the main trunk. -->
 						<exclude>README.md</exclude>
-						<exclude>tools/checkstyle.xml</exclude>
 						<exclude>CHANGELOG</exclude>
 						<exclude>**/*.creole</exclude>
 						<exclude>CONTRIBUTORS</exclude>
@@ -355,15 +364,18 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.11</version>
-				<configuration>
-					<configLocation>tools/checkstyle.xml</configLocation>
-					<logViolationsToConsole>true</logViolationsToConsole>
-				</configuration>
-				<executions>
+		  	<plugin>
+	        	<groupId>org.apache.maven.plugins</groupId>
+	        	<artifactId>maven-checkstyle-plugin</artifactId>
+	        	<version>2.12.1</version>
+	        	<dependencies>
+	          		<dependency>
+	          			<groupId>eu.stratosphere.dist</groupId>
+						<artifactId>stratosphere-dist</artifactId>
+						<version>${project.version}</version>
+	         		</dependency>
+	        	</dependencies>
+	        	<executions>
 					<execution>
 						<id>validate</id>
 						<phase>validate</phase>
@@ -372,7 +384,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+	      	</plugin>
 			<plugin>
 				<!-- just define the Java version to be used for compiling and plugins -->
 				<groupId>org.apache.maven.plugins</groupId>
