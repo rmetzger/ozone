@@ -316,9 +316,9 @@
         		<artifactId>maven-checkstyle-plugin</artifactId>
         		<version>2.12.1</version>
         		<configuration>
-        			<suppressionsLocation>src/main/maven/suppressions.xml</suppressionsLocation>
+        			<suppressionsLocation>maven/suppressions.xml</suppressionsLocation>
 					<suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
-          			<configLocation>src/main/maven/checkstyle.xml</configLocation>
+          			<configLocation>maven/checkstyle.xml</configLocation>
 					<logViolationsToConsole>true</logViolationsToConsole>
         		</configuration>
       		</plugin>
@@ -373,6 +373,7 @@
 	          			<groupId>eu.stratosphere.dist</groupId>
 						<artifactId>stratosphere-dist</artifactId>
 						<version>${project.version}</version>
+						<classifier>resources</classifier>
 	         		</dependency>
 	        	</dependencies>
 	        	<executions>

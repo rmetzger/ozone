@@ -11,9 +11,8 @@
 		<relativePath>..</relativePath>
 	</parent>
 
-	<groupId>eu.stratosphere.dist</groupId>
 	<artifactId>stratosphere-dist</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	
 	<name>stratosphere-dist</name>
 	<packaging>pom</packaging>
 
