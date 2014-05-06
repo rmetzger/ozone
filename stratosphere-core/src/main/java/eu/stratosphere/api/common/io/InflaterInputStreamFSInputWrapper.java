@@ -10,15 +10,30 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  **********************************************************************************************************************/
+
 package eu.stratosphere.api.common.io;
 
+import java.io.IOException;
+import java.util.zip.InflaterInputStream;
 
-/**
- * This interface acts as a marker for input formats for inputs which cannot be split.
- * Data sources with unsplittable input formats are always executed with a degree-of-parallelism
- * of one.
- * 
- * @see InputFormat
- */
-public interface UnsplittableInput {
+import eu.stratosphere.core.fs.FSDataInputStream;
+
+public class InflaterInputStreamFSInputWrapper extends FSDataInputStream {
+
+	private InflaterInputStream inStream;
+
+	public InflaterInputStreamFSInputWrapper(FSDataInputStream inStream) {
+		this.inStream = new InflaterInputStream(inStream);
+	}
+	
+	@Override
+	public void seek(long desired) throws IOException {
+		inStream.skip(desired);
+	}
+
+	@Override
+	public int read() throws IOException {
+		return inStream.read();
+	}
+
 }

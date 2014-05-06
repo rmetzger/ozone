@@ -336,6 +336,12 @@ public abstract class DelimitedInputFormat<OT> extends FileInputFormat<OT> {
 				return stats;
 			}
 			
+			// disabling sampling for unsplittable files since the logic below assumes splitability.
+			// TODO: Add sampling for unsplittable files. Right now, only compressed text files are affected by this limitation.
+			if(unsplittable) {
+				return stats;
+			}
+			
 			// compute how many samples to take, depending on the defined upper and lower bound
 			final int numSamples;
 			if (this.numLineSamples != NUM_SAMPLES_UNDEFINED) {
