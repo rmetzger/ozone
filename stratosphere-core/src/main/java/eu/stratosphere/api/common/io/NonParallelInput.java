@@ -20,5 +20,5 @@ package eu.stratosphere.api.common.io;
  * 
  * @see InputFormat
  */
-public interface SequentialInput {
+public interface NonParallelInput {
 }

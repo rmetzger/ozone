@@ -609,7 +609,9 @@ public abstract class FileInputFormat<OT> implements InputFormat<OT, FileInputSp
 		}
 		
 		// get FSDataInputStream
-		this.stream.seek(this.splitStart);
+		if (this.splitStart != 0) {
+			this.stream.seek(this.splitStart);
+		}
 	}
 	
 	/**

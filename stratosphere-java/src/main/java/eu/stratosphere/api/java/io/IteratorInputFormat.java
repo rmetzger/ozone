@@ -19,12 +19,12 @@ import java.io.Serializable;
 import java.util.Iterator;
 
 import eu.stratosphere.api.common.io.GenericInputFormat;
-import eu.stratosphere.api.common.io.SequentialInput;
+import eu.stratosphere.api.common.io.NonParallelInput;
 
 /**
  * An input format that returns objects from an iterator.
  */
-public class IteratorInputFormat<T> extends GenericInputFormat<T> implements SequentialInput {
+public class IteratorInputFormat<T> extends GenericInputFormat<T> implements NonParallelInput {
 
 	private static final long serialVersionUID = 1L;
 

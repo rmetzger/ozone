@@ -28,12 +28,21 @@ public class InflaterInputStreamFSInputWrapper extends FSDataInputStream {
 	
 	@Override
 	public void seek(long desired) throws IOException {
-		inStream.skip(desired);
+		throw new UnsupportedOperationException("Compressed streams do not support the seek operation");
 	}
 
 	@Override
 	public int read() throws IOException {
 		return inStream.read();
 	}
-
+	
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		return inStream.read(b, off, len);
+	}
+	
+	@Override
+	public int read(byte[] b) throws IOException {
+		return inStream.read(b);
+	}
 }

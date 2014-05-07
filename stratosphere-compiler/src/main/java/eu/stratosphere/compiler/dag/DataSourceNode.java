@@ -20,7 +20,7 @@ import java.util.Map;
 
 import eu.stratosphere.api.common.io.FileInputFormat;
 import eu.stratosphere.api.common.io.InputFormat;
-import eu.stratosphere.api.common.io.SequentialInput;
+import eu.stratosphere.api.common.io.NonParallelInput;
 import eu.stratosphere.api.common.io.statistics.BaseStatistics;
 import eu.stratosphere.api.common.operators.GenericDataSource;
 import eu.stratosphere.api.common.operators.Operator;
@@ -53,7 +53,7 @@ public class DataSourceNode extends OptimizerNode {
 			throw new IllegalArgumentException("Input format has not been set.");
 		}
 		
-		if (SequentialInput.class.isAssignableFrom(pactContract.getUserCodeWrapper().getUserCodeClass())) {
+		if (NonParallelInput.class.isAssignableFrom(pactContract.getUserCodeWrapper().getUserCodeClass())) {
 			setDegreeOfParallelism(1);
 			setSubtasksPerInstance(1);
 			this.sequentialInput = true;
