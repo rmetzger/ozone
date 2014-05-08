@@ -92,6 +92,11 @@ public abstract class FileInputFormat<OT> implements InputFormat<OT, FileInputSp
 	 */
 	protected static final String DEFLATE_SUFFIX = ".deflate";
 	
+	/**
+	 * The splitLength is set to -1L for reading the whole split.
+	 */
+	protected static final long READ_WHOLE_SPLIT_FLAG = -1L;
+	
 	static {
 		initDefaultsFromConfiguration();
 	}
@@ -433,7 +438,7 @@ public abstract class FileInputFormat<OT> implements InputFormat<OT, FileInputSp
 				for(BlockLocation block : blocks) {
 					hosts.addAll(Arrays.asList(block.getHosts()));
 				}
-				FileInputSplit fis = new FileInputSplit(splitNum++, file.getPath(), 0, file.getLen(),
+				FileInputSplit fis = new FileInputSplit(splitNum++, file.getPath(), 0, READ_WHOLE_SPLIT_FLAG,
 						hosts.toArray(new String[hosts.size()]));
 				inputSplits.add(fis);
 			}
