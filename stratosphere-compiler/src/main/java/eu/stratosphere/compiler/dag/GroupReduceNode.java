@@ -115,7 +115,7 @@ public class GroupReduceNode extends SingleInputNode {
 		
 		OperatorDescriptorSingle props = useCombiner ?
 			(this.keys == null ? new AllGroupWithPartialPreGroupProperties() : new GroupWithPartialPreGroupProperties(this.keys, groupOrder)) :
-			(this.keys == null ? new AllGroupProperties() : new GroupProperties(this.keys, groupOrder));
+			(this.keys == null ? new AllGroupProperties(groupOrder) : new GroupProperties(this.keys, groupOrder));
 
 			return Collections.singletonList(props);
 	}

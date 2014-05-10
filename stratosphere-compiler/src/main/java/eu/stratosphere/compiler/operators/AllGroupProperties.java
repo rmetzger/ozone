@@ -15,6 +15,7 @@ package eu.stratosphere.compiler.operators;
 import java.util.Collections;
 import java.util.List;
 
+import eu.stratosphere.api.common.operators.Ordering;
 import eu.stratosphere.compiler.dag.SingleInputNode;
 import eu.stratosphere.compiler.dataproperties.GlobalProperties;
 import eu.stratosphere.compiler.dataproperties.LocalProperties;
@@ -27,6 +28,11 @@ import eu.stratosphere.pact.runtime.task.DriverStrategy;
 
 public final class AllGroupProperties extends OperatorDescriptorSingle {
 
+	private Ordering inGroupOrdering;
+	public AllGroupProperties(Ordering inGroupOrdering) {
+		super();
+		this.inGroupOrdering = inGroupOrdering;
+	}
 	@Override
 	public DriverStrategy getStrategy() {
 		return DriverStrategy.ALL_GROUP;
@@ -44,7 +50,8 @@ public final class AllGroupProperties extends OperatorDescriptorSingle {
 
 	@Override
 	protected List<RequestedLocalProperties> createPossibleLocalProperties() {
-		return Collections.singletonList(new RequestedLocalProperties());
+		RequestedLocalProperties props = new RequestedLocalProperties();
+		return Collections.singletonList(props);
 	}
 	
 	
@@ -63,6 +70,7 @@ public final class AllGroupProperties extends OperatorDescriptorSingle {
 	@Override
 	public LocalProperties computeLocalProperties(LocalProperties lProps) {
 		lProps.clearUniqueFieldSets();
+		lProps.setOrdering(inGroupOrdering);
 		return lProps;
 	}
 }
