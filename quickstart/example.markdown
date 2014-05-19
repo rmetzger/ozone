@@ -1,6 +1,6 @@
 --- 
 layout: inner_with_sidebar
-title: "Quick Start: Example"
+title: "Quick Start: Stratosphere K-Means Example"
 description: Run an example Stratosphere Program
 keywords: stratosphere, scala, program, howto, quickstart, big data, data analytics
 links:
@@ -11,7 +11,7 @@ links:
 
 
 <p class="lead">
-	This guide will demonstrate Stratosphere's features by example. You will see how you can leverage Stratosphere's Iteration-feature to find clusters in a dataset using <a href="http://en.wikipedia.org/wiki/K-means_clustering">K-Means clustering</a>.<br>
+	This guide will demonstrate Stratosphere's features by example. You will see how you can leverage Stratosphere's Iteration-feature to find clusters in a dataset using <a href="http://en.wikipedia.org/wiki/K-means_clustering">K-Means clustering</a>. 
 	On the way, you will see the compiler, the status interface and the result of the algorithm.
 </p>
 
@@ -35,15 +35,19 @@ The generator has the following arguments:
 {% highlight bash %}
 KMeansDataGenerator <numberOfDataPoints> <numberOfClusterCenters> [<relative stddev>] [<centroid range>] [<seed>]
 {% endhighlight %}
-The *relative standard deviation* is an interesting tuning parameter: it determines the closeness of the points to the centers.
-<p>The `kmeans/` directory should now contain two files: <code>centers</code> and <code>points</code>.</p>
+The <i>relative standard deviation</i> is an interesting tuning parameter: it determines the closeness of the points to the centers.
+<p>The <code>kmeans/</code> directory should now contain two files: <code>centers</code> and <code>points</code>.</p>
 
 
 <h2>Review Input Data</h2>
-Use the `plotPoints.py` tool to review the result of the data generator. <a href="{{site.baseurl}}/quickstart/example-data/plotPoints.py">Download Python Script</a>
+Use the <code>plotPoints.py</code> tool to review the result of the data generator. <a href="{{site.baseurl}}/quickstart/example-data/plotPoints.py">Download Python Script</a>
 {% highlight bash %}
 python2.7 plotPoints.py points input
 {% endhighlight %}
+
+
+Note: You might have to install <a href="http://matplotlib.org/">matplotlib</a> (<code>python-matplotlib</code> package on Ubuntu) to use the Python script.
+
 
 The following overview presents the impact of the different standard deviations on the input data.
 <div class="row" style="padding-top:15px">
@@ -52,7 +56,7 @@ The following overview presents the impact of the different standard deviations 
 		<a data-lightbox="inputs" href="{{site.baseurl}}/img/quickstart-example/kmeans003.png" data-lightbox="example-1"><img class="img-responsive" src="{{site.baseurl}}/img/quickstart-example/kmeans003.png" /></a>
 	</div>
 	<div class="col-md-4">
-		<div class="text-center" style="font-weight:bold;">relative stddev = 0.08</div>
+		<div class="text-center" style="font-weight:bold;padding-bottom:2px">relative stddev = 0.08</div>
 		<a data-lightbox="inputs" href="{{site.baseurl}}/img/quickstart-example/kmeans008.png" data-lightbox="example-1"><img class="img-responsive" src="{{site.baseurl}}/img/quickstart-example/kmeans008.png" /></a>
 	</div>
 	<div class="col-md-4">
@@ -104,7 +108,7 @@ For example:
 <hr>
 <div class="row" style="padding-top:15px">
 	<div class="col-md-6">
-		<a data-lightbox="compiler" href="{{site.baseurl}}/img/quickstart-example/compiler-webclient.png" data-lightbox="example-1"><img class="img-responsive" src="{{site.baseurl}}/img/quickstart-example/compiler-webclient.png" /></a>
+		<a data-lightbox="compiler" href="{{site.baseurl}}/img/quickstart-example/compiler-webclient-new.png" data-lightbox="example-1"><img class="img-responsive" src="{{site.baseurl}}/img/quickstart-example/compiler-webclient-new.png" /></a>
 	</div>
 
 	<div class="col-md-6">
@@ -115,7 +119,7 @@ For example:
 <hr>
 <div class="row" style="padding-top:15px">
 	<div class="col-md-6">
-		<a data-lightbox="compiler" href="{{site.baseurl}}/img/quickstart-example/jobmanager-running.png" data-lightbox="example-1"><img class="img-responsive" src="{{site.baseurl}}/img/quickstart-example/jobmanager-running.png" /></a>
+		<a data-lightbox="compiler" href="{{site.baseurl}}/img/quickstart-example/jobmanager-running-new.png" data-lightbox="example-1"><img class="img-responsive" src="{{site.baseurl}}/img/quickstart-example/jobmanager-running-new.png" /></a>
 	</div>
 	<div class="col-md-6">
 		1. Press the <b>Continue</b> button to start executing the job. <br>

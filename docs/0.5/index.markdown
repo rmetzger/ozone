@@ -1,22 +1,16 @@
 --- 
-layout: inner_with_sidebar
+layout: inner_docs_v05
 title: "Documentation (0.5-SNAPSHOT)"
 links: 
   - { anchor: "jdbc", title: "JDBC Input/Output Format" }
   - { anchor: "collection_data_source", title: "CollectionDataSource" }
+  - { anchor: "broadcast_variables", title: "Broadcast Variables" }
 ---
 
-<p class="lead">
-Documentation on *new features* and *changes* contained in the current *0.5-SNAPSHOT* development branch. It should be read *in addition* to the documentation for the latest 0.4 release.
+## Documentation (0.5)
 
-<section id="jdbc">
-### JDBC Input/Output Format
+<p class="lead">Check out the <strong>Setup & Configuration</strong> section, if you need detailed instructions on setting up Stratosphere. These instructions are more detailed versions of the <a href="{{site.baseurl}}/quickstart/">quickstart guides</a>.</p>
 
-The JDBC input and output formats allow to read from and write to any JDBC-accessible database.
-</section>
+<p class="lead">The <strong>Programming Guides</strong> show you how to program Stratosphere and also provide some detailed example programs.</p>
 
-<section id="collection_data_source">
-### CollectionDataSource
-
-The CollectionDataSource allows you to use local Java and Scala Collections as input to your Stratosphere programs.
-</section>
+<p class="lead">In the <strong>Programm Execution</strong> section, you will find instructions on how to run and debug your Stratosphere programs.</p>

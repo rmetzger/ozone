@@ -30,7 +30,7 @@ links:
   <div class="tab-content">
       <div class="tab-pane active" id="quickstart-script">
 {% highlight bash %}
-$ curl https://raw.github.com/stratosphere/stratosphere-quickstart/master/quickstart.sh | bash
+$ curl https://raw.githubusercontent.com/stratosphere/stratosphere-quickstart/master/quickstart.sh | bash
 {% endhighlight %}
       </div>
       <div class="tab-pane" id="maven-archetype">
@@ -53,6 +53,7 @@ $ mvn archetype:generate                             \
 </section>
 
 <section id="build_project">
+<div class="alert alert-danger">A note to Mac OS X users: The default JVM heapsize for Java is too small for Stratosphere. You have to manually increase it. Choose "Run Configurations" -> Arguments and write into the "VM Arguments" box: "-Xmx800m" in Eclipse.</div>
   <div class="page-header"><h2>Build Project</h2></div>
   <p class="lead">If you want to <strong>build your project</strong>, go to your project directory and issue the <code>mvn clean package</code> command. You will <strong>find a jar</strong> that runs on every Stratosphere cluster in <code>target/stratosphere-project-0.1-SNAPSHOT.jar</code>.</p>
 </section>

@@ -4,40 +4,42 @@ title: Downloads
 description: Download the next-generation Big Data Analytics platform.
 keywords: stratosphere, download, source code, maven, vagrant, virtual machine, vm image, debian, install, setup, big data, data analytics
 links: 
-  -       { anchor: bin, title: "Ready to Run Package" }
+  -       { anchor: bin, title: "Ready to Run Packages" }
   -       { anchor: maven, title: "Maven Dependencies" }
-  -       { anchor: vm, title: "Virtual Machine" }
-  -       { anchor: vagrant, title: "Vagrant" }
+#  -       { anchor: vm, title: "Virtual Machine" }
+#  -       { anchor: vagrant, title: "Vagrant" }
   -       { anchor: debian, title: "Debian Package" }
   -       { anchor: source, title: "Source" }
-  -       { anchor: nightly, title: "Nightly Builds" }
+  -       { anchor: nightly, title: "Nightly Builds (SNAPSHOT)" }
 ---
 
 <p class="lead">There are plenty of ways to get Stratosphere. Pick any of the following to start.</p>
 
 <div id="download">
     <section id="bin">
-        <div class="page-header"><h2>Ready To Run Package</h2></div>
+        <div class="page-header"><h2>Ready to Run Packages</h2></div>
         <p class="lead">Download the ready to run binary package if you want to use Stratosphere on your computer or cluster.</p>
-        <p>Stratosphere has dependencies to Hadoop (e.g. HDFS and HBase). Choose a Stratosphere distribution that <strong>matches your Hadoop version</strong>. In doubt, use the Stratosphere version for Hadoop 1.</p>
+        <p>If you are planning to use Stratosphere with data stored in HDFS or HBase or if you want to run it using YARN, choose a Stratosphere version that matches your Hadoop version. Stratosphere ships with code to access Hadoop (e.g. HDFS, HBase and YARN). 
+
+        If you want to use Stratosphere without Hadoop, we recommend using the Hadoop 1 enabled version.</p>
         <p>
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#bin-hadoop2" data-toggle="tab">Hadoop 2 (YARN)</a></li>
-            <li><a href="#bin-hadoop1" data-toggle="tab">Hadoop 1</a></li>
-        </ul>
-        <div class="tab-content text-center">
-            <div class="tab-pane active" id="bin-hadoop2">
-                <a class="btn btn-info btn-lg" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-2',this.href]);" href="{{site.current_stable_dl_yarn}}"><i class="icon-download"> </i> Stratosphere {{ site.current_stable }} (Hadoop 2)</a>
-                <a style="padding-left:5px" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-yarn',this.href]);" class="btn btn-info btn-lg" href="{{site.current_stable_uberjar}}"><i class="icon-download"> </i> Stratosphere {{ site.current_stable }} for YARN</a>
+        <br>
+        <div class="container row">
+            <div class="col-md-4">
+                <a class="btn btn-info btn-lg" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-1',this.href]);" href="{{site.current_stable_dl}}"><i class="icon-download"> </i> Stratosphere {{ site.current_stable }}<br><small>Hadoop 1 Enabled</small>
+                </a>
             </div>
-            <div class="tab-pane" id="bin-hadoop1">
-                <a class="btn btn-info btn-lg" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-1',this.href]);" href="{{site.current_stable_dl}}"><i class="icon-download"> </i> Download Stratosphere {{ site.current_stable }} (Hadoop 1)</a>
+            <div class="col-md-4">
+                <a class="btn btn-info btn-lg" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-2',this.href]);" href="{{site.current_stable_dl_yarn}}"><i class="icon-download"> </i> Stratosphere {{ site.current_stable }}<br><small>Hadoop 2 Enabled</small></a>
             </div>
+            <div class="col-md-4">
+                <a style="padding-left:5px" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-yarn',this.href]);" class="btn btn-info btn-lg" href="{{site.current_stable_uberjar}}"><i class="icon-download"> </i> Stratosphere {{ site.current_stable }} <br><small>for Hadoop YARN</small></a>
+             </div>
         </div>
         </p>
         <br>
-        <a href="{{site.baseurl}}/docs/0.4/programming_guides/meteorql.html">Meteor</a> is a query and scripting language on top of Stratosphere. Unpack the Sopremo/Meteor binary into the same directory as Stratosphere. <br>
-        <p><a style="margin: 15px;" class="btn btn-default" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-sopremo',this.href]);" href="{{site.current_stable_sopremo}}"><i class="icon-download"> </i> Download Sopremo/Meteor</a></p>
+        <a href="{{site.baseurl}}/docs/0.4/programming_guides/meteorql.html">Meteor</a> is a powerful query and scripting language on top of Stratosphere. Unpack the Sopremo/Meteor binary into the same directory as Stratosphere. <br>
+        <p><a style="margin: 15px;" class="btn btn-default" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-sopremo',this.href]);" href="https://github.com/stratosphere/stratosphere-sopremo/releases"><i class="icon-download"> </i> Download Sopremo/Meteor</a></p>
         
 
         <p>Find more information about Stratosphere in the <a href="{{ site.baseurl }}/docs">Documentation</a>.</p>
@@ -54,7 +56,7 @@ links:
         <p>Adding the entries below to your project's dependencies (in the pom.xml file) causes Maven to include the Stratosphere classes in your project. If you want to interact with Hadoop (HDFS), pick the dependency <strong>matching your Hadoop version</strong>. In doubt, use the Stratosphere version for Hadoop 1.x.</p>
         <ul class="nav nav-tabs">
             <li class="active"><a href="#maven-hadoop1" data-toggle="tab">Hadoop 1</a></li>
-            <li><a href="#maven-hadoop2" data-toggle="tab">Hadoop 2 (YARN)</a></li>
+            <li><a href="#maven-hadoop2" data-toggle="tab">Hadoop 2</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="maven-hadoop1">
@@ -91,7 +93,7 @@ links:
         <p>If you don't have a Maven project yet, we encourage you to use our <a href="{{ site.baseurl }}/quickstart">Quickstart scripts</a> to create one with all the Stratosphere dependencies already in place.</p>
     </section>
 
-    <section id="vm">
+<!--    <section id="vm">
         <div class="page-header">
             <h2>Virtual Machine</h2>
         </div>
@@ -100,7 +102,7 @@ links:
         <p>We provide a virtual machine image that comes with a fresh Stratosphere installation and small data sets to play around with. The image will run on both <strong><a href="https://www.virtualbox.org/">Virtual Box</a></strong> and <strong><a href="http://www.vmware.com/products/player/">VMWare</a></strong>.</p>
 
         <p class="text-center"><a class="btn btn-info btn-lg" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-vmimage',this.href]);" href="http://dev.stratosphere.eu/vm/"><i class="icon-download"> </i> Download VM Image</a></p>
-    </section>
+    </section> 
 
     <section id="vagrant">
         <div class="page-header"><h2>Vagrant</h2></div>
@@ -112,7 +114,7 @@ vagrant ssh
 {% endhighlight %}
 
         <p class="lead">Use <strong>vagrant</strong> as username and password.</p>
-    </section>
+    </section> -->
 
     <section id="debian">
         <div class="page-header">
@@ -120,13 +122,19 @@ vagrant ssh
         </div>
         <p class="lead">We have also prepared a Debian repository for Debian/Ubuntu systems.</p>
 {% highlight bash %}
-# vim /etc/apt/sources.list.d/stratosphere.list
-deb http://dev.stratosphere.eu/repo/binary precise main
-
-# apt-get update
-apt-get install stratosphere-dist
+sudo vim /etc/apt/sources.list.d/stratosphere.list
+# deb http://dev.stratosphere.eu/apt/ ./
+wget -q http://dev.stratosphere.eu/apt/stratosphere.gpg -O- | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install stratosphere-dist
 {% endhighlight %}
         </p>
+        <p>To start the services run:</p>
+{% highlight bash %}
+sudo service taskmanager start
+sudo service jobmanager  start
+{% endhighlight %}
+    </p>
     </section>
 
     <section id="source">
@@ -137,7 +145,7 @@ apt-get install stratosphere-dist
         <p>
         <ul class="nav nav-tabs">
             <li class="active"><a href="#source-hadoop1" data-toggle="tab">Hadoop 1</a></li>
-            <li><a href="#source-hadoop2" data-toggle="tab">Hadoop 2 (YARN)</a></li>
+            <li><a href="#source-hadoop2" data-toggle="tab">Hadoop 2</a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="source-hadoop1">
@@ -168,8 +176,9 @@ mvn clean package -DskipTests -Dhadoop.profile=2
         <p>
             <a href="https://travis-ci.org/stratosphere/stratosphere">Travis CI</a> builds a new test build each time we push into the repository.
         
-        <p>
-            <a class="btn btn-warning btn-default" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-yarn-snapshot',this.href]);" href="http://stratosphere-bin.s3-website-us-east-1.amazonaws.com/stratosphere-dist/target/stratosphere-dist-{{ site.current_snapshot_yarn }}-yarn-uberjar.jar"><i class="icon-download"> </i> Download Latest ({{ site.current_snapshot }}) Stratosphere YARN uberjar</a>
+
+         <p>
+            <a class="btn btn-warning btn-default" onclick="_gaq.push(['_trackEvent','Action','download-dlpage-yarn-snapshot',this.href]);" href="http://stratosphere-bin.s3-website-us-east-1.amazonaws.com/stratosphere-dist-{{ site.current_snapshot }}-yarn.tar.gz"><i class="icon-download"> </i> Download Latest ({{ site.current_snapshot }}) Stratosphere YARN tgz package</a>
         </p>
 
          <p>
@@ -182,6 +191,29 @@ mvn clean package -DskipTests -Dhadoop.profile=2
 
         Find all <a onclick="_gaq.push(['_trackEvent','Action','download-dlpage-s3binlink',this.href]);" href="http://stratosphere-bin.s3-website-us-east-1.amazonaws.com/">binaries on Amazon S3</a>.
         </p>
+        <h3>SNAPSHOT-Versions Quickstart scripts</h3>
+          <ul class="nav nav-tabs" style="border-bottom: none;">
+              <li class="active"><a href="#quickstart-script" data-toggle="tab">Run the <strong>quickstart script</strong></a></li>
+              <li><a href="#maven-archetype" data-toggle="tab">Use <strong>Maven archetypes</strong></a></li>
+          </ul>
+          <div class="tab-content">
+              <div class="tab-pane active" id="quickstart-script">
+{% highlight bash %}
+$ curl https://raw.githubusercontent.com/stratosphere/stratosphere-quickstart/master/quickstart-SNAPSHOT.sh | bash
+{% endhighlight %}
+              </div>
+              <div class="tab-pane" id="maven-archetype">
+{% highlight bash %}
+$ mvn archetype:generate                             \
+    -DarchetypeGroupId=eu.stratosphere               \
+    -DarchetypeArtifactId=quickstart-java-SNAPSHOT   \
+    -DarchetypeVersion={{site.current_snapshot}}     \
+    -DarchetypeCatalog=https://oss.sonatype.org/content/repositories/snapshots/
+{% endhighlight %}
+              This allows you to <strong>name your newly created project</strong>. It will interactively ask you for the groupId, artifactId, and package name.
+              </div>
+          </div>
+
         <h3>SNAPSHOT-Versions in Sonatype Maven</h3>
         Add the Sonatype Snapshots repository to into your Maven pom:
         {% highlight xml %}
