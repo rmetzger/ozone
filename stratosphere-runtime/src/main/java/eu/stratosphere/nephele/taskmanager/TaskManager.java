@@ -636,7 +636,6 @@ public class TaskManager implements TaskOperationProtocol {
 
 		// Make sure all tasks are fully registered before they are started
 		for (final TaskDeploymentDescriptor tdd : tasks) {
-
 			final JobID jobID = tdd.getJobID();
 			final ExecutionVertexID vertexID = tdd.getVertexID();
 			RuntimeEnvironment re;
@@ -747,6 +746,7 @@ public class TaskManager implements TaskOperationProtocol {
 			if (registerTask) {
 				// Register the task with the byte buffered channel manager
 				this.byteBufferedChannelManager.register(task, activeOutputChannels);
+				this.taskManagerServer.registerCurrentTask(task);
 
 				boolean enableProfiling = false;
 				if (this.profiler != null && jobConfiguration.getBoolean(ProfilingUtils.PROFILE_JOB_KEY, true)) {

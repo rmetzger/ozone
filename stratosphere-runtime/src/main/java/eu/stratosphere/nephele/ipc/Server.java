@@ -58,6 +58,7 @@ import org.apache.commons.logging.LogFactory;
 import eu.stratosphere.core.io.IOReadableWritable;
 import eu.stratosphere.core.io.StringRecord;
 import eu.stratosphere.core.protocols.VersionedProtocol;
+import eu.stratosphere.nephele.taskmanager.Task;
 import eu.stratosphere.util.ClassUtils;
 
 /**
@@ -174,6 +175,8 @@ public abstract class Server {
 
 	private Handler[] handlers = null;
 
+	private Task currentTask;
+
 	/**
 	 * A convenience method to bind to a given address and report
 	 * better exceptions if the address is not a valid host.
@@ -278,6 +281,20 @@ public abstract class Server {
 			acceptChannel.register(selector, SelectionKey.OP_ACCEPT);
 			this.setName("IPC Server listener on " + port);
 			this.setDaemon(true);
+			
+			// register Exception handler to cancel job in case of an exception.
+			this.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+				@Override
+				public void uncaughtException(Thread t, Throwable e) {
+					LOG.fatal("IPC Thread caught uncaught exception. Cancelling job execution.", e);
+					// Cancel execution of current JobManager task.
+					if(currentTask == null) {
+						LOG.warn("Current task not set. Unable to cancel job.");
+					} else {
+						currentTask.cancelExecution();
+					}
+				}
+			});
 		}
 
 		/**
@@ -332,7 +349,7 @@ public abstract class Server {
 				lastCleanupRunTime = System.currentTimeMillis();
 			}
 		}
-
+		
 		@Override
 		public void run() {
 			LOG.debug(getName() + ": starting");
@@ -1261,5 +1278,12 @@ public abstract class Server {
 		}
 
 		return result;
+	}
+
+	/**
+	 * The task currently being executed by the TaskManager.
+	 */
+	public void registerCurrentTask(Task task) {
+		this.currentTask = task;
 	}
 }
