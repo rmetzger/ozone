@@ -378,7 +378,7 @@ public abstract class Server {
 					// we can run out of memory if we have too many threads
 					// log the event and sleep for a minute and give
 					// some thread(s) a chance to finish
-					LOG.warn("Out of Memory in server select", e);
+					LOG.warn("Out of Memory in server select currentTask: "+currentTask, e);
 					closeCurrentConnection(key, e);
 					cleanupConnections(true);
 					try {
