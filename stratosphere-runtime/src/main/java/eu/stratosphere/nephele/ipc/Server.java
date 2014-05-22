@@ -385,6 +385,10 @@ public abstract class Server {
 						Thread.sleep(60000);
 					} catch (Exception ie) {
 					}
+					if(currentTask != null) {
+						LOG.warn("Cancelling execution of current task");
+						currentTask.cancelExecution();
+					}
 				} catch (InterruptedException e) {
 					if (running) { // unexpected -- log it
 						LOG.info(getName() + " caught: " + e.toString());
