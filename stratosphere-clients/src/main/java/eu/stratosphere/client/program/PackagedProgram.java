@@ -73,7 +73,7 @@ public class PackagedProgram {
 	
 	private final List<File> extractedTempLibraries;
 	
-	private final ClassLoader userCodeClassLoader;
+	private ClassLoader userCodeClassLoader;
 	
 	private Plan plan;
 
@@ -312,6 +312,12 @@ public class PackagedProgram {
 	public ClassLoader getUserCodeClassLoader() {
 		return this.userCodeClassLoader;
 	}
+
+	public void setUserCodeClassLoader(ClassLoader cl) {
+		this.userCodeClassLoader = cl;
+	}
+	
+	
 	
 	public List<File> getAllLibraries() {
 		List<File> libs = new ArrayList<File>(this.extractedTempLibraries.size() + 1);
