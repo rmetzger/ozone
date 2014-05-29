@@ -204,6 +204,7 @@ public class PackagedProgram {
 	 *         missing parameters for generation.
 	 */
 	public String getPreviewPlan() throws ProgramInvocationException {
+		Thread.currentThread().setContextClassLoader(this.getUserCodeClassLoader());
 		List<DataSinkNode> previewPlan;
 		
 		if (isUsingProgramEntryPoint()) {
