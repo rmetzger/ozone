@@ -39,7 +39,7 @@ import org.apache.flink.example.java.wordcount.util.WordCountData;
  * <p>
  * This example shows how to:
  * <ul>
- * <li>write a simple Stratosphere program.
+ * <li>write a simple Flink program.
  * <li>POJO data types with key expressions.
  * <li>write and use user-defined functions.
  * </ul>
